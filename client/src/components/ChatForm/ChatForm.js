@@ -14,16 +14,14 @@ import {
 import { ChatFormContainer } from "./StyledChatForm";
 
 const ChatForm = (props) => {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const { conversation } = useSelector((state) => state.conversation);
-  const { call, callAccepted, callEnded, stream, name } = useSelector(
-    (state) => state.video
-  );
-  const { user } = useSelector((state) => state.user);
-  const { socket } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+  const { conversation, user, socket } = props;
+  // const { call, callAccepted, callEnded, stream, name } = useSelector(
+  //   (state) => state.video
+  // );
 
   useEffect(() => {
     (async () => {
@@ -55,10 +53,10 @@ const ChatForm = (props) => {
     // });
     return function cleanup() {
       // dispatch(videoActions.setStream({stream: null}));
-      socket.emit("leave-message", { conversationId: conversation._id });
+      // socket.emit("leave-message", { conversationId: conversation._id });
       // socket.off();
     };
-  }, [conversation]);
+  }, []);
 
   // useEffect(() => {
   // if (stream) dispatch(callUser(socket, userVideo, connection));

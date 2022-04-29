@@ -46,16 +46,8 @@ app.use(
   })
 );
 
-io.on("connection", (socket) => {
-  console.log("A user connected!!");
-  // socket.on("join-video", async ({ userId }) => {
-  //   const conversations = await Conversation.find({
-  //     members: { $in: [userId] },
-  //   }).populate({ path: "members" });
-  //   socket.join(
-  //     conversations.map((conversation) => conversation._id.toString())
-  //   );
-  // });
+io.of("/chat-room").on("connection", (socket) => {
+  console.log("A user connected to a chat-room!!!");
   socket.on("join-message", ({ conversationId }) => {
     socket.join(conversationId);
     console.log(io.sockets.adapter.rooms);
@@ -73,7 +65,20 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", (cb) => {
-    console.log("A user disconnected!!");
+    console.log("A user disconnected chat-room!!!");
+  });
+});
+
+io.of("/video-room").on("connection", (socket) => {
+  console.log("A user connected video-room!!!");
+
+  socket.on("join-video", async ({ userId }) => {
+    const conversations = await Conversation.find({
+      members: { $in: [userId] },
+    }).populate({ path: "members" });
+    socket.join(
+      conversations.map((conversation) => conversation._id.toString())
+    );
   });
 
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
@@ -93,10 +98,10 @@ io.on("connection", (socket) => {
       callee,
     });
   });
-  // socket.on("accept-decline", (data) => {
-  //    console.log(data);
-  //    io.to(conversationId).emit("accept-decline", {});
-  // });
+  socket.on("accept-decline", (data) => {
+    console.log(data);
+    io.to(conversationId).emit("accept-decline", {});
+  });
   socket.on("callUser", ({ conversationId, signalData, from, name }) => {
     io.to(conversationId).emit("callUser", { signal: signalData, from, name });
   });
@@ -107,6 +112,10 @@ io.on("connection", (socket) => {
 
   socket.on("declineCall", ({ to, signal }) => {
     io.to(to).emit("de", { signal });
+  });
+
+  socket.on("disconnect", (cb) => {
+    console.log("A user disconnected video-room!!!");
   });
 });
 
