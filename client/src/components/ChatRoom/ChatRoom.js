@@ -27,8 +27,7 @@ import { videoActions } from "../../store/video-chat-slice";
 const ChatRoom = (props) => {
   console.log("CharRoom running");
   const { conversation } = useSelector((state) => state.conversation);
-  const { call } = useSelector((state) => state.video);
-  const [hasCall, setHasCall] = useState(false);
+  // const [hasCall, setHasCall] = useState(false);
   const { user } = useSelector((state) => state.user);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ const ChatRoom = (props) => {
         dispatch(conversationActions.setConversation({ conversation }));
         dispatch(
           videoActions.setCall({
-            call: { isRecievedCall: true, caller, callee, signal: null },
+            call: { isReceivedCall: true, caller, callee },
           })
         );
         setTimeout(() => {
@@ -114,7 +113,12 @@ const ChatRoom = (props) => {
             ></Route>
             <Route
               path={`/meetings/${conversation?._id}`}
-              element={<MeetingForm call={call} socket_video={socket_video} />}
+              element={
+                <MeetingForm
+                  socket_video={socket_video}
+                  conversation={conversation}
+                />
+              }
             ></Route>
           </Routes>
         </ChatBodyContainer>

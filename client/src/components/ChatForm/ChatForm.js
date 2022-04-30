@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { postData } from "../../store/fetch-action";
 import { videoActions } from "../../store/video-chat-slice";
 import { useNavigate } from "react-router-dom";
@@ -19,9 +19,12 @@ const ChatForm = (props) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const { conversation, user, socket_chat, socket_video } = props;
+  console.log(conversation);
+  // const { stream } = useSelector((state) => state.video);
   // const { call, callAccepted, callEnded, stream, name } = useSelector(
   //   (state) => state.video
   // );
+  // console.log(stream);
 
   useEffect(() => {
     (async () => {
@@ -94,10 +97,9 @@ const ChatForm = (props) => {
         dispatch(
           videoActions.setCall({
             call: {
-              isRecievedCall: false,
+              isReceivedCall: false,
               caller: user,
               callee: callee,
-              signal: null,
             },
           })
         );

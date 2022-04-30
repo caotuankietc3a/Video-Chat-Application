@@ -51,7 +51,7 @@ io_chat.on("connection", (socket) => {
   socket.on("join-chat", ({ conversationId }) => {
     console.log("A user connected to chat-room!!!");
     socket.join(conversationId);
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
+    // console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on("send-message", ({ userId, message, conversationId }) => {
@@ -63,16 +63,13 @@ io_chat.on("connection", (socket) => {
 
   socket.on("leave-chat", ({ conversationId }) => {
     socket.leave(conversationId);
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
-  });
-
-  socket.on("disconnect", (cb) => {
     console.log("A user disconnected chat-room!!!");
+    // console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 });
 
 const io_video = io.of("/video-room");
-io.of("/video-room").on("connection", (socket) => {
+io_video.on("connection", (socket) => {
   socket.on("join-video", async ({ userId }) => {
     console.log("A user connected video-room!!!");
     const conversations = await Conversation.find({
@@ -81,7 +78,7 @@ io.of("/video-room").on("connection", (socket) => {
     socket.join(
       conversations.map((conversation) => conversation._id.toString())
     );
-    console.log("Video Rooms: ", io.of("/video-room").adapter.rooms);
+    console.log("Video Rooms: ", io_video.adapter.rooms);
   });
 
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
@@ -101,26 +98,32 @@ io.of("/video-room").on("connection", (socket) => {
       callee,
     });
   });
-  socket.on("accept-decline", (data) => {
-    console.log(data);
-    io.to(conversationId).emit("accept-decline", {});
-  });
-  socket.on("callUser", ({ conversationId, signalData, from, name }) => {
-    io.to(conversationId).emit("callUser", { signal: signalData, from, name });
+
+  socket.on("reject-call", ({ conversationId }) => {
+    io_video.to(conversationId).emit("reject-call");
   });
 
-  socket.on("answerCall", ({ to, signal }) => {
-    io.to(to).emit("callAccepted", { signal });
-  });
+  // socket.on("accept-decline", (data) => {
+  //   console.log(data);
+  //   io_video.to(conversationId).emit("accept-decline", {});
+  // });
+  //
+  // socket.on("call-user", ({ conversationId, signalData }) => {
+  //   io_video.to(conversationId).emit("call-user", { signal: signalData });
+  // });
+  //
+  // socket.on("answer-call", ({ to, signal }) => {
+  //   io_video.to(to).emit("call-accept", { signal });
+  // });
 
-  socket.on("declineCall", ({ to, signal }) => {
-    io.to(to).emit("de", { signal });
-  });
+  // socket.on("decline-call", ({ to, signal }) => {
+  //   io_video.to(to).emit("de", { signal });
+  // });
 
-  socket.on("disconnect", (cb) => {
-    console.log("A user disconnected video-room!!!");
-    // console.log(io.of("/video-room").adapter.rooms);
-  });
+  // socket.on("disconnect", (cb) => {
+  //   console.log("A user disconnected video-room!!!");
+  //   console.log(io_video.adapter.rooms);
+  // });
 });
 
 app.use("/auth", authRoutes);

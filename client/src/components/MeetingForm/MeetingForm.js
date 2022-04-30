@@ -19,74 +19,98 @@ import {
   videoStreamStart,
   answerCall,
   callUser,
+  rejectCall,
 } from "../../store/video-chat-function";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { videoActions } from "../../store/video-chat-slice";
 
 function MeetingForm(props) {
+  console.log("MeetingForm running");
   const userVideo = useRef();
   const myVideo = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const connection = useRef();
   const {
-    call: { isRecievedCall, caller, callee, signal },
-    socket_video,
-  } = props;
+    call: { isReceivedCall, caller, callee },
+    signal,
+    stream,
+  } = useSelector((state) => state.video);
+  const { socket_video, conversation } = props;
+
   useEffect(() => {
-    // dispatch(videoStreamStart((currentStream) => {
-    //    if (myVideo.current) myVideo.current.srcObject = currentStream;
-    // socket.emit("make-connection-call", {conversationId: conversation._id});
-    // }));
+    dispatch(
+      videoStreamStart((currentStream) => {
+        if (myVideo.current) myVideo.current.srcObject = currentStream;
+      })
+    );
   }, []);
 
-  // useEffect(() => {
-  //    if (stream) {
-  //       dispatch(callUser(socket, (currentStream) => {
-  //          userVideo.current.srcObject = currentStream;
-  //       }, (peer) => {
-  //          connection.current = peer;
-  //       }));
-  //    }
+  useEffect(() => {
+    if (stream) {
+      dispatch(
+        callUser(
+          socket_video,
+          (currentStream) => {
+            userVideo.current.srcObject = currentStream;
+          },
+          (peer) => {
+            connection.current = peer;
+          }
+        )
+      );
+    }
+    // return () => {
+    // console.log("Set stream to null!!!");
+    // dispatch(videoActions.setStream({ stream: null }));
+    // };
+  }, [stream]);
 
-  // return () => {
-  //    dispatch(videoActions.setStream({stream: null}));
-  // }
-  // }, [stream]);
-  // useEffect(() => {
-  //    socket.on("callUser", ({from, name: callerName, signal}) => {
-  //       dispatch(videoActions.setCall({call: {isRecievedCall: true, from, name: callerName, signal}}));
-  //    });
-  // }, []);
+  useEffect(() => {
+    socket_video.on("call-user", ({ signal }) =>
+      dispatch(videoActions.setSignal({ signal }))
+    );
+
+    socket_video.on("reject-call", () => {
+      dispatch(rejectCall(navigate, stream));
+    });
+  }, []);
+
+  const rejectCallHandler = () => {
+    socket_video.emit("reject-call", { conversationId: conversation._id });
+  };
+
   return (
     <MeetingFormContainer>
       <MeetingFormContent>
         <MeetingImgLogo>
-          {isRecievedCall ? <FiPhoneIncoming /> : <FiPhoneOutgoing />}
+          {isReceivedCall ? <FiPhoneIncoming /> : <FiPhoneOutgoing />}
         </MeetingImgLogo>
         <p className="title">
-          {isRecievedCall ? "Incoming Call" : "Outgoing Call"}
+          {isReceivedCall ? "Incoming Call" : "Outgoing Call"}
         </p>
         <p className="name">
-          {isRecievedCall ? callee.fullname : caller.fullname}
+          {isReceivedCall ? callee.fullname : caller.fullname}
         </p>
         <MeetingPicture>
           <MeetingImgWrapper>
             <img
-              src={isRecievedCall ? callee.profilePhoto : caller.profilePhoto}
+              src={isReceivedCall ? callee.profilePhoto : caller.profilePhoto}
               alt=""
             />
           </MeetingImgWrapper>
         </MeetingPicture>
         <MeetingBtns>
-          <MeetingRoundedBtn className="close">
+          <MeetingRoundedBtn className="close" onClick={rejectCallHandler}>
             <FiPhoneOff />
           </MeetingRoundedBtn>
-          {isRecievedCall && (
+          {isReceivedCall && (
             <MeetingRoundedBtn className="open">
               <BsTelephone />
             </MeetingRoundedBtn>
           )}
-          {isRecievedCall && (
+          {isReceivedCall && (
             <MeetingRoundedBtn className="video">
               <FiVideo />
             </MeetingRoundedBtn>
