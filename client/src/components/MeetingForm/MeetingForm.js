@@ -28,9 +28,9 @@ function MeetingForm(props) {
   const myVideo = useRef();
   const dispatch = useDispatch();
   const connection = useRef();
-  const { socket } = useSelector((state) => state.socket);
   const {
     call: { isRecievedCall, caller, callee, signal },
+    socket_video,
   } = props;
   useEffect(() => {
     // dispatch(videoStreamStart((currentStream) => {

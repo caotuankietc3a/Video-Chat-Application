@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { postData } from "../../store/fetch-action";
 import { videoActions } from "../../store/video-chat-slice";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,7 @@ const ChatForm = (props) => {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const { conversation, user, socket } = props;
+  const { conversation, user, socket_chat, socket_video } = props;
   // const { call, callAccepted, callEnded, stream, name } = useSelector(
   //   (state) => state.video
   // );
@@ -37,9 +37,9 @@ const ChatForm = (props) => {
   }, []);
 
   useEffect(() => {
-    socket.emit("join-message", { conversationId: conversation._id });
+    socket_chat.emit("join-chat", { conversationId: conversation._id });
 
-    socket.on("message", ({ text, userId }) => {
+    socket_chat.on("receive-message", ({ text, userId }) => {
       setMessages((preMessages) => [
         ...preMessages,
         {
@@ -53,7 +53,7 @@ const ChatForm = (props) => {
     // });
     return function cleanup() {
       // dispatch(videoActions.setStream({stream: null}));
-      // socket.emit("leave-message", { conversationId: conversation._id });
+      socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
     };
   }, []);
@@ -66,7 +66,7 @@ const ChatForm = (props) => {
     e.preventDefault();
     if (message) {
       const oldMes = message;
-      socket.emit("sendMessage", {
+      socket_chat.emit("send-message", {
         userId: user._id,
         message: message,
         conversationId: conversation._id,
@@ -87,7 +87,7 @@ const ChatForm = (props) => {
     e.preventDefault();
     // dispatch(videoStreamStart(myVideo));
     // if (stream) dispatch(callUser(socket, userVideoCb, connectionCb));
-    socket.emit(
+    socket_video.emit(
       "make-connection-call",
       { conversationId: conversation._id, caller: user },
       (callee) => {

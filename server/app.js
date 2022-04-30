@@ -46,22 +46,24 @@ app.use(
   })
 );
 
-io.of("/chat-room").on("connection", (socket) => {
-  console.log("A user connected to a chat-room!!!");
-  socket.on("join-message", ({ conversationId }) => {
+const io_chat = io.of("/chat-room");
+io_chat.on("connection", (socket) => {
+  socket.on("join-chat", ({ conversationId }) => {
+    console.log("A user connected to chat-room!!!");
     socket.join(conversationId);
-    console.log(io.sockets.adapter.rooms);
+    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
-  socket.on("leave-message", ({ conversationId }) => {
-    socket.leave(conversationId);
-  });
-
-  socket.on("sendMessage", ({ userId, message, conversationId }) => {
-    io.to(conversationId).emit("message", {
+  socket.on("send-message", ({ userId, message, conversationId }) => {
+    io_chat.to(conversationId).emit("receive-message", {
       text: message,
       userId: userId,
     });
+  });
+
+  socket.on("leave-chat", ({ conversationId }) => {
+    socket.leave(conversationId);
+    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on("disconnect", (cb) => {
@@ -69,16 +71,17 @@ io.of("/chat-room").on("connection", (socket) => {
   });
 });
 
+const io_video = io.of("/video-room");
 io.of("/video-room").on("connection", (socket) => {
-  console.log("A user connected video-room!!!");
-
   socket.on("join-video", async ({ userId }) => {
+    console.log("A user connected video-room!!!");
     const conversations = await Conversation.find({
       members: { $in: [userId] },
     }).populate({ path: "members" });
     socket.join(
       conversations.map((conversation) => conversation._id.toString())
     );
+    console.log("Video Rooms: ", io.of("/video-room").adapter.rooms);
   });
 
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
@@ -116,6 +119,7 @@ io.of("/video-room").on("connection", (socket) => {
 
   socket.on("disconnect", (cb) => {
     console.log("A user disconnected video-room!!!");
+    // console.log(io.of("/video-room").adapter.rooms);
   });
 });
 

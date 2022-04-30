@@ -57,14 +57,14 @@ export const compareString = (friends) => {
   return friends;
 };
 
-export const fetchUserLogin = (navigate, socket) => {
+export const fetchUserLogin = (navigate, socket_video) => {
   return async (dispatch) => {
     try {
       const data = await fetch("http://localhost:5000/auth/session", {
         credentials: "include",
       });
       const { user, isLogin } = await data.json();
-      // if (socket) socket.emit("join-video", { userId: user._id });
+      if (socket_video) socket_video.emit("join-video", { userId: user._id });
       if (isLogin) {
         setTimeout(() => {
           navigate("/home-chat");

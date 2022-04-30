@@ -33,14 +33,14 @@ const ChatRoom = (props) => {
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { socket } = useSelector((state) => state.socket);
+  const { socket_chat, socket_video } = useSelector((state) => state.socket);
 
   useEffect(() => {
-    dispatch(fetchUserLogin(navigate, socket));
+    dispatch(fetchUserLogin(navigate, socket_video));
   }, []);
 
   useEffect(() => {
-    socket.on(
+    socket_video.on(
       "make-connection-call",
       ({ conversationId, conversation, caller, callee }) => {
         dispatch(conversationActions.setConversation({ conversation }));
@@ -103,7 +103,8 @@ const ChatRoom = (props) => {
                 <ChatForm
                   conversation={conversation}
                   user={user}
-                  socket={socket}
+                  socket_chat={socket_chat}
+                  socket_video={socket_video}
                 />
               }
             ></Route>
@@ -113,7 +114,7 @@ const ChatRoom = (props) => {
             ></Route>
             <Route
               path={`/meetings/${conversation?._id}`}
-              element={<MeetingForm call={call} />}
+              element={<MeetingForm call={call} socket_video={socket_video} />}
             ></Route>
           </Routes>
         </ChatBodyContainer>
