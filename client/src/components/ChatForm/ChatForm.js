@@ -19,13 +19,6 @@ const ChatForm = (props) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const { conversation, user, socket_chat, socket_video } = props;
-  console.log(conversation);
-  // const { stream } = useSelector((state) => state.video);
-  // const { call, callAccepted, callEnded, stream, name } = useSelector(
-  //   (state) => state.video
-  // );
-  // console.log(stream);
-
   useEffect(() => {
     (async () => {
       const res = await fetch(
@@ -52,18 +45,11 @@ const ChatForm = (props) => {
         },
       ]);
     });
-    // socket.on("accept-call", () => {
-    // });
     return function cleanup() {
-      // dispatch(videoActions.setStream({stream: null}));
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
     };
   }, []);
-
-  // useEffect(() => {
-  // if (stream) dispatch(callUser(socket, userVideo, connection));
-  // }, [stream]);
 
   const onClickHandler = async (e) => {
     e.preventDefault();
@@ -88,8 +74,6 @@ const ChatForm = (props) => {
 
   const clickVideoCall = async (e) => {
     e.preventDefault();
-    // dispatch(videoStreamStart(myVideo));
-    // if (stream) dispatch(callUser(socket, userVideoCb, connectionCb));
     socket_video.emit(
       "make-connection-call",
       { conversationId: conversation._id, caller: user },
@@ -118,15 +102,6 @@ const ChatForm = (props) => {
         message={message}
         changeHandler={onChangeHandler}
       />
-      {
-        // stream && <video ref={myVideo} autoPlay={true} muted={true}></video>
-        // <video ref={myVideo} autoPlay={true} muted={true}></video>
-      }
-      {
-        // callAccepted && !callEnded && <video ref={userVideo} autoPlay={true} muted={true}></video>
-        // < button onClick={() => dispatch(answerCall(socket, userVideo, connection))}>button
-        // </button>
-      }
     </ChatFormContainer>
   );
 };

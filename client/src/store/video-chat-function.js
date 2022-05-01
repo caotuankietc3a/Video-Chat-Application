@@ -7,6 +7,7 @@ export const videoStreamStart = (callback) => {
         video: true,
         audio: true,
       });
+      console.log(currentStream);
       dispatch(videoActions.setStream({ stream: currentStream }));
       callback(currentStream);
     } catch (err) {
@@ -15,47 +16,55 @@ export const videoStreamStart = (callback) => {
   };
 };
 
-export const answerCall = (socket_video, userVideCb, connectionCb) => {
+export const answerCall = (socket_video, userVideoCb, connectionCb) => {
   return async (dispatch, getState) => {
-    dispatch(videoActions.setCallAccepted({ callAccepted: true }));
     const { _id } = getState().conversation.conversation;
     const { call, stream } = getState().video;
     const peer = new Peer({ initiator: false, trickle: false, stream: stream });
+
+    dispatch(videoActions.setCallAccepted({ callAccepted: true }));
+
     peer.on("signal", (data) => {
-      socket_video.emit("answer-call", { signal: data, to: _id });
+      socket_video.emit("answer-call", { signal: data, conversationId: _id });
     });
+
     peer.on("stream", (currentStream) => {
-      userVideCb();
       // userVideo.current.srcObject = currentStream;
+      userVideoCb(currentStream);
     });
+
     peer.signal(call.signal);
-    connectionCb();
+
     // connection.current = peer;
+    connectionCb(peer);
   };
 };
 
 export const callUser = (socket_video, userVideoCb, connectionCb) => {
   return (dispatch, getState) => {
     const { stream } = getState().video;
-    const { user } = getState().user;
     const { _id } = getState().conversation.conversation;
     const peer = new Peer({ initiator: true, trickle: false, stream: stream });
+
     peer.on("signal", (data) => {
       socket_video.emit("call-user", {
         conversationId: _id,
-        signalData: data,
+        signal: data,
       });
     });
+
     peer.on("stream", (currentStream) => {
       // userVideo.current.srcObject = currentStream;
       userVideoCb(currentStream);
     });
-    socket_video.on("call-accept", ({ signal }) => {
+
+    socket_video.on("accept-call", ({ signal }) => {
       dispatch(videoActions.setCallAccepted({ callAccepted: true }));
       peer.signal(signal);
     });
-    connectionCb(peer);
+
     // connection.current = peer;
+    connectionCb(peer);
   };
 };
 

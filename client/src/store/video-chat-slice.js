@@ -4,11 +4,11 @@ const initialState = {
   callAccepted: false,
   callEnded: false,
   stream: null,
-  signal: null,
   call: {
     isReceivedCall: false,
     caller: null,
     callee: null,
+    signal: null,
   },
 };
 
@@ -23,14 +23,14 @@ const videoSlice = createSlice({
       state.call = action.payload.call;
     },
     setSignal(state, action) {
-      state.signal = action.payload.signal;
+      state.call.signal = action.payload.signal;
     },
     setVideoState(state) {
-      state.signal = null;
       state.call = {
         isReceivedCall: false,
         caller: null,
         callee: null,
+        signal: null,
       };
       state.stream = null;
     },

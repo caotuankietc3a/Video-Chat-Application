@@ -103,27 +103,18 @@ io_video.on("connection", (socket) => {
     io_video.to(conversationId).emit("reject-call");
   });
 
-  // socket.on("accept-decline", (data) => {
-  //   console.log(data);
-  //   io_video.to(conversationId).emit("accept-decline", {});
-  // });
+  socket.on("call-user", ({ conversationId, signal }) => {
+    io_video.to(conversationId).emit("call-user", { signal });
+  });
   //
-  // socket.on("call-user", ({ conversationId, signalData }) => {
-  //   io_video.to(conversationId).emit("call-user", { signal: signalData });
-  // });
-  //
-  // socket.on("answer-call", ({ to, signal }) => {
-  //   io_video.to(to).emit("call-accept", { signal });
-  // });
+  socket.on("answer-call", ({ conversationId, signal }) => {
+    io_video.to(conversationId).emit("accept-call", { signal });
+  });
 
-  // socket.on("decline-call", ({ to, signal }) => {
-  //   io_video.to(to).emit("de", { signal });
-  // });
-
-  // socket.on("disconnect", (cb) => {
-  //   console.log("A user disconnected video-room!!!");
-  //   console.log(io_video.adapter.rooms);
-  // });
+  socket.on("disconnect", (cb) => {
+    console.log("A user disconnected video-room!!!");
+    // console.log(io_video.adapter.rooms);
+  });
 });
 
 app.use("/auth", authRoutes);

@@ -33,9 +33,10 @@ function MeetingForm(props) {
   const navigate = useNavigate();
   const connection = useRef();
   const {
-    call: { isReceivedCall, caller, callee },
-    signal,
+    call: { isReceivedCall, caller, callee, signal },
     stream,
+    callAccepted,
+    callEnded,
   } = useSelector((state) => state.video);
   const { socket_video, conversation } = props;
 
@@ -45,10 +46,11 @@ function MeetingForm(props) {
         if (myVideo.current) myVideo.current.srcObject = currentStream;
       })
     );
-  }, []);
+  }, [callAccepted]);
 
   useEffect(() => {
     if (stream) {
+      console.log("ok ban oi");
       dispatch(
         callUser(
           socket_video,
@@ -69,6 +71,7 @@ function MeetingForm(props) {
 
   useEffect(() => {
     socket_video.on("call-user", ({ signal }) =>
+      // important
       dispatch(videoActions.setSignal({ signal }))
     );
 
@@ -81,7 +84,29 @@ function MeetingForm(props) {
     socket_video.emit("reject-call", { conversationId: conversation._id });
   };
 
-  return (
+  const anwserCallHandler = () => {
+    dispatch(
+      answerCall(
+        socket_video,
+        (currentStream) => {
+          userVideo.current.srcObject = currentStream;
+        },
+        (peer) => {
+          connection.current = peer;
+        }
+      )
+    );
+  };
+
+  const myVideoDisplay = (
+    <video ref={myVideo} autoPlay={true} muted={true}></video>
+  );
+  const userVideoDisplay = (
+    <video ref={userVideo} autoPlay={true} muted={true}></video>
+  );
+  console.log(callAccepted);
+
+  return !callAccepted ? (
     <MeetingFormContainer>
       <MeetingFormContent>
         <MeetingImgLogo>
@@ -111,13 +136,18 @@ function MeetingForm(props) {
             </MeetingRoundedBtn>
           )}
           {isReceivedCall && (
-            <MeetingRoundedBtn className="video">
+            <MeetingRoundedBtn className="video" onClick={anwserCallHandler}>
               <FiVideo />
             </MeetingRoundedBtn>
           )}
         </MeetingBtns>
       </MeetingFormContent>
     </MeetingFormContainer>
+  ) : (
+    <>
+      {myVideoDisplay}
+      {userVideoDisplay}
+    </>
   );
 }
 
