@@ -33,7 +33,7 @@ function MeetingForm(props) {
   const navigate = useNavigate();
   const connection = useRef();
   const {
-    call: { isReceivedCall, caller, callee, signal },
+    call: { isReceivedCall, caller, callee },
     stream,
     callAccepted,
     callEnded,
@@ -49,8 +49,7 @@ function MeetingForm(props) {
   }, [callAccepted]);
 
   useEffect(() => {
-    if (stream) {
-      console.log("ok ban oi");
+    if (stream && !isReceivedCall) {
       dispatch(
         callUser(
           socket_video,
@@ -63,21 +62,21 @@ function MeetingForm(props) {
         )
       );
     }
-    // return () => {
-    // console.log("Set stream to null!!!");
-    // dispatch(videoActions.setStream({ stream: null }));
-    // };
+
+    socket_video.on("reject-call", () => {
+      dispatch(rejectCall(navigate, stream, connection));
+    });
+
+    return () => {
+      // dispatch(videoActions.setStream({ stream: null }));
+      socket_video.off("reject-call");
+    };
   }, [stream]);
 
   useEffect(() => {
     socket_video.on("call-user", ({ signal }) =>
-      // important
       dispatch(videoActions.setSignal({ signal }))
     );
-
-    socket_video.on("reject-call", () => {
-      dispatch(rejectCall(navigate, stream));
-    });
   }, []);
 
   const rejectCallHandler = () => {
@@ -98,13 +97,12 @@ function MeetingForm(props) {
     );
   };
 
-  const myVideoDisplay = (
+  const myVideoDisplay = stream && (
     <video ref={myVideo} autoPlay={true} muted={true}></video>
   );
-  const userVideoDisplay = (
+  const userVideoDisplay = !callEnded && (
     <video ref={userVideo} autoPlay={true} muted={true}></video>
   );
-  console.log(callAccepted);
 
   return !callAccepted ? (
     <MeetingFormContainer>

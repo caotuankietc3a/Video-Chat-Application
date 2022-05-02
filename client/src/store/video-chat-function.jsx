@@ -7,7 +7,6 @@ export const videoStreamStart = (callback) => {
         video: true,
         audio: true,
       });
-      console.log(currentStream);
       dispatch(videoActions.setStream({ stream: currentStream }));
       callback(currentStream);
     } catch (err) {
@@ -68,14 +67,22 @@ export const callUser = (socket_video, userVideoCb, connectionCb) => {
   };
 };
 
-export const rejectCall = (navigate, stream) => {
+export const rejectCall = (navigate, stream, connection) => {
   return async (dispatch) => {
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
+    console.log(stream);
 
-    // Becarefull the order of navigate and dispatch
+    // Becareful the order of navigate and dispatch
     navigate(`/home-chat`);
+
+    // if (connection.current) {
+    //   connection.current.destroy();
+    // }
+    connection.current.on("close", () => {
+      connection.current.destroy();
+    });
     dispatch(videoActions.setVideoState());
   };
 };

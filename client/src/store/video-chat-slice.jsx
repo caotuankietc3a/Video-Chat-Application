@@ -33,6 +33,8 @@ const videoSlice = createSlice({
         signal: null,
       };
       state.stream = null;
+      state.callAccepted = false;
+      state.callEnded = false;
     },
     setCallAccepted(state, action) {
       state.callAccepted = action.payload.callAccepted;
