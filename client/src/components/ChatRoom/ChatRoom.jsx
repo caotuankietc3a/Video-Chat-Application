@@ -1,31 +1,19 @@
-import {
-  MainLayOut,
-  Container,
-  NavBar,
-  UlNav,
-  LiTag,
-  ChatBodyContainer,
-} from "./StyledChatRoom";
-import React, { useEffect, useState } from "react";
+import { MainLayOut, Container, ChatBodyContainer } from "./StyledChatRoom";
+import React, { useEffect, useReducer, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import ChatForm from "../ChatForm/ChatForm";
-import { RiMessengerLine } from "react-icons/ri";
-import { TiMessages } from "react-icons/ti";
-import { BsTelephone } from "react-icons/bs";
-import { HiOutlineUsers } from "react-icons/hi";
-import { Link } from "react-router-dom";
-import { BiUserCircle } from "react-icons/bi";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ChatContact from "./ChatContact/ChatContact";
 import FriendForm from "../FriendForm/FriendForm";
 import MeetingForm from "../MeetingForm/MeetingForm";
-import { fetchUserLogin } from "../../store/fetch-action";
-import { conversationActions } from "../../store/conversation-slice";
-import { videoActions } from "../../store/video-chat-slice";
+import { fetchUserLogin } from "../../store/actions/fetch-action";
+import { conversationActions } from "../../store/slices/conversation-slice";
+import { videoActions } from "../../store/slices/video-chat-slice";
+import NavBarContact from "../NavBarContact/NavBarContact";
 
 const ChatRoom = (props) => {
-  console.log("CharRoom running");
+  console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
   const { friend } = useSelector((state) => state.friend);
@@ -57,33 +45,7 @@ const ChatRoom = (props) => {
   return (
     <Container>
       <MainLayOut>
-        <NavBar>
-          <a href="">
-            <RiMessengerLine />
-          </a>
-          <UlNav>
-            <Link to="/home-chat/" className="active">
-              <LiTag ptd="24px" plr="0px" w="1.5rem" h="1.5rem">
-                <TiMessages />
-              </LiTag>
-            </Link>
-            <Link to="">
-              <LiTag ptd="24px" plr="0px" w="1.5rem" h="1.5rem">
-                <BsTelephone />
-              </LiTag>
-            </Link>
-            <Link to="/home-chat/friends">
-              <LiTag ptd="24px" plr="0px" w="1.5rem" h="1.5rem">
-                <HiOutlineUsers />
-              </LiTag>
-            </Link>
-            <Link to="">
-              <LiTag ptd="24px" plr="0px" w="1.5rem" h="1.5rem">
-                <BiUserCircle />
-              </LiTag>
-            </Link>
-          </UlNav>
-        </NavBar>
+        <NavBarContact />
 
         <Routes>
           <Route path={`/*`} element={<ChatContact header="Chats" />}></Route>

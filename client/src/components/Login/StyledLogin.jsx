@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
 export const LoginComponent = styled.div`
   height: 100vh;
@@ -10,13 +10,13 @@ export const LoginComponent = styled.div`
   background: linear-gradient(to bottom right, #0300b7e8 0%, #ffffff 100%);
   background-size: cover;
   width: 100vw;
-`
+`;
 
 export const LoginContainer = styled.div`
   width: 100%;
   margin: 0 auto;
   padding: 0 12px 0 12px;
-`
+`;
 
 export const LoginBox = styled.div`
   box-sizing: border-box;
@@ -25,13 +25,13 @@ export const LoginBox = styled.div`
   align-items: center;
   margin: 0 auto;
   height: ${(props) => {
-    if (props.type === 'Login') return '521px'
-    else if (props.type === 'Register') return '690px'
-    else return '430px'
+    if (props.type === "Login") return "521px";
+    else if (props.type === "Register") return "690px";
+    else return "430px";
   }};
   border-radius: 20px;
   box-shadow: 0 0 15px rgb(0 0 0 / 10%);
-  background: url('/images/backgroundImg.jpg') top left repeat;
+  background: url("/images/backgroundImg.jpg") top left repeat;
   position: relative;
   max-width: 1140px;
   background-size: cover;
@@ -42,7 +42,7 @@ export const LoginBox = styled.div`
   @media only screen and (max-width: 793px) {
     width: 500px;
   }
-`
+`;
 
 export const FormSectionLogin = styled.div`
   height: 100%;
@@ -77,7 +77,7 @@ export const FormSectionLogin = styled.div`
     padding: 50px 30px;
     border-radius: 10px;
   }
-`
+`;
 
 export const BtnSectionLogin = styled.div`
   width: 100%;
@@ -93,7 +93,7 @@ export const BtnSectionLogin = styled.div`
     font-weight: 400;
     text-align: center;
     line-height: 40px;
-    font-family: 'Jost', sans-serif;
+    font-family: "Jost", sans-serif;
     text-transform: uppercase;
     text-decoration: none;
     width: 110px;
@@ -111,9 +111,9 @@ export const BtnSectionLogin = styled.div`
   &::after {
     display: block;
     clear: both;
-    content: '';
+    content: "";
   }
-`
+`;
 
 export const FormGroupLogin = styled.div`
   height: 55px;
@@ -127,7 +127,7 @@ export const FormGroupLogin = styled.div`
     float: right;
     text-decoration: none;
   }
-`
+`;
 
 export const FormCheckRegister = styled.div`
   float: right;
@@ -154,7 +154,7 @@ export const FormCheckRegister = styled.div`
   input:checked {
     background-color: #0060ff;
   }
-`
+`;
 
 export const EmailPassInput = styled.input`
   width: 100%;
@@ -166,7 +166,7 @@ export const EmailPassInput = styled.input`
   border-radius: 0;
   border: 1px solid transparent;
   background: #f5f5f5;
-`
+`;
 
 export const ButtonLogin = styled.button`
   position: relative;
@@ -177,7 +177,7 @@ export const ButtonLogin = styled.button`
   font-size: 17px;
   font-weight: 400;
   border-radius: 3px;
-  font-family: 'Jost', sans-serif;
+  font-family: "Jost", sans-serif;
   padding: 0 50px;
   line-height: 55px;
   background: #0060ff;
@@ -192,7 +192,7 @@ export const ButtonLogin = styled.button`
   }
   &:before {
     position: absolute;
-    content: '';
+    content: "";
     top: 0;
     height: 100%;
     width: 100%;
@@ -202,7 +202,7 @@ export const ButtonLogin = styled.button`
     transition: all 0.3s ease-in;
     transform: skewX(-25deg);
   }
-`
+`;
 
 export const RegisterAccount = styled.div`
   position: absolute;
@@ -220,7 +220,7 @@ export const RegisterAccount = styled.div`
       color: #0060ff;
     }
   }
-`
+`;
 
 export const InformationLogin = styled.div`
   width: 50%;
@@ -260,7 +260,7 @@ export const InformationLogin = styled.div`
   @media only screen and (max-width: 793px) {
     display: none;
   }
-`
+`;
 
 export const SocialList = styled.div`
   display: flex;
@@ -302,4 +302,4 @@ export const SocialList = styled.div`
       }
     }
   }
-`
+`;

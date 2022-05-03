@@ -1,5 +1,5 @@
 import Peer from "simple-peer";
-import { videoActions } from "./video-chat-slice";
+import { videoActions } from "../slices/video-chat-slice";
 export const videoStreamStart = (callback) => {
   return async (dispatch) => {
     try {

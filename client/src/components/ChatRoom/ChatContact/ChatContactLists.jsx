@@ -2,8 +2,8 @@ import { ContactLists } from "./StyledContacts";
 import ChatContactItems from "./ChatContactItems";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { userLoginActions } from "../../../store/user-login-slice";
-import { compareString } from "../../../store/fetch-action";
+import { userLoginActions } from "../../../store/slices/user-login-slice";
+import { compareString } from "../../../store/actions/common-function";
 
 const ChatContactLists = (props) => {
   const [conversations, setConversations] = useState([]);
@@ -11,6 +11,7 @@ const ChatContactLists = (props) => {
   const [friends, setFriends] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
+  const { searchContactItems } = props;
 
   useEffect(() => {
     (async () => {
@@ -67,52 +68,73 @@ const ChatContactLists = (props) => {
     getConversation();
   }, [window.location.href, isFetching]);
 
+  const filterConversationsHandler = (conversations, searchContactItems) => {
+    return conversations
+      .filter((conversation) => {
+        if (searchContactItems === "") return true;
+        const member = conversation?.members.find(
+          (member) => member._id !== userState.user._id
+        );
+        if (
+          member.fullname
+            .toLowerCase()
+            .includes(searchContactItems.toLowerCase())
+        )
+          return true;
+      })
+      .map((conversation, i) => {
+        const member = conversation?.members.find(
+          (member) => member._id !== userState.user._id
+        );
+        conversation.name = member.fullname;
+        return (
+          <ChatContactItems
+            key={i}
+            id={conversation._id}
+            conversation={conversation}
+            type={props.type}
+          ></ChatContactItems>
+        );
+      });
+  };
+
+  const filterFriendsHandler = (friends, searchContactItems) => {
+    return friends
+      ?.filter((friend) => {
+        if (searchContactItems === "") return true;
+        if (
+          friend.fullname
+            .toLowerCase()
+            .includes(searchContactItems.toLowerCase())
+        )
+          return true;
+      })
+      .map((friend, i) => {
+        let character = false;
+        if (
+          i === 0 ||
+          friend.fullname[0].toLowerCase() !==
+            friends[i - 1].fullname[0].toLowerCase()
+        )
+          character = true;
+        return (
+          <ChatContactItems
+            key={i}
+            id={friend._id}
+            friend={friend}
+            type={props.type}
+            displayChar={character}
+          ></ChatContactItems>
+        );
+      });
+  };
+
   return (
     <ContactLists>
       {props.type !== "Friends" &&
-        conversations?.map((conversation, i) => {
-          if (conversation) {
-            const member = conversation?.members.find(
-              (member) => member._id !== userState.user._id
-            );
-            conversation.name = member.fullname;
-          }
-          return (
-            <ChatContactItems
-              key={i}
-              id={conversation._id}
-              conversation={conversation}
-              type={props.type}
-            ></ChatContactItems>
-          );
-        })}
+        filterConversationsHandler(conversations, searchContactItems)}
       {props.type === "Friends" &&
-        friends?.map((friend, i) => {
-          if (
-            i === 0 ||
-            friend.fullname[0].toLowerCase() !==
-              friends[i - 1].fullname[0].toLowerCase()
-          ) {
-            return (
-              <ChatContactItems
-                key={i}
-                id={friend._id}
-                friend={friend}
-                type={props.type}
-                displayChar={true}
-              ></ChatContactItems>
-            );
-          }
-          return (
-            <ChatContactItems
-              key={i}
-              id={friend._id}
-              friend={friend}
-              type={props.type}
-              displayChar={false}
-            ></ChatContactItems>
-          );
-        })}
+        filterFriendsHandler(friends, searchContactItems)}
     </ContactLists>
   );
 };

@@ -3,14 +3,14 @@ import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
 import { useSelector, useDispatch } from "react-redux";
-import { postData } from "../../store/fetch-action";
-import { videoActions } from "../../store/video-chat-slice";
+import { postData } from "../../store/actions/fetch-action";
+import { videoActions } from "../../store/slices/video-chat-slice";
 import { useNavigate } from "react-router-dom";
 import {
   videoStreamStart,
   answerCall,
   callUser,
-} from "../../store/video-chat-function";
+} from "../../store/actions/video-chat-function";
 import { ChatFormContainer } from "./StyledChatForm";
 
 const ChatForm = (props) => {

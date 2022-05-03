@@ -6,7 +6,7 @@ import {
   Media,
   UlChatHeaderOptions,
 } from "./StyledHeader";
-import { LiTag } from "../../ChatRoom/StyledChatRoom";
+import { LiTag } from "../../NavBarContact/StyledNavBarContact";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 import { BsTelephone, BsSearch } from "react-icons/bs";
 

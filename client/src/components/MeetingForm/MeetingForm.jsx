@@ -20,10 +20,10 @@ import {
   answerCall,
   callUser,
   rejectCall,
-} from "../../store/video-chat-function";
+} from "../../store/actions/video-chat-function";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { videoActions } from "../../store/video-chat-slice";
+import { videoActions } from "../../store/slices/video-chat-slice";
 
 function MeetingForm(props) {
   console.log("MeetingForm running");
