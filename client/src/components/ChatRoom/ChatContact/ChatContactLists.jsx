@@ -8,6 +8,7 @@ import { compareString } from "../../../store/actions/common-function";
 const ChatContactLists = (props) => {
   const [conversations, setConversations] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
@@ -16,7 +17,7 @@ const ChatContactLists = (props) => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await fetch("http://localhost:5000/auth/session", {
+        const data = await fetch(`${END_POINT_SERVER}/auth/session`, {
           credentials: "include",
         });
         const res = await data.json();
@@ -39,7 +40,7 @@ const ChatContactLists = (props) => {
     const getConversation = async () => {
       try {
         const resConversation = await fetch(
-          `http://localhost:5000/conversation/${
+          `${END_POINT_SERVER}/conversation/${
             userState.user ? userState.user._id : "error"
           }`,
           {
@@ -50,7 +51,7 @@ const ChatContactLists = (props) => {
         setConversations(conversations);
 
         const resFriends = await fetch(
-          `http://localhost:5000/friend/${
+          `${END_POINT_SERVER}/friend/${
             userState.user ? userState.user._id : "error"
           }`,
           {

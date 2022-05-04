@@ -1,4 +1,5 @@
 import { userLoginActions } from "../slices/user-login-slice";
+const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postData = async (data, typeUrl) => {
   const res = await fetch(typeUrl, {
     method: "POST",
@@ -15,7 +16,7 @@ export const postData = async (data, typeUrl) => {
 export const fetchUserLogin = (navigate, socket_video) => {
   return async (dispatch) => {
     try {
-      const data = await fetch("http://localhost:5000/auth/session", {
+      const data = await fetch(`${END_POINT_SERVER}/auth/session`, {
         credentials: "include",
       });
       const { user, isLogin } = await data.json();

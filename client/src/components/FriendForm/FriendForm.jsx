@@ -29,17 +29,29 @@ const FriendForm = (props) => {
     props.friendDetail;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const userState = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+
   const clickChatHandler = async () => {
     const conversation = await postData(
-      { friend: props.friendDetail, userId: userState.user._id },
-      "http://localhost:5000/conversation/new-conversation"
+      { friend: props.friendDetail, userId: user._id },
+      `${END_POINT_SERVER}/conversation/new-conversation`
+    );
+    const member = conversation.members.find(
+      (member) => member._id !== user._id
     );
     dispatch(
-      conversationActions.setConversation({ conversation: conversation })
+      conversationActions.setConversation({
+        conversation: {
+          _id: conversation._id,
+          members: conversation.members,
+          name: member.fullname,
+        },
+      })
     );
     navigate(`/home-chat/conversation/detail/${conversation._id}`);
   };
+
   return (
     <FriendFormContainer>
       <FriendFormContent>

@@ -1,0 +1,47 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  width: 100%;
+}
+
+.loader {
+  width: 4.5rem;
+  height: 4.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.loader::before,
+.loader::after {
+  content: "";
+  width: inherit;
+  height: inherit;
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  animation: rotate 1s infinite cubic-bezier(0.77, 0, 0.175, 1);
+}
+.loader::before {
+  background-color: #383f44;
+}
+.loader::after {
+  background-color: #665dfe;
+  animation-delay: 0.5s;
+}
+@keyframes rotate {
+  0%,
+  100% {
+    left: 95px;
+  }
+  25% {
+    transform: scale(0.3);
+  }
+  50% {
+    left: 0;
+  }
+  75% {
+    transform: scale(1);
+  }
+}

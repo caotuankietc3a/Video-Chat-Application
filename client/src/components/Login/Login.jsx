@@ -24,8 +24,6 @@ import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
-const urlServer = "http://localhost:5000/auth/";
-const urlClient = "http://localhost:3000/auth/";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -36,11 +34,10 @@ const Login = (props) => {
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
-
-  let typeUrl = urlServer;
-  if (type === "Login") typeUrl += "login";
-  else if (type === "Register") typeUrl += "register";
-  else typeUrl += "forgot-password";
+  let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
+  if (type === "Login") END_POINT_SERVER += "/login";
+  else if (type === "Register") END_POINT_SERVER += "/register";
+  else END_POINT_SERVER += "/forgot-password";
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -53,7 +50,7 @@ const Login = (props) => {
           confirmpassword,
           profilePhoto: "/images/user-img.jpg",
         },
-        typeUrl
+        END_POINT_SERVER
       );
       if (data.status === "error") {
         setTimeout(() => {
@@ -103,7 +100,11 @@ const Login = (props) => {
               </Link>
             </BtnSectionLogin>
             {
-              <form action={typeUrl} method="POST" onSubmit={submitHandler}>
+              <form
+                action={END_POINT_SERVER}
+                method="POST"
+                onSubmit={submitHandler}
+              >
                 {type === "Register" && (
                   <FormGroupLogin>
                     <EmailPassInput
@@ -191,7 +192,7 @@ const Login = (props) => {
                     </p>
                   )}
                 </RegisterAccount>
-                <input type="hidden" name="urlClient" value={urlClient} />
+                {/* <input type="hidden" name="urlClient" value={urlClient} /> */}
               </form>
             }
           </FormSectionLogin>

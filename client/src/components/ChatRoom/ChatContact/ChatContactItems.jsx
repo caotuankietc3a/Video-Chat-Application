@@ -15,13 +15,14 @@ import { formatDate } from "../../../store/actions/common-function";
 const ChatContactItems = (props) => {
   const dispatch = useDispatch();
   const { conversation, friend, type } = props;
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const linkTo = props.type !== "Friends" ? `conversation` : "friend";
   const userState = useSelector((state) => state.user);
   const clickHandler = async () => {
     try {
       if (props.type !== "Friends") {
         const res = await fetch(
-          "http://localhost:5000/conversation/detail/" + props.id
+          `${END_POINT_SERVER}/conversation/detail/` + props.id
         );
         const conversation = await res.json();
         if (conversation.members.length === 2) {
@@ -40,7 +41,7 @@ const ChatContactItems = (props) => {
         }
       } else {
         const res = await fetch(
-          "http://localhost:5000/friend/detail/" + props.id
+          `${END_POINT_SERVER}/friend/detail/` + props.id
         );
         const friend = await res.json();
         dispatch(friendActions.setFriends({ friend: friend }));

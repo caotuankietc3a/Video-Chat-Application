@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { AvatarUser } from "../../ChatRoom/ChatContact/StyledContacts";
 import {
   MessageContainer,
@@ -18,10 +18,14 @@ import {
 } from "react-icons/io5";
 import { AiOutlineStar } from "react-icons/ai";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { formatDate } from "../../../store/actions/common-function";
 
 const Message = (props) => {
-  const { type } = props;
+  const {
+    type,
+    date,
+    text,
+    mesDivider: { divider, data_label },
+  } = props;
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
     setShowMenu(true);
@@ -37,18 +41,18 @@ const Message = (props) => {
   }, [showMenu]);
   return (
     <MessageContainer type={type}>
-      {<MessageDivider data-label="Yesterday"></MessageDivider>}
+      {divider && <MessageDivider data-label={data_label}></MessageDivider>}
       <MessageContent type={type}>
         <MessageWrapper type={type}>
           <div>
-            <span>{props.text}</span>
+            <span>{text}</span>
           </div>
         </MessageWrapper>
         <MessageOptions type={type}>
           <AvatarUser>
             <img src="/images/user-img.jpg" alt="" />
           </AvatarUser>
-          <span>{formatDate(props.date)}</span>
+          <span>{date}</span>
           <MessageOptionsDropDown>
             <BiDotsHorizontalRounded onClick={menuShowHandler} />
             {showMenu && (

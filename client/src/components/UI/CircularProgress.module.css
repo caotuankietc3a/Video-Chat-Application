@@ -4,10 +4,10 @@
   height: 30px;
   z-index: 3;
   position: relative;
-top: -5px;
+  top: -5px;
 }
 .spinner:after {
-  content: '';
+  content: "";
   display: block;
   width: 34px;
   height: 34px;

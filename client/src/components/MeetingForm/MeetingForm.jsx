@@ -69,6 +69,7 @@ function MeetingForm(props) {
 
     return () => {
       // dispatch(videoActions.setStream({ stream: null }));
+      // depend on stream (null or not)
       socket_video.off("reject-call");
     };
   }, [stream]);
