@@ -1,6 +1,7 @@
 import "./App.css";
 import Login from "./components/Login/Login";
 import ChatRoom from "./components/ChatRoom/ChatRoom";
+import MeetingRoom from "./components/MeetingRoom/MeetingRoom";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -31,6 +32,8 @@ function App() {
             !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" />
           }
         ></Route>
+
+        <Route path="/meeting" element={<MeetingRoom />}></Route>
       </Routes>
     </BrowserRouter>
   );
