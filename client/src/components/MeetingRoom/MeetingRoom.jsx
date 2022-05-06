@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   FiMenu,
   FiVideo,
@@ -20,61 +21,61 @@ import {
   PannelControl,
   Videos,
   FunctionControls,
-  VideoRemotePeer,
-  VideoRemotePeerImg,
-  VideoRemotePeerName,
-  VideoRemotePeerStatus,
   Peers,
-  PeerInfo,
 } from "./StyledMeetingRoom";
 import { HiOutlineMicrophone } from "react-icons/hi";
+import Peer from "./Peer/Peer";
 
 const MeetingRoom = () => {
+  const [showTopControls, setShowTopControls] = useState(false);
+  const onClickShowTopControls = (e) => {
+    setShowTopControls(!showTopControls);
+  };
   return (
     <MeetingContainer>
-      <MeetingTopControls className="transparent">
-        <PannelControl>
-          <FiMenu />
-        </PannelControl>
-        <Peers>
-          <PeerInfo className="main-peer">
-            <VideoRemotePeer>
-              <VideoRemotePeerName fontsize="11px" padding="10px 0px">
-                sdfa
-              </VideoRemotePeerName>
-              <VideoRemotePeerImg height="40px" width="40px">
-                <img src="/images/user-img.jpg" alt="" />
-              </VideoRemotePeerImg>
-              <VideoRemotePeerStatus fontsize="11px" padding="10px 0px">
-                sdafgsdfa
-              </VideoRemotePeerStatus>
-            </VideoRemotePeer>
-          </PeerInfo>
-        </Peers>
-        <Videos>
+      <MeetingTopControls
+        className={!showTopControls ? "" : "transparent"}
+        showTop={showTopControls}
+      >
+        {showTopControls && (
+          <PannelControl showTop={showTopControls}>
+            <FiMenu />
+          </PannelControl>
+        )}
+
+        {showTopControls && (
+          <Peers>
+            <Peer
+              type="main-peer"
+              padding="10px 0"
+              fontsize="11px"
+              heightImg="40px"
+              widthImg="40px"
+              userImg="/images/user-img.jpg"
+            />
+          </Peers>
+        )}
+
+        <Videos showTop={showTopControls}>
           <video src=""></video>
         </Videos>
-        <PannelControl>
-          <FaChevronDown />
-        </PannelControl>
+
+        {showTopControls && (
+          <PannelControl showTop={showTopControls}>
+            <FaChevronDown />
+          </PannelControl>
+        )}
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
-        <VideoRemotePeer>
-          <VideoRemotePeerName height="30px" fontsize="18px" padding="0px 0px">
-            sdfa
-          </VideoRemotePeerName>
-          <VideoRemotePeerImg height="120px">
-            <img src="/images/user-img.jpg" alt="" />
-          </VideoRemotePeerImg>
-          <VideoRemotePeerStatus
-            height="30px"
-            fontsize="18px"
-            padding="0px 0px"
-          >
-            sdafgsdfa
-          </VideoRemotePeerStatus>
-        </VideoRemotePeer>
+        <Peer
+          type="main-screen-peer"
+          padding="0 0"
+          fontsize="18px"
+          heightImg="120px"
+          widthImg="120px"
+          userImg="/images/user-img.jpg"
+        />
         <MeetingBottomControls>
           <FunctionControls>
             <FiVideo />
@@ -94,8 +95,8 @@ const MeetingRoom = () => {
           <FunctionControls>
             <RiFullscreenFill />
           </FunctionControls>
-          <FunctionControls>
-            <MdGridView />
+          <FunctionControls onClick={onClickShowTopControls}>
+            {!showTopControls ? <MdGridView /> : <VscSplitHorizontal />}
           </FunctionControls>
         </MeetingBottomControls>
       </MeetingVideoWrapper>

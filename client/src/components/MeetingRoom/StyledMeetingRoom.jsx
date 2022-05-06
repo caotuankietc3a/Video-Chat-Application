@@ -1,15 +1,17 @@
 import styled from "styled-components";
 
 export const MeetingTopControls = styled.div`
-  display: flex;
-  justify-content: space-between;
+  justify-content: ${({ showTop }) =>
+    !showTop ? "flex-end" : "space-between"};
   z-index: 1000;
   width: 100%;
+  display: flex;
   height: 0;
   &.transparent {
     height: 95px;
     min-height: 95px;
     background: #363e47;
+    display: flex;
   }
 `;
 
@@ -22,6 +24,7 @@ export const PannelControl = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  /* display: none; */
   & svg {
     font-size: 20px;
     color: #ffffff;
@@ -37,8 +40,8 @@ export const Videos = styled.div`
     background: black;
     width: 140px;
     min-width: 140px;
-    height: 95px;
-    min-height: 95px;
+    height: ${({ showTop }) => (showTop ? "95px" : "105px")};
+    min-height: ${({ showTop }) => (showTop ? "95px" : "105px")};
     cursor: pointer;
     margin: 0 1px;
   }
@@ -49,21 +52,8 @@ export const Peers = styled.div`
   display: flex;
   /* Important */
   flex-grow: 1;
-  /* width: 100%; */
   justify-content: flex-start;
   /* Important */
-`;
-
-export const PeerInfo = styled.div`
-  width: 135px;
-  min-width: 135px;
-  height: 95px;
-  min-height: 95px;
-  cursor: pointer;
-  box-sizing: border-box;
-  &.main-peer {
-    border: 3px solid #da7d02;
-  }
 `;
 
 export const MeetingContainer = styled.div`
@@ -74,42 +64,6 @@ export const MeetingContainer = styled.div`
   align-items: center;
   flex-direction: column;
   /* background-color: #333; */
-`;
-
-export const VideoRemotePeer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background-color: #f7f7f7;
-`;
-
-export const VideoRemotePeerName = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  font-weight: 700;
-  color: #666;
-  font-size: ${(props) => props.fontsize};
-  padding: ${(props) => props.padding};
-  height: 30px;
-`;
-
-export const VideoRemotePeerImg = styled.div`
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
-  border-radius: 50%;
-  & img {
-    width: ${(props) => props.width};
-    height: ${(props) => props.height};
-    border-radius: 50%;
-  }
-`;
-
-export const VideoRemotePeerStatus = styled(VideoRemotePeerName)`
-  align-items: flex-end;
 `;
 
 export const MeetingVideoWrapper = styled.div`

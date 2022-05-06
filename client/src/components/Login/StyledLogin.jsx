@@ -61,7 +61,7 @@ export const FormSectionLogin = styled.div`
   }
 
   form {
-    width: 430px;
+    width: auto;
     height: 215px;
   }
 
@@ -159,6 +159,8 @@ export const FormCheckRegister = styled.div`
 export const EmailPassInput = styled.input`
   width: 100%;
   padding: 10px 25px;
+  position: absolute;
+  left: 0;
   outline: none;
   font-size: 16px;
   height: 55px;
@@ -232,7 +234,7 @@ export const InformationLogin = styled.div`
     max-width: 300px;
     width: 240;
     margin: 0 auto;
-    transition: all 1s ease-in;
+    transition: all 0.5s ease-in;
 
     &:hover {
       transform: scale(1.1);
