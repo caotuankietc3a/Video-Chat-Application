@@ -6,6 +6,11 @@ export const MeetingTopControls = styled.div`
   z-index: 1000;
   width: 100%;
   height: 0;
+  &.transparent {
+    height: 95px;
+    min-height: 95px;
+    background: #363e47;
+  }
 `;
 
 export const PannelControl = styled.div`
@@ -24,15 +29,40 @@ export const PannelControl = styled.div`
 `;
 
 export const Videos = styled.div`
-  min-width: 0;
+  min-width: 140px;
   position: relative;
+  flex-grow: 0;
   & video {
     object-fit: cover;
     background: black;
     width: 140px;
-    height: 105px;
+    min-width: 140px;
+    height: 95px;
+    min-height: 95px;
     cursor: pointer;
     margin: 0 1px;
+  }
+`;
+
+export const Peers = styled.div`
+  min-width: 138px;
+  display: flex;
+  /* Important */
+  flex-grow: 1;
+  /* width: 100%; */
+  justify-content: flex-start;
+  /* Important */
+`;
+
+export const PeerInfo = styled.div`
+  width: 135px;
+  min-width: 135px;
+  height: 95px;
+  min-height: 95px;
+  cursor: pointer;
+  box-sizing: border-box;
+  &.main-peer {
+    border: 3px solid #da7d02;
   }
 `;
 
@@ -43,7 +73,7 @@ export const MeetingContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-direction: column;
-  background-color: #f7f7f7;
+  /* background-color: #333; */
 `;
 
 export const VideoRemotePeer = styled.div`
@@ -53,28 +83,34 @@ export const VideoRemotePeer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  background-color: #f7f7f7;
 `;
 
 export const VideoRemotePeerName = styled.div`
-  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   font-weight: 700;
   color: #666;
-  padding: 5px 0;
+  font-size: ${(props) => props.fontsize};
+  padding: ${(props) => props.padding};
   height: 30px;
 `;
 
 export const VideoRemotePeerImg = styled.div`
-  width: 120px;
-  height: 120px;
+  width: ${(props) => props.width};
+  height: ${(props) => props.height};
   border-radius: 50%;
   & img {
-    width: 120px;
-    height: 120px;
+    width: ${(props) => props.width};
+    height: ${(props) => props.height};
     border-radius: 50%;
   }
 `;
 
-export const VideoRemotePeerStatus = styled.div``;
+export const VideoRemotePeerStatus = styled(VideoRemotePeerName)`
+  align-items: flex-end;
+`;
 
 export const MeetingVideoWrapper = styled.div`
   width: 100%;
@@ -95,12 +131,24 @@ export const MeetingBottomControls = styled.div`
 
 export const FunctionControls = styled.div`
   min-width: 50px;
-  width: 7vw;
+  width: 8vw;
   max-width: 80px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: #ffffff;
   cursor: pointer;
   background: #363e47;
+  &:hover {
+    background: #303841;
+  }
+
+  &.phone_off {
+    background: #eb1819;
+    height: 53px;
+    &:hover {
+      background: #d61314;
+    }
+  }
 `;
