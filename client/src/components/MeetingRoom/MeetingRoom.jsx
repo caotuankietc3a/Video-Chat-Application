@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   FiMenu,
   FiVideo,
@@ -28,9 +29,27 @@ import Peer from "./Peer/Peer";
 
 const MeetingRoom = () => {
   const [showTopControls, setShowTopControls] = useState(false);
+  const userVideo = useRef();
+  const myVideo = useRef();
+  const {
+    call: { isReceivedCall, caller, callee, signal },
+    stream,
+    callAccepted,
+    callEnded,
+    connection,
+    userStream,
+  } = useSelector((state) => state.video);
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
+
+  useEffect(() => {
+    console.log(userStream);
+    console.log(stream);
+    if (userStream) userVideo.current.srcObject = userStream;
+    if (stream) myVideo.current.srcObject = stream;
+  }, [userStream, stream]);
+
   return (
     <MeetingContainer>
       <MeetingTopControls
@@ -57,7 +76,7 @@ const MeetingRoom = () => {
         )}
 
         <Videos showTop={showTopControls}>
-          <video src=""></video>
+          <video ref={myVideo} autoPlay={true} muted={true}></video>
         </Videos>
 
         {showTopControls && (
@@ -76,6 +95,10 @@ const MeetingRoom = () => {
           widthImg="120px"
           userImg="/images/user-img.jpg"
         />
+
+        <Videos showTop={!showTopControls}>
+          <video ref={userVideo} autoPlay={true} muted={true}></video>
+        </Videos>
         <MeetingBottomControls>
           <FunctionControls>
             <FiVideo />

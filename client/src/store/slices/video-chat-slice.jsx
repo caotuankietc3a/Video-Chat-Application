@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  connection: null,
+  userStream: null,
   callAccepted: false,
   callEnded: false,
+  // myStream
   stream: null,
   call: {
     isReceivedCall: false,
@@ -35,12 +38,20 @@ const videoSlice = createSlice({
       state.stream = null;
       state.callAccepted = false;
       state.callEnded = false;
+      state.userStream = null;
+      state.connection = null;
     },
     setCallAccepted(state, action) {
       state.callAccepted = action.payload.callAccepted;
     },
     setCallEndded(state, action) {
       state.callEnded = action.payload.callEnded;
+    },
+    setUserStream(state, action) {
+      state.userStream = action.payload.userStream;
+    },
+    setConnection(state, action) {
+      state.connection = action.payload.connection;
     },
   },
 });

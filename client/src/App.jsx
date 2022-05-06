@@ -33,7 +33,10 @@ function App() {
           }
         ></Route>
 
-        <Route path="/meeting" element={<MeetingRoom />}></Route>
+        <Route
+          path="/meeting/:conversationId"
+          element={<MeetingRoom />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );

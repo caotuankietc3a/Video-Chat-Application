@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import {
   MeetingFormContainer,
   MeetingFormContent,
@@ -27,11 +27,8 @@ import { videoActions } from "../../store/slices/video-chat-slice";
 
 function MeetingForm(props) {
   console.log("MeetingForm running");
-  const userVideo = useRef();
-  const myVideo = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const connection = useRef();
   const {
     call: { isReceivedCall, caller, callee },
     stream,
@@ -41,30 +38,34 @@ function MeetingForm(props) {
   const { socket_video, conversation } = props;
 
   useEffect(() => {
-    dispatch(
-      videoStreamStart((currentStream) => {
-        if (myVideo.current) myVideo.current.srcObject = currentStream;
-      })
-    );
+    // dispatch(
+    //   videoStreamStart((currentStream) => {
+    //     if (myVideo.current) myVideo.current.srcObject = currentStream;
+    //   })
+    // );
+
+    dispatch(videoStreamStart());
   }, [callAccepted]);
 
   useEffect(() => {
     if (stream && !isReceivedCall) {
-      dispatch(
-        callUser(
-          socket_video,
-          (currentStream) => {
-            userVideo.current.srcObject = currentStream;
-          },
-          (peer) => {
-            connection.current = peer;
-          }
-        )
-      );
+      // dispatch(
+      //   callUser(
+      //     socket_video,
+      //     (currentStream) => {
+      //       userVideo.current.srcObject = currentStream;
+      //     },
+      //     (peer) => {
+      //       connection.current = peer;
+      //     }
+      //   )
+      // );
+      dispatch(callUser(socket_video));
     }
 
     socket_video.on("reject-call", () => {
-      dispatch(rejectCall(navigate, stream, connection));
+      // dispatch(rejectCall(navigate, stream, connection));
+      dispatch(rejectCall(navigate));
     });
 
     return () => {
@@ -72,12 +73,16 @@ function MeetingForm(props) {
       // depend on stream (null or not)
       socket_video.off("reject-call");
     };
-  }, [stream]);
+  }, [stream, isReceivedCall]);
 
   useEffect(() => {
-    socket_video.on("call-user", ({ signal }) =>
-      dispatch(videoActions.setSignal({ signal }))
-    );
+    socket_video.on("call-user", ({ signal }) => {
+      dispatch(videoActions.setSignal({ signal }));
+    });
+
+    socket_video.on("join-meeting-room", () => {
+      navigate(`/meeting/${conversation._id}`);
+    });
   }, []);
 
   const rejectCallHandler = () => {
@@ -85,27 +90,32 @@ function MeetingForm(props) {
   };
 
   const anwserCallHandler = () => {
-    dispatch(
-      answerCall(
-        socket_video,
-        (currentStream) => {
-          userVideo.current.srcObject = currentStream;
-        },
-        (peer) => {
-          connection.current = peer;
-        }
-      )
-    );
+    // dispatch(
+    //   answerCall(
+    //     socket_video,
+    //     (currentStream) => {
+    //       userVideo.current.srcObject = currentStream;
+    //     },
+    //     (peer) => {
+    //       connection.current = peer;
+    //     }
+    //   )
+    // );
+    // navigate(`/meeting/${conversation._id}`);
+
+    socket_video.emit("meeting-room", { conversationId: conversation._id });
+    dispatch(answerCall(socket_video));
   };
 
-  const myVideoDisplay = stream && (
-    <video ref={myVideo} autoPlay={true} muted={true}></video>
-  );
-  const userVideoDisplay = !callEnded && (
-    <video ref={userVideo} autoPlay={true} muted={true}></video>
-  );
+  // const myVideoDisplay = stream && (
+  //   <video ref={myVideo} autoPlay={true} muted={true}></video>
+  // );
+  // const userVideoDisplay = !callEnded && (
+  //   <video ref={userVideo} autoPlay={true} muted={true}></video>
+  // );
 
-  return !callAccepted ? (
+  // !callAccepted ? (
+  return (
     <MeetingFormContainer>
       <MeetingFormContent>
         <MeetingImgLogo>
@@ -142,12 +152,13 @@ function MeetingForm(props) {
         </MeetingBtns>
       </MeetingFormContent>
     </MeetingFormContainer>
-  ) : (
-    <>
-      {myVideoDisplay}
-      {userVideoDisplay}
-    </>
   );
+  // ) : (
+  //   <>
+  //     {myVideoDisplay}
+  //     {userVideoDisplay}
+  //   </>
+  // );
 }
 
 export default MeetingForm;

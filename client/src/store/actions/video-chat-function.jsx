@@ -1,6 +1,6 @@
 import Peer from "simple-peer";
 import { videoActions } from "../slices/video-chat-slice";
-export const videoStreamStart = (callback) => {
+export const videoStreamStart = () => {
   return async (dispatch) => {
     try {
       const currentStream = await navigator.mediaDevices.getUserMedia({
@@ -8,14 +8,13 @@ export const videoStreamStart = (callback) => {
         audio: true,
       });
       dispatch(videoActions.setStream({ stream: currentStream }));
-      callback(currentStream);
     } catch (err) {
       console.error(err);
     }
   };
 };
 
-export const answerCall = (socket_video, userVideoCb, connectionCb) => {
+export const answerCall = (socket_video) => {
   return async (dispatch, getState) => {
     const { _id } = getState().conversation.conversation;
     const { call, stream } = getState().video;
@@ -28,18 +27,16 @@ export const answerCall = (socket_video, userVideoCb, connectionCb) => {
     });
 
     peer.on("stream", (currentStream) => {
-      // userVideo.current.srcObject = currentStream;
-      userVideoCb(currentStream);
+      dispatch(videoActions.setUserStream({ userStream: currentStream }));
     });
 
     peer.signal(call.signal);
 
-    // connection.current = peer;
-    connectionCb(peer);
+    dispatch(videoActions.setConnection({ connection: peer }));
   };
 };
 
-export const callUser = (socket_video, userVideoCb, connectionCb) => {
+export const callUser = (socket_video) => {
   return (dispatch, getState) => {
     const { stream } = getState().video;
     const { _id } = getState().conversation.conversation;
@@ -53,8 +50,7 @@ export const callUser = (socket_video, userVideoCb, connectionCb) => {
     });
 
     peer.on("stream", (currentStream) => {
-      // userVideo.current.srcObject = currentStream;
-      userVideoCb(currentStream);
+      dispatch(videoActions.setUserStream({ userStream: currentStream }));
     });
 
     socket_video.on("accept-call", ({ signal }) => {
@@ -62,34 +58,33 @@ export const callUser = (socket_video, userVideoCb, connectionCb) => {
       peer.signal(signal);
     });
 
-    // connection.current = peer;
-    connectionCb(peer);
+    dispatch(videoActions.setConnection({ connection: peer }));
   };
 };
 
-export const rejectCall = (navigate, stream, connection) => {
-  return async (dispatch) => {
+export const rejectCall = (navigate) => {
+  return async (dispatch, getState) => {
+    const { stream } = getState().video;
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
-    console.log(stream);
-
     // Becareful the order of navigate and dispatch
     navigate(`/home-chat`);
 
+    // Must check again.
     // if (connection.current) {
     //   connection.current.destroy();
     // }
-    connection.current.on("close", () => {
-      connection.current.destroy();
-    });
+    // connection.current.on("close", () => {
+    //   connection.current.destroy();
+    // });
     dispatch(videoActions.setVideoState());
   };
 };
 
-export const leaveCall = () => {
-  return (dispatch) => {
-    dispatch(videoActions.setCallEndded({ callEnded: true }));
-    window.location.reload();
-  };
-};
+// export const leaveCall = () => {
+//   return (dispatch) => {
+//     dispatch(videoActions.setCallEndded({ callEnded: true }));
+//     window.location.reload();
+//   };
+// };
