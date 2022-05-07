@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   FiMenu,
   FiVideo,
@@ -20,17 +21,23 @@ import {
   MeetingTopControls,
   MeetingBottomControls,
   PannelControl,
-  Videos,
+  MyVideo,
+  UserVideo,
   FunctionControls,
   Peers,
 } from "./StyledMeetingRoom";
 import { HiOutlineMicrophone } from "react-icons/hi";
 import Peer from "./Peer/Peer";
+import { rejectCall } from "../../store/actions/video-chat-function";
 
 const MeetingRoom = () => {
   const [showTopControls, setShowTopControls] = useState(false);
   const userVideo = useRef();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const myVideo = useRef();
+  const { socket_video } = useSelector((state) => state.socket);
+  const { conversation } = useSelector((state) => state.conversation);
   const {
     call: { isReceivedCall, caller, callee, signal },
     stream,
@@ -44,11 +51,26 @@ const MeetingRoom = () => {
   };
 
   useEffect(() => {
-    console.log(userStream);
-    console.log(stream);
     if (userStream) userVideo.current.srcObject = userStream;
     if (stream) myVideo.current.srcObject = stream;
   }, [userStream, stream]);
+
+  useEffect(() => {
+    socket_video.on("leave-meeting-room", () => {
+      dispatch(rejectCall(navigate));
+    });
+
+    return () => {
+      // depend on stream (null or not)
+      socket_video.off("leave-meeting-room");
+    };
+  }, []);
+
+  const phoneOffHandler = () => {
+    socket_video.emit("leave-meeting-room", {
+      conversationId: conversation._id,
+    });
+  };
 
   return (
     <MeetingContainer>
@@ -75,9 +97,9 @@ const MeetingRoom = () => {
           </Peers>
         )}
 
-        <Videos showTop={showTopControls}>
+        <MyVideo showTop={showTopControls}>
           <video ref={myVideo} autoPlay={true} muted={true}></video>
-        </Videos>
+        </MyVideo>
 
         {showTopControls && (
           <PannelControl showTop={showTopControls}>
@@ -87,18 +109,19 @@ const MeetingRoom = () => {
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
-        <Peer
-          type="main-screen-peer"
-          padding="0 0"
-          fontsize="18px"
-          heightImg="120px"
-          widthImg="120px"
-          userImg="/images/user-img.jpg"
-        />
+        {/* <Peer */}
+        {/*   type="main-screen-peer" */}
+        {/*   padding="0 0" */}
+        {/*   fontsize="18px" */}
+        {/*   heightImg="120px" */}
+        {/*   widthImg="120px" */}
+        {/*   userImg="/images/user-img.jpg" */}
+        {/* /> */}
 
-        <Videos showTop={!showTopControls}>
+        <UserVideo>
           <video ref={userVideo} autoPlay={true} muted={true}></video>
-        </Videos>
+        </UserVideo>
+
         <MeetingBottomControls>
           <FunctionControls>
             <FiVideo />
@@ -109,7 +132,7 @@ const MeetingRoom = () => {
           <FunctionControls>
             <CgScreen />
           </FunctionControls>
-          <FunctionControls className="phone_off">
+          <FunctionControls className="phone_off" onClick={phoneOffHandler}>
             <FiPhoneOff />
           </FunctionControls>
           <FunctionControls>

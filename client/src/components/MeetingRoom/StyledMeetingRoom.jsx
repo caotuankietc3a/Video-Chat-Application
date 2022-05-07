@@ -7,6 +7,7 @@ export const MeetingTopControls = styled.div`
   width: 100%;
   display: flex;
   height: 0;
+  position: fixed;
   &.transparent {
     height: 95px;
     min-height: 95px;
@@ -24,14 +25,13 @@ export const PannelControl = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  /* display: none; */
   & svg {
     font-size: 20px;
     color: #ffffff;
   }
 `;
 
-export const Videos = styled.div`
+export const MyVideo = styled.div`
   min-width: 140px;
   position: relative;
   flex-grow: 0;
@@ -44,6 +44,23 @@ export const Videos = styled.div`
     min-height: ${({ showTop }) => (showTop ? "95px" : "105px")};
     cursor: pointer;
     margin: 0 1px;
+  }
+`;
+
+export const UserVideo = styled.div`
+  min-width: 100vw;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & video {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    z-index: -900;
+    background-color: #333;
+    overflow: scroll;
   }
 `;
 
@@ -74,7 +91,7 @@ export const MeetingVideoWrapper = styled.div`
 
 export const MeetingBottomControls = styled.div`
   padding-bottom: 18px;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   z-index: 100px;
   width: 100%;

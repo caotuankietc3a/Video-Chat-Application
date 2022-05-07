@@ -64,10 +64,15 @@ export const callUser = (socket_video) => {
 
 export const rejectCall = (navigate) => {
   return async (dispatch, getState) => {
-    const { stream } = getState().video;
+    const { stream, userStream } = getState().video;
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
+
+    userStream?.getTracks().forEach(function (track) {
+      track.stop();
+    });
+
     // Becareful the order of navigate and dispatch
     navigate(`/home-chat`);
 
@@ -81,10 +86,3 @@ export const rejectCall = (navigate) => {
     dispatch(videoActions.setVideoState());
   };
 };
-
-// export const leaveCall = () => {
-//   return (dispatch) => {
-//     dispatch(videoActions.setCallEndded({ callEnded: true }));
-//     window.location.reload();
-//   };
-// };

@@ -38,38 +38,19 @@ function MeetingForm(props) {
   const { socket_video, conversation } = props;
 
   useEffect(() => {
-    // dispatch(
-    //   videoStreamStart((currentStream) => {
-    //     if (myVideo.current) myVideo.current.srcObject = currentStream;
-    //   })
-    // );
-
     dispatch(videoStreamStart());
   }, [callAccepted]);
 
   useEffect(() => {
     if (stream && !isReceivedCall) {
-      // dispatch(
-      //   callUser(
-      //     socket_video,
-      //     (currentStream) => {
-      //       userVideo.current.srcObject = currentStream;
-      //     },
-      //     (peer) => {
-      //       connection.current = peer;
-      //     }
-      //   )
-      // );
       dispatch(callUser(socket_video));
     }
 
     socket_video.on("reject-call", () => {
-      // dispatch(rejectCall(navigate, stream, connection));
       dispatch(rejectCall(navigate));
     });
 
     return () => {
-      // dispatch(videoActions.setStream({ stream: null }));
       // depend on stream (null or not)
       socket_video.off("reject-call");
     };
@@ -90,20 +71,9 @@ function MeetingForm(props) {
   };
 
   const anwserCallHandler = () => {
-    // dispatch(
-    //   answerCall(
-    //     socket_video,
-    //     (currentStream) => {
-    //       userVideo.current.srcObject = currentStream;
-    //     },
-    //     (peer) => {
-    //       connection.current = peer;
-    //     }
-    //   )
-    // );
-    // navigate(`/meeting/${conversation._id}`);
-
-    socket_video.emit("meeting-room", { conversationId: conversation._id });
+    socket_video.emit("join-meeting-room", {
+      conversationId: conversation._id,
+    });
     dispatch(answerCall(socket_video));
   };
 

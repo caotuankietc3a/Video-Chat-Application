@@ -111,8 +111,12 @@ io_video.on("connection", (socket) => {
     io_video.to(conversationId).emit("accept-call", { signal });
   });
 
-  socket.on("meeting-room", ({ conversationId }) => {
+  socket.on("join-meeting-room", ({ conversationId }) => {
     io_video.to(conversationId).emit("join-meeting-room");
+  });
+
+  socket.on("leave-meeting-room", ({ conversationId }) => {
+    io_video.to(conversationId).emit("leave-meeting-room");
   });
 
   socket.on("disconnect", () => {

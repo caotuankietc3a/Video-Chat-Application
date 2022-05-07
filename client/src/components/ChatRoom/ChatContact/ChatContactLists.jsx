@@ -1,6 +1,6 @@
+import { useState, useRef, useEffect } from "react";
 import { ContactLists } from "./StyledContacts";
 import ChatContactItems from "./ChatContactItems";
-import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
@@ -130,7 +130,21 @@ const ChatContactLists = (props) => {
       });
   };
 
+  // const contactLists = useRef(null);
+  // useEffect(() => {
+  //   const changeBgEl = (e) => {
+  //     console.log(e.target);
+  //     e.target.style.background = "#fff";
+  //   };
+  //   console.log(contactLists.current.querySelectorAll("li"));
+  //   contactLists.current.querySelectorAll("li").forEach((el) => {
+  //     console.log(el);
+  //     el.addEventListener("click", changeBgEl);
+  //   });
+  // }, [contactLists]);
+
   return (
+    // <ContactLists ref={contactLists}>
     <ContactLists>
       {props.type !== "Friends" &&
         filterConversationsHandler(conversations, searchContactItems)}
