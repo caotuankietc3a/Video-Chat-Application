@@ -64,25 +64,33 @@ export const callUser = (socket_video) => {
 
 export const rejectCall = (navigate) => {
   return async (dispatch, getState) => {
-    const { stream, userStream } = getState().video;
+    const { stream, userStream, connection } = getState().video;
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
-
     userStream?.getTracks().forEach(function (track) {
       track.stop();
     });
+    // connection._destroy();
+    // console.log(connection);
 
     // Becareful the order of navigate and dispatch
     navigate(`/home-chat`);
+    dispatch(videoActions.setVideoState());
+    // window.location.reload();
 
-    // Must check again.
+    // Must check again. Cannot use peer.destroy().
     // if (connection.current) {
-    //   connection.current.destroy();
     // }
     // connection.current.on("close", () => {
     //   connection.current.destroy();
     // });
-    dispatch(videoActions.setVideoState());
+  };
+};
+
+export const leaveMeetingRoom = (navigate) => {
+  return (dispatch) => {
+    dispatch(rejectCall(navigate));
+    window.location.reload();
   };
 };

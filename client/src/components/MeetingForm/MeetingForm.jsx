@@ -77,14 +77,6 @@ function MeetingForm(props) {
     dispatch(answerCall(socket_video));
   };
 
-  // const myVideoDisplay = stream && (
-  //   <video ref={myVideo} autoPlay={true} muted={true}></video>
-  // );
-  // const userVideoDisplay = !callEnded && (
-  //   <video ref={userVideo} autoPlay={true} muted={true}></video>
-  // );
-
-  // !callAccepted ? (
   return (
     <MeetingFormContainer>
       <MeetingFormContent>
@@ -123,12 +115,6 @@ function MeetingForm(props) {
       </MeetingFormContent>
     </MeetingFormContainer>
   );
-  // ) : (
-  //   <>
-  //     {myVideoDisplay}
-  //     {userVideoDisplay}
-  //   </>
-  // );
 }
 
 export default MeetingForm;

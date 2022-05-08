@@ -28,7 +28,10 @@ import {
 } from "./StyledMeetingRoom";
 import { HiOutlineMicrophone } from "react-icons/hi";
 import Peer from "./Peer/Peer";
-import { rejectCall } from "../../store/actions/video-chat-function";
+import {
+  leaveMeetingRoom,
+  rejectCall,
+} from "../../store/actions/video-chat-function";
 
 const MeetingRoom = () => {
   const [showTopControls, setShowTopControls] = useState(false);
@@ -38,6 +41,7 @@ const MeetingRoom = () => {
   const myVideo = useRef();
   const { socket_video } = useSelector((state) => state.socket);
   const { conversation } = useSelector((state) => state.conversation);
+
   const {
     call: { isReceivedCall, caller, callee, signal },
     stream,
@@ -57,7 +61,7 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     socket_video.on("leave-meeting-room", () => {
-      dispatch(rejectCall(navigate));
+      dispatch(leaveMeetingRoom(navigate));
     });
 
     return () => {
