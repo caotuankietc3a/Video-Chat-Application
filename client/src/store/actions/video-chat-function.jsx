@@ -21,6 +21,8 @@ export const answerCall = (socket_video) => {
     const peer = new Peer({ initiator: false, trickle: false, stream: stream });
 
     dispatch(videoActions.setCallAccepted({ callAccepted: true }));
+    console.log("set showVideo answerCall running");
+    dispatch(videoActions.setShowVideo({ showVideo: true }));
 
     peer.on("signal", (data) => {
       socket_video.emit("answer-call", { signal: data, conversationId: _id });
@@ -42,6 +44,10 @@ export const callUser = (socket_video) => {
     const { _id } = getState().conversation.conversation;
     const peer = new Peer({ initiator: true, trickle: false, stream: stream });
 
+    // set showVideo to caller.
+    console.log("set showVideo callUser running");
+    dispatch(videoActions.setShowVideo({ showVideo: false }));
+
     peer.on("signal", (data) => {
       socket_video.emit("call-user", {
         conversationId: _id,
@@ -55,6 +61,8 @@ export const callUser = (socket_video) => {
 
     socket_video.on("accept-call", ({ signal }) => {
       dispatch(videoActions.setCallAccepted({ callAccepted: true }));
+      // set showUserVideo to caller if they accept video call.
+      dispatch(videoActions.setShowUserVideo({ showUserVideo: true }));
       peer.signal(signal);
     });
 

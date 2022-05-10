@@ -104,7 +104,7 @@ io_video.on("connection", (socket) => {
   });
 
   socket.on("call-user", ({ conversationId, signal }) => {
-    io_video.to(conversationId).emit("call-user", { signal });
+    socket.broadcast.to(conversationId).emit("call-user", { signal });
   });
 
   socket.on("answer-call", ({ conversationId, signal }) => {
@@ -116,12 +116,12 @@ io_video.on("connection", (socket) => {
   });
 
   socket.on("leave-meeting-room", ({ conversationId }) => {
+    console.log("A user disconnected video-room!!!");
     io_video.to(conversationId).emit("leave-meeting-room");
   });
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected video-room!!!");
-    // console.log(io_video.adapter.rooms);
+  socket.on("toggle-video", ({ conversationId }) => {
+    socket.broadcast.to(conversationId).emit("toggle-video");
   });
 });
 

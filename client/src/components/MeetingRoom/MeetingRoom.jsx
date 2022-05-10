@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { videoActions } from "../../store/slices/video-chat-slice";
 import {
   FiMenu,
   FiVideo,
@@ -33,47 +34,69 @@ import {
   rejectCall,
 } from "../../store/actions/video-chat-function";
 
-const MeetingRoom = () => {
+const MeetingRoom = (props) => {
+  console.log("MeetingRoom running");
   const [showTopControls, setShowTopControls] = useState(false);
-  const userVideo = useRef();
+  const userVideo = useRef(null);
+  const myVideo = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const myVideo = useRef();
   const { socket_video } = useSelector((state) => state.socket);
   const { conversation } = useSelector((state) => state.conversation);
 
-  const {
-    call: { isReceivedCall, caller, callee, signal },
-    stream,
-    callAccepted,
-    callEnded,
-    connection,
-    userStream,
-  } = useSelector((state) => state.video);
+  const { stream, userStream, showVideo, showUserVideo } = useSelector(
+    (state) => state.video
+  );
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
+  console.log("myVideo: ", myVideo);
+  console.log("userVideo: ", userVideo);
+  console.log("showVideo: ", showVideo);
+  console.log("showUserVideo: ", showUserVideo);
 
   useEffect(() => {
-    if (userStream) userVideo.current.srcObject = userStream;
-    if (stream) myVideo.current.srcObject = stream;
-  }, [userStream, stream]);
+    if (stream) {
+      if (myVideo.current) myVideo.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    if (userStream) {
+      if (userVideo.current) userVideo.current.srcObject = userStream;
+    }
+  }, [userStream]);
 
   useEffect(() => {
     socket_video.on("leave-meeting-room", () => {
       dispatch(leaveMeetingRoom(navigate));
     });
+  }, []);
+
+  useEffect(() => {
+    socket_video.on("toggle-video", () => {
+      dispatch(
+        videoActions.setShowUserVideo({ showUserVideo: !showUserVideo })
+      );
+    });
 
     return () => {
-      // depend on stream (null or not)
-      socket_video.off("leave-meeting-room");
+      // depend on showVideo
+      socket_video.off("toggle-video");
     };
-  }, []);
+  }, [showUserVideo]);
 
   const phoneOffHandler = () => {
     socket_video.emit("leave-meeting-room", {
       conversationId: conversation._id,
     });
+  };
+
+  const toggleVideoHandler = () => {
+    socket_video.emit("toggle-video", {
+      conversationId: conversation._id,
+    });
+    dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
   };
 
   return (
@@ -90,19 +113,27 @@ const MeetingRoom = () => {
 
         {showTopControls && (
           <Peers>
-            <Peer
-              type="main-peer"
-              padding="10px 0"
-              fontsize="11px"
-              heightImg="40px"
-              widthImg="40px"
-              userImg="/images/user-img.jpg"
-            />
+            {!showUserVideo ? (
+              <Peer
+                type="main-peer"
+                padding="10px 0"
+                fontsize="11px"
+                heightImg="40px"
+                widthImg="40px"
+                userImg="/images/user-img.jpg"
+              />
+            ) : (
+              <MyVideo showTop={showTopControls}>
+                <video ref={userVideo} autoPlay={true} muted={true}></video>
+              </MyVideo>
+            )}
           </Peers>
         )}
 
         <MyVideo showTop={showTopControls}>
-          <video ref={myVideo} autoPlay={true} muted={true}></video>
+          {showVideo && (
+            <video ref={myVideo} autoPlay={true} muted={true}></video>
+          )}
         </MyVideo>
 
         {showTopControls && (
@@ -113,22 +144,24 @@ const MeetingRoom = () => {
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
-        {/* <Peer */}
-        {/*   type="main-screen-peer" */}
-        {/*   padding="0 0" */}
-        {/*   fontsize="18px" */}
-        {/*   heightImg="120px" */}
-        {/*   widthImg="120px" */}
-        {/*   userImg="/images/user-img.jpg" */}
-        {/* /> */}
-
-        <UserVideo>
-          <video ref={userVideo} autoPlay={true} muted={true}></video>
-        </UserVideo>
+        {showUserVideo ? (
+          <UserVideo>
+            <video ref={userVideo} autoPlay={true} muted={true}></video>
+          </UserVideo>
+        ) : (
+          <Peer
+            type="main-screen-peer"
+            padding="0 0"
+            fontsize="18px"
+            heightImg="120px"
+            widthImg="120px"
+            userImg="/images/user-img.jpg"
+          />
+        )}
 
         <MeetingBottomControls>
-          <FunctionControls>
-            <FiVideo />
+          <FunctionControls onClick={toggleVideoHandler}>
+            {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
           <FunctionControls>
             <HiOutlineMicrophone />
@@ -155,3 +188,161 @@ const MeetingRoom = () => {
 };
 
 export default MeetingRoom;
+
+// import { useState, useRef, useEffect } from "react";
+// import { useSelector, useDispatch } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+// import {
+//   FiMenu,
+//   FiVideo,
+//   FiVideoOff,
+//   FiPhone,
+//   FiPhoneOff,
+//   FiUserPlus,
+// } from "react-icons/fi";
+// import { FaChevronDown } from "react-icons/fa";
+// import { BiMicrophone, BiMicrophoneOff } from "react-icons/bi";
+// import { CgScreen } from "react-icons/cg";
+// import { VscSplitHorizontal } from "react-icons/vsc";
+// import { MdGridView } from "react-icons/md";
+// import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
+// import {
+//   MeetingContainer,
+//   MeetingVideoWrapper,
+//   MeetingTopControls,
+//   MeetingBottomControls,
+//   PannelControl,
+//   MyVideo,
+//   UserVideo,
+//   FunctionControls,
+//   Peers,
+// } from "./StyledMeetingRoom";
+// import { HiOutlineMicrophone } from "react-icons/hi";
+// import Peer from "./Peer/Peer";
+// import {
+//   leaveMeetingRoom,
+//   rejectCall,
+// } from "../../store/actions/video-chat-function";
+//
+// const MeetingRoom = () => {
+//   const [showTopControls, setShowTopControls] = useState(false);
+//   const userVideo = useRef();
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const myVideo = useRef();
+//   const { socket_video } = useSelector((state) => state.socket);
+//   const { conversation } = useSelector((state) => state.conversation);
+//
+//   const {
+//     call: { isReceivedCall, caller, callee, signal },
+//     stream,
+//     callAccepted,
+//     callEnded,
+//     connection,
+//     userStream,
+//   } = useSelector((state) => state.video);
+//   const onClickShowTopControls = (e) => {
+//     setShowTopControls(!showTopControls);
+//   };
+//
+//   useEffect(() => {
+//     if (userStream) userVideo.current.srcObject = userStream;
+//     if (stream) myVideo.current.srcObject = stream;
+//   }, [userStream, stream]);
+//
+//   useEffect(() => {
+//     socket_video.on("leave-meeting-room", () => {
+//       dispatch(leaveMeetingRoom(navigate));
+//     });
+//
+//     return () => {
+//       // depend on stream (null or not)
+//       socket_video.off("leave-meeting-room");
+//     };
+//   }, []);
+//
+//   const phoneOffHandler = () => {
+//     socket_video.emit("leave-meeting-room", {
+//       conversationId: conversation._id,
+//     });
+//   };
+//
+//   return (
+//     <MeetingContainer>
+//       <MeetingTopControls
+//         className={!showTopControls ? "" : "transparent"}
+//         showTop={showTopControls}
+//       >
+//         {showTopControls && (
+//           <PannelControl showTop={showTopControls}>
+//             <FiMenu />
+//           </PannelControl>
+//         )}
+//
+//         {showTopControls && (
+//           <Peers>
+//             <Peer
+//               type="main-peer"
+//               padding="10px 0"
+//               fontsize="11px"
+//               heightImg="40px"
+//               widthImg="40px"
+//               userImg="/images/user-img.jpg"
+//             />
+//           </Peers>
+//         )}
+//
+//         <MyVideo showTop={showTopControls}>
+//           <video ref={myVideo} autoPlay={true} muted={true}></video>
+//         </MyVideo>
+//
+//         {showTopControls && (
+//           <PannelControl showTop={showTopControls}>
+//             <FaChevronDown />
+//           </PannelControl>
+//         )}
+//       </MeetingTopControls>
+//
+//       <MeetingVideoWrapper>
+//         {/* <Peer */}
+//         {/*   type="main-screen-peer" */}
+//         {/*   padding="0 0" */}
+//         {/*   fontsize="18px" */}
+//         {/*   heightImg="120px" */}
+//         {/*   widthImg="120px" */}
+//         {/*   userImg="/images/user-img.jpg" */}
+//         {/* /> */}
+//
+//         <UserVideo>
+//           <video ref={userVideo} autoPlay={true} muted={true}></video>
+//         </UserVideo>
+//
+//         <MeetingBottomControls>
+//           <FunctionControls>
+//             <FiVideo />
+//           </FunctionControls>
+//           <FunctionControls>
+//             <HiOutlineMicrophone />
+//           </FunctionControls>
+//           <FunctionControls>
+//             <CgScreen />
+//           </FunctionControls>
+//           <FunctionControls className="phone_off" onClick={phoneOffHandler}>
+//             <FiPhoneOff />
+//           </FunctionControls>
+//           <FunctionControls>
+//             <FiUserPlus />
+//           </FunctionControls>
+//           <FunctionControls>
+//             <RiFullscreenFill />
+//           </FunctionControls>
+//           <FunctionControls onClick={onClickShowTopControls}>
+//             {!showTopControls ? <MdGridView /> : <VscSplitHorizontal />}
+//           </FunctionControls>
+//         </MeetingBottomControls>
+//       </MeetingVideoWrapper>
+//     </MeetingContainer>
+//   );
+// };
+//
+// export default MeetingRoom;

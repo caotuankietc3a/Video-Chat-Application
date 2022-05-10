@@ -58,6 +58,9 @@ function MeetingForm(props) {
 
   useEffect(() => {
     socket_video.on("call-user", ({ signal }) => {
+      // set showUserVideo to callee.
+      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
+      // set signal to callee.
       dispatch(videoActions.setSignal({ signal }));
     });
 
