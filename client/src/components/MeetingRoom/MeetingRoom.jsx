@@ -27,7 +27,7 @@ import {
   FunctionControls,
   Peers,
 } from "./StyledMeetingRoom";
-import { HiOutlineMicrophone } from "react-icons/hi";
+import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
 import {
   leaveMeetingRoom,
@@ -37,6 +37,8 @@ import {
 const MeetingRoom = (props) => {
   console.log("MeetingRoom running");
   const [showTopControls, setShowTopControls] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(true);
+  const [muted, setMuted] = useState(false);
   const userVideo = useRef(null);
   const myVideo = useRef(null);
   const dispatch = useDispatch();
@@ -55,8 +57,8 @@ const MeetingRoom = (props) => {
   // console.log("showVideo: ", showVideo);
   // console.log("userVideo: ", userVideo);
   // console.log("showUserVideo: ", showUserVideo);
-  console.log(conversation.members);
-  console.log(user);
+  // console.log(conversation.members);
+  // console.log(user);
 
   useEffect(() => {
     if (stream) {
@@ -73,6 +75,7 @@ const MeetingRoom = (props) => {
     myVideo.current,
     userVideo.current,
     showTopControls,
+    muted,
   ]);
 
   useEffect(() => {
@@ -83,7 +86,6 @@ const MeetingRoom = (props) => {
 
   useEffect(() => {
     socket_video.on("toggle-video", () => {
-      // console.log("showUserVideo: ", showUserVideo);
       dispatch(
         videoActions.setShowUserVideo({ showUserVideo: !showUserVideo })
       );
@@ -129,6 +131,14 @@ const MeetingRoom = (props) => {
       ));
   };
 
+  const makeFullScreen = (e) => {
+    setIsFullScreen(!isFullScreen);
+  };
+
+  const makeMutedAudio = (e) => {
+    setMuted(!muted);
+  };
+
   return (
     <MeetingContainer>
       <MeetingTopControls
@@ -168,7 +178,7 @@ const MeetingRoom = (props) => {
               )
             ) : (
               <MyVideo showTop={showTopControls}>
-                <video ref={userVideo} autoPlay={true} muted={true}></video>
+                <video ref={userVideo} autoPlay={true} muted={muted}></video>
               </MyVideo>
             )}
           </Peers>
@@ -202,8 +212,8 @@ const MeetingRoom = (props) => {
               conversation
             )
           ) : (
-            <UserVideo>
-              <video ref={userVideo} autoPlay={true} muted={true}></video>
+            <UserVideo isFullScreen={isFullScreen}>
+              <video ref={userVideo} autoPlay={true} muted={muted}></video>
             </UserVideo>
           )
         ) : (
@@ -224,8 +234,8 @@ const MeetingRoom = (props) => {
           <FunctionControls onClick={toggleVideoHandler}>
             {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
-          <FunctionControls>
-            <HiOutlineMicrophone />
+          <FunctionControls onClick={makeMutedAudio}>
+            {muted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
           </FunctionControls>
           <FunctionControls>
             <CgScreen />
@@ -236,8 +246,8 @@ const MeetingRoom = (props) => {
           <FunctionControls>
             <FiUserPlus />
           </FunctionControls>
-          <FunctionControls>
-            <RiFullscreenFill />
+          <FunctionControls onClick={makeFullScreen}>
+            {isFullScreen ? <RiFullscreenFill /> : <RiFullscreenExitFill />}
           </FunctionControls>
           <FunctionControls onClick={onClickShowTopControls}>
             {!showTopControls ? <MdGridView /> : <VscSplitHorizontal />}

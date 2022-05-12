@@ -77,7 +77,14 @@ function MeetingForm(props) {
     socket_video.emit("join-meeting-room", {
       conversationId: conversation._id,
     });
-    dispatch(answerCall(socket_video));
+    dispatch(answerCall(socket_video, true));
+  };
+
+  const anwserCallWithoutVideoHandler = () => {
+    socket_video.emit("join-meeting-room", {
+      conversationId: conversation._id,
+    });
+    dispatch(answerCall(socket_video, false));
   };
 
   return (
@@ -105,7 +112,10 @@ function MeetingForm(props) {
             <FiPhoneOff />
           </MeetingRoundedBtn>
           {isReceivedCall && (
-            <MeetingRoundedBtn className="open">
+            <MeetingRoundedBtn
+              className="open"
+              onClick={anwserCallWithoutVideoHandler}
+            >
               <BsTelephone />
             </MeetingRoundedBtn>
           )}

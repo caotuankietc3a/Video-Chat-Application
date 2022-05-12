@@ -56,7 +56,7 @@ export const UserVideo = styled.div`
   align-items: center;
   & video {
     height: 100%;
-    width: 100%;
+    width: ${({ isFullScreen }) => (isFullScreen ? "100%" : "90%")};
     object-fit: cover;
     z-index: -900;
     background-color: #333;
@@ -87,6 +87,8 @@ export const MeetingVideoWrapper = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
+  background: #141414f0;
+  z-index: 999;
 `;
 
 export const MeetingBottomControls = styled.div`

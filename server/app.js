@@ -107,8 +107,10 @@ io_video.on("connection", (socket) => {
     socket.broadcast.to(conversationId).emit("call-user", { signal });
   });
 
-  socket.on("answer-call", ({ conversationId, signal }) => {
-    io_video.to(conversationId).emit("accept-call", { signal });
+  socket.on("answer-call", ({ conversationId, signal, hasVideo }) => {
+    io_video
+      .to(conversationId)
+      .emit("accept-call", { signal, hasUserVideo: hasVideo });
   });
 
   socket.on("join-meeting-room", ({ conversationId }) => {

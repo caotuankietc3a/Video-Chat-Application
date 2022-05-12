@@ -14,18 +14,21 @@ export const videoStreamStart = () => {
   };
 };
 
-export const answerCall = (socket_video) => {
+export const answerCall = (socket_video, hasVideo = false) => {
   return async (dispatch, getState) => {
     const { _id } = getState().conversation.conversation;
     const { call, stream } = getState().video;
     const peer = new Peer({ initiator: false, trickle: false, stream: stream });
 
     dispatch(videoActions.setCallAccepted({ callAccepted: true }));
-    console.log("set showVideo answerCall running");
-    dispatch(videoActions.setShowVideo({ showVideo: true }));
+    if (hasVideo) dispatch(videoActions.setShowVideo({ showVideo: true }));
 
     peer.on("signal", (data) => {
-      socket_video.emit("answer-call", { signal: data, conversationId: _id });
+      socket_video.emit("answer-call", {
+        signal: data,
+        conversationId: _id,
+        hasVideo,
+      });
     });
 
     peer.on("stream", (currentStream) => {
@@ -44,8 +47,7 @@ export const callUser = (socket_video) => {
     const { _id } = getState().conversation.conversation;
     const peer = new Peer({ initiator: true, trickle: false, stream: stream });
 
-    // set showVideo to caller.
-    console.log("set showVideo callUser running");
+    // set showVideo to caller (default)
     dispatch(videoActions.setShowVideo({ showVideo: false }));
 
     peer.on("signal", (data) => {
@@ -59,10 +61,11 @@ export const callUser = (socket_video) => {
       dispatch(videoActions.setUserStream({ userStream: currentStream }));
     });
 
-    socket_video.on("accept-call", ({ signal }) => {
+    socket_video.on("accept-call", ({ signal, hasUserVideo }) => {
       dispatch(videoActions.setCallAccepted({ callAccepted: true }));
       // set showUserVideo to caller if they accept video call.
-      dispatch(videoActions.setShowUserVideo({ showUserVideo: true }));
+      if (hasUserVideo)
+        dispatch(videoActions.setShowUserVideo({ showUserVideo: true }));
       peer.signal(signal);
     });
 
