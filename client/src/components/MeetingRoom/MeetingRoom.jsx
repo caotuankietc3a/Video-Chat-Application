@@ -108,6 +108,27 @@ const MeetingRoom = (props) => {
     dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
   };
 
+  const returnPeerHandler = (
+    { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
+    conversation
+  ) => {
+    return conversation.members
+      .filter((mem) => mem._id !== user._id)
+      .map((peer, i) => (
+        <Peer
+          key={i}
+          type={type}
+          padding={padding}
+          fontsize={fontsize}
+          heightImg={heightImg}
+          widthImg={widthImg}
+          userImg={peer.profilePhoto}
+          name={peer.fullname}
+          isTurnOnAudio={isTurnOnAudio}
+        />
+      ));
+  };
+
   return (
     <MeetingContainer>
       <MeetingTopControls
@@ -122,7 +143,6 @@ const MeetingRoom = (props) => {
 
         {showTopControls && (
           <Peers>
-            {/* {!showVideo ? ( */}
             <Peer
               type="main-peer"
               padding="10px 0"
@@ -133,28 +153,19 @@ const MeetingRoom = (props) => {
               name={user.fullname}
               isTurnOnAudio={false}
             />
-            {/* ) : ( */}
-            {/*   <MyVideo showTop={showTopControls}> */}
-            {/*     <video ref={myVideo} autoPlay={true} muted={true}></video> */}
-            {/*   </MyVideo> */}
-            {/* )} */}
 
             {!showUserVideo ? (
-              conversation.members
-                .filter((mem) => mem._id !== user._id)
-                .map((peer, i) => (
-                  <Peer
-                    key={i}
-                    type="peer"
-                    padding="10px 0"
-                    fontsize="11px"
-                    heightImg="40px"
-                    widthImg="40px"
-                    userImg={peer.profilePhoto}
-                    name={peer.fullname}
-                    isTurnOnAudio={false}
-                  />
-                ))
+              returnPeerHandler(
+                {
+                  type: "peer",
+                  padding: "10px 0",
+                  fontsize: "11px",
+                  heightImg: "40px",
+                  widthImg: "40px",
+                  isTurnOnAudio: false,
+                },
+                conversation
+              )
             ) : (
               <MyVideo showTop={showTopControls}>
                 <video ref={userVideo} autoPlay={true} muted={true}></video>
@@ -179,42 +190,34 @@ const MeetingRoom = (props) => {
       <MeetingVideoWrapper>
         {showUserVideo ? (
           showTopControls ? (
-            conversation.members
-              .filter((mem) => mem._id !== user._id)
-              .map((peer, i) => (
-                <Peer
-                  key={i}
-                  type="main-screen-peer"
-                  padding="0 0"
-                  fontsize="18px"
-                  heightImg="120px"
-                  widthImg="120px"
-                  userImg={peer.profilePhoto}
-                  name={peer.fullname}
-                  isTurnOnAudio={false}
-                />
-              ))
+            returnPeerHandler(
+              {
+                type: "main-screen-peer",
+                padding: "0 0",
+                fontsize: "18px",
+                heightImg: "120px",
+                widthImg: "120px",
+                isTurnOnAudio: false,
+              },
+              conversation
+            )
           ) : (
             <UserVideo>
               <video ref={userVideo} autoPlay={true} muted={true}></video>
             </UserVideo>
           )
         ) : (
-          conversation.members
-            .filter((mem) => mem._id !== user._id)
-            .map((peer, i) => (
-              <Peer
-                key={i}
-                type="main-screen-peer"
-                padding="0 0"
-                fontsize="18px"
-                heightImg="120px"
-                widthImg="120px"
-                userImg={peer.profilePhoto}
-                name={peer.fullname}
-                isTurnOnAudio={false}
-              />
-            ))
+          returnPeerHandler(
+            {
+              type: "main-screen-peer",
+              padding: "0 0",
+              fontsize: "18px",
+              heightImg: "120px",
+              widthImg: "120px",
+              isTurnOnAudio: false,
+            },
+            conversation
+          )
         )}
 
         <MeetingBottomControls>
