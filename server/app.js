@@ -117,13 +117,17 @@ io_video.on("connection", (socket) => {
     io_video.to(conversationId).emit("join-meeting-room");
   });
 
+  socket.on("toggle-video", ({ conversationId }) => {
+    socket.broadcast.to(conversationId).emit("toggle-video");
+  });
+
+  socket.on("toggle-muted", ({ conversationId }) => {
+    socket.broadcast.to(conversationId).emit("toggle-muted");
+  });
+
   socket.on("leave-meeting-room", ({ conversationId }) => {
     console.log("A user disconnected video-room!!!");
     io_video.to(conversationId).emit("leave-meeting-room");
-  });
-
-  socket.on("toggle-video", ({ conversationId }) => {
-    socket.broadcast.to(conversationId).emit("toggle-video");
   });
 });
 

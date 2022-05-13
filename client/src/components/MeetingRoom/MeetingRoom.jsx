@@ -39,6 +39,7 @@ const MeetingRoom = (props) => {
   const [showTopControls, setShowTopControls] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [muted, setMuted] = useState(false);
+  const [toggleMuted, setToggleMuted] = useState(false);
   const userVideo = useRef(null);
   const myVideo = useRef(null);
   const dispatch = useDispatch();
@@ -59,6 +60,7 @@ const MeetingRoom = (props) => {
   // console.log("showUserVideo: ", showUserVideo);
   // console.log(conversation.members);
   // console.log(user);
+  console.log("muted: ", muted);
 
   useEffect(() => {
     if (stream) {
@@ -75,7 +77,6 @@ const MeetingRoom = (props) => {
     myVideo.current,
     userVideo.current,
     showTopControls,
-    muted,
   ]);
 
   useEffect(() => {
@@ -91,11 +92,16 @@ const MeetingRoom = (props) => {
       );
     });
 
+    socket_video.on("toggle-muted", () => {
+      setMuted(!muted);
+    });
+
     return () => {
-      // depend on showVideo
+      // depend on showUserVideo and muted
       socket_video.off("toggle-video");
+      socket_video.off("toggle-muted");
     };
-  }, [showUserVideo]);
+  }, [showUserVideo, muted]);
 
   const phoneOffHandler = () => {
     socket_video.emit("leave-meeting-room", {
@@ -136,7 +142,8 @@ const MeetingRoom = (props) => {
   };
 
   const makeMutedAudio = (e) => {
-    setMuted(!muted);
+    socket_video.emit("toggle-muted", { conversationId: conversation._id });
+    setToggleMuted(!toggleMuted);
   };
 
   return (
@@ -235,7 +242,7 @@ const MeetingRoom = (props) => {
             {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
           <FunctionControls onClick={makeMutedAudio}>
-            {muted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
+            {toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
           </FunctionControls>
           <FunctionControls>
             <CgScreen />
