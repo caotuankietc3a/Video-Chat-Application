@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { videoActions } from "../../store/slices/video-chat-slice";
@@ -54,9 +54,7 @@ const MeetingRoom = (props) => {
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
-  // console.log("myVideo: ", myVideo);
   // console.log("showVideo: ", showVideo);
-  // console.log("userVideo: ", userVideo);
   // console.log("showUserVideo: ", showUserVideo);
   // console.log(conversation.members);
   // console.log(user);
@@ -65,18 +63,20 @@ const MeetingRoom = (props) => {
   useEffect(() => {
     if (stream) {
       if (myVideo.current) myVideo.current.srcObject = stream;
+      console.log("myVideo: ", myVideo);
     }
     if (userStream) {
       if (userVideo.current) userVideo.current.srcObject = userStream;
+      console.log("userVideo: ", userVideo);
     }
   }, [
     stream,
     showVideo,
     userStream,
     showUserVideo,
-    myVideo.current,
-    userVideo.current,
     showTopControls,
+    toggleMuted,
+    muted,
   ]);
 
   useEffect(() => {
@@ -116,24 +116,31 @@ const MeetingRoom = (props) => {
     dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
   };
 
+  // Check again
   const returnPeerHandler = (
     { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
-    conversation
+    conversation,
+    isShowTop = false
   ) => {
     return conversation.members
       .filter((mem) => mem._id !== user._id)
       .map((peer, i) => (
-        <Peer
-          key={i}
-          type={type}
-          padding={padding}
-          fontsize={fontsize}
-          heightImg={heightImg}
-          widthImg={widthImg}
-          userImg={peer.profilePhoto}
-          name={peer.fullname}
-          isTurnOnAudio={isTurnOnAudio}
-        />
+        <Fragment key={i}>
+          {isShowTop ? (
+            <Peer
+              type={type}
+              padding={padding}
+              fontsize={fontsize}
+              heightImg={heightImg}
+              widthImg={widthImg}
+              userImg={peer.profilePhoto}
+              name={peer.fullname}
+              isTurnOnAudio={isTurnOnAudio}
+            />
+          ) : (
+            <video ref={userVideo} autoPlay={true} muted={muted}></video>
+          )}
+        </Fragment>
       ));
   };
 
@@ -181,7 +188,8 @@ const MeetingRoom = (props) => {
                   widthImg: "40px",
                   isTurnOnAudio: false,
                 },
-                conversation
+                conversation,
+                showTopControls
               )
             ) : (
               <MyVideo showTop={showTopControls}>
@@ -216,7 +224,8 @@ const MeetingRoom = (props) => {
                 widthImg: "120px",
                 isTurnOnAudio: false,
               },
-              conversation
+              conversation,
+              showTopControls
             )
           ) : (
             <UserVideo isFullScreen={isFullScreen}>
@@ -233,7 +242,8 @@ const MeetingRoom = (props) => {
               widthImg: "120px",
               isTurnOnAudio: false,
             },
-            conversation
+            conversation,
+            showTopControls
           )
         )}
 
@@ -242,7 +252,7 @@ const MeetingRoom = (props) => {
             {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
           <FunctionControls onClick={makeMutedAudio}>
-            {toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
+            {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
           </FunctionControls>
           <FunctionControls>
             <CgScreen />
