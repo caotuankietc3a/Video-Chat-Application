@@ -55,7 +55,7 @@ const MeetingRoom = (props) => {
     setShowTopControls(!showTopControls);
   };
   // console.log("showVideo: ", showVideo);
-  // console.log("showUserVideo: ", showUserVideo);
+  console.log("showUserVideo: ", showUserVideo);
   // console.log(conversation.members);
   // console.log(user);
   console.log("muted: ", muted);
@@ -137,6 +137,20 @@ const MeetingRoom = (props) => {
               name={peer.fullname}
               isTurnOnAudio={isTurnOnAudio}
             />
+          ) : !showUserVideo ? (
+            <Fragment>
+              <Peer
+                type={type}
+                padding={padding}
+                fontsize={fontsize}
+                heightImg={heightImg}
+                widthImg={widthImg}
+                userImg={peer.profilePhoto}
+                name={peer.fullname}
+                isTurnOnAudio={isTurnOnAudio}
+              />
+              <video ref={userVideo} autoPlay={true} muted={muted}></video>
+            </Fragment>
           ) : (
             <video ref={userVideo} autoPlay={true} muted={muted}></video>
           )}
