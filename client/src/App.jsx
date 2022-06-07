@@ -23,14 +23,18 @@ function App() {
         <Route
           path="/auth/forgot-password"
           element={
-            <Login title="Recover Your Password" type="Forgot-password" />
+            <Login title="Recover Your Password" type="Change password" />
           }
         ></Route>
+        {/* <Route */}
+        {/*   path="/home-chat/*" */}
+        {/*   element={ */}
+        {/*     !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" /> */}
+        {/*   } */}
+        {/* ></Route> */}
         <Route
           path="/home-chat/*"
-          element={
-            !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" />
-          }
+          element={<Navigate to="/auth/login" />}
         ></Route>
 
         <Route

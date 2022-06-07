@@ -25,7 +25,7 @@ export const LoginBox = styled.div`
   align-items: center;
   margin: 0 auto;
   height: ${(props) => {
-    if (props.type === "Login") return "521px";
+    if (props.type === "Login") return "560px";
     else if (props.type === "Register") return "690px";
     else return "430px";
   }};
@@ -116,7 +116,7 @@ export const BtnSectionLogin = styled.div`
 `;
 
 export const FormGroupLogin = styled.div`
-  height: 55px;
+  height: ${({ type }) => (type === "Login" ? "20px" : "55px")};
   margin-bottom: 25px;
   position: relative;
   width: 100%;
@@ -130,8 +130,8 @@ export const FormGroupLogin = styled.div`
 `;
 
 export const FormCheckRegister = styled.div`
-  float: right;
-  margin-top: 15px;
+  float: left;
+  margin-top: 0px;
   margin-bottom: 0;
   display: flex;
   justify-content: center;
@@ -209,7 +209,7 @@ export const ButtonLogin = styled.button`
 export const RegisterAccount = styled.div`
   position: absolute;
   bottom: 5%;
-  left: 15%;
+  left: 13.5%;
   p {
     margin: 0;
     line-height: 50px;

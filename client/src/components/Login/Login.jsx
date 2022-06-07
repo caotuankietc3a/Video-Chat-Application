@@ -24,16 +24,18 @@ import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
+import Error from "../Error/Error";
 
 const Login = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const userState = useSelector((state) => state.user);
+  const { isFetching, error } = useSelector((state) => state.user);
   const { type } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
+  const [isClicked, setIsClicked] = useState(false);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
@@ -60,6 +62,7 @@ const Login = (props) => {
               isFetching: false,
             })
           );
+          setIsClicked(false);
         }, 1500);
         return dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       }
@@ -80,16 +83,22 @@ const Login = (props) => {
     }
   };
 
+  const isClickedHandle = (e) => {
+    setIsClicked(true);
+  };
+
   useEffect(() => {
     dispatch(fetchUserLogin(navigate));
   }, []);
 
   return (
     <LoginComponent>
+      {error && !isClicked && (
+        <Error error_msg={error.msg} isClickedHandle={isClickedHandle}></Error>
+      )}
       <LoginContainer>
         <LoginBox type={type}>
           <FormSectionLogin>
-            {userState.error && <div>{userState.error.msg}</div>}
             <h3>{props.title}</h3>
             <BtnSectionLogin>
               <Link to="/auth/login" className="btn-1 active-bg">
@@ -151,13 +160,23 @@ const Login = (props) => {
                     ></EmailPassInput>
                   </FormGroupLogin>
                 )}
+                {type === "Login" && (
+                  <FormGroupLogin type={"Login"}>
+                    {type === "Login" && (
+                      <FormCheckRegister>
+                        <input
+                          type="checkbox"
+                          name="checkRegister"
+                          id="checkRegister"
+                        />
+                        <label>Keep me login</label>
+                      </FormCheckRegister>
+                    )}
+                  </FormGroupLogin>
+                )}
                 <FormGroupLogin>
                   <ButtonLogin type="submit">
-                    {userState.isFetching ? (
-                      <CircularProgress />
-                    ) : (
-                      <span>{type}</span>
-                    )}
+                    {isFetching ? <CircularProgress /> : <span>{type}</span>}
                   </ButtonLogin>
 
                   {type === "Login" && (
@@ -165,18 +184,8 @@ const Login = (props) => {
                       to="/auth/forgot-password"
                       className="forgot-password"
                     >
-                      Forgot Password
+                      Forgot password
                     </Link>
-                  )}
-                  {type === "Register" && (
-                    <FormCheckRegister>
-                      <input
-                        type="checkbox"
-                        name="checkRegister"
-                        id="checkRegister"
-                      />
-                      <label>I agree to the terms of service</label>
-                    </FormCheckRegister>
                   )}
                 </FormGroupLogin>
                 <RegisterAccount>
@@ -192,6 +201,7 @@ const Login = (props) => {
                     </p>
                   )}
                 </RegisterAccount>
+
                 {/* <input type="hidden" name="urlClient" value={urlClient} /> */}
               </form>
             }
