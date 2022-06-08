@@ -26,17 +26,12 @@ function App() {
             <Login title="Recover Your Password" type="Change password" />
           }
         ></Route>
-        {/* <Route */}
-        {/*   path="/home-chat/*" */}
-        {/*   element={ */}
-        {/*     !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" /> */}
-        {/*   } */}
-        {/* ></Route> */}
         <Route
           path="/home-chat/*"
-          element={<Navigate to="/auth/login" />}
+          element={
+            !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" />
+          }
         ></Route>
-
         <Route
           path="/meeting/:conversationId"
           element={<MeetingRoom />}

@@ -56,7 +56,10 @@ export const ErrorContent = styled.div`
     color: #ffffff;
     cursor: pointer;
     &:active {
-      transform: scale(0.955);
+      transform: scale(0.985);
+    }
+    &:hover {
+      background: #4237fe;
     }
   }
 `;

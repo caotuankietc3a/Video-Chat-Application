@@ -11,11 +11,13 @@ import { fetchUserLogin } from "../../store/actions/fetch-action";
 import { conversationActions } from "../../store/slices/conversation-slice";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import NavBarContact from "../NavBarContact/NavBarContact";
+import User from "../User/User";
 
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
+  console.log(user);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -81,6 +83,8 @@ const ChatRoom = (props) => {
                 />
               }
             ></Route>
+
+            <Route path={`/`} element={<User user={user} />}></Route>
           </Routes>
         </ChatBodyContainer>
       </MainLayOut>
