@@ -21,7 +21,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import CircularProgress from "../UI/CircularProgress";
+import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
 import Error from "../Error/Error";

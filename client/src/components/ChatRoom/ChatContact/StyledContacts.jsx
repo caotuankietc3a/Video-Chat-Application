@@ -13,6 +13,7 @@ export const ContactItems = styled.li`
   width: 100%;
   background: #2a2a2a;
   border-radius: 0.25rem;
+
   a {
     display: flex;
     justify-content: center;

@@ -7,7 +7,7 @@ import { postData } from "../../store/actions/fetch-action";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import { useNavigate } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
-import TikTokSpinner from "../UI/TikTokSpinner";
+import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 
 const ChatForm = (props) => {
   const dispatch = useDispatch();
