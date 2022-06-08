@@ -11,6 +11,8 @@ export const ContactLists = styled.ul`
 export const ContactItems = styled.li`
   margin: 0.75rem 0;
   width: 100%;
+  background: #2a2a2a;
+  border-radius: 0.25rem;
   a {
     display: flex;
     justify-content: center;
@@ -21,6 +23,10 @@ export const ContactItems = styled.li`
     transition: all 0.3s ease;
     height: 82px;
     border-radius: 0.25rem;
+
+    &.active {
+      background: #665dfe;
+    }
   }
 
   & a:hover {

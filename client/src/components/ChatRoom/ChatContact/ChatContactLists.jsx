@@ -130,22 +130,28 @@ const ChatContactLists = (props) => {
       });
   };
 
-  // const contactLists = useRef(null);
-  // useEffect(() => {
-  //   const changeBgEl = (e) => {
-  //     console.log(e.target);
-  //     e.target.style.background = "#fff";
-  //   };
-  //   console.log(contactLists.current.querySelectorAll("li"));
-  //   contactLists.current.querySelectorAll("li").forEach((el) => {
-  //     console.log(el);
-  //     el.addEventListener("click", changeBgEl);
-  //   });
-  // }, [contactLists]);
+  const contactList = useRef(null);
+  useEffect(() => {
+    const AddBgEl = (e) => {
+      e.classList.add("active");
+    };
+    const RemoveBgEl = (els) => {
+      els.forEach((el) => {
+        el.classList.remove("active");
+      });
+    };
+    console.log();
+    contactList.current.querySelectorAll("li a").forEach((el) => {
+      el.addEventListener("click", () => {
+        RemoveBgEl(contactList.current.querySelectorAll("li a"));
+        AddBgEl(el);
+      });
+    });
+  }, [contactList, window.location.href]);
 
   return (
-    // <ContactLists ref={contactLists}>
-    <ContactLists>
+    <ContactLists ref={contactList}>
+      {/* <ContactLists> */}
       {props.type !== "Friends" &&
         filterConversationsHandler(conversations, searchContactItems)}
       {props.type === "Friends" &&

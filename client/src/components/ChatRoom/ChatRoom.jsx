@@ -17,7 +17,6 @@ const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
-  console.log(user);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
