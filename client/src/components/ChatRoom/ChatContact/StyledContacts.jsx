@@ -57,7 +57,7 @@ export const AvatarUser = styled.div`
     content: "";
     background-color: #44a675;
     position: absolute;
-    display: ${(props) => (props.type !== "Friends" ? "block" : "none")};
+    display: ${({ type }) => (type !== "Friends" ? "block" : "none")};
     width: 0.8rem;
     height: 0.8rem;
     border-radius: 50%;
@@ -92,6 +92,13 @@ export const ContactInfo = styled.div`
   div {
     color: #adb5bd;
     font-size: 0.875rem;
+
+    /* Skeleton */
+    /* span { */
+    /*   position: relative; */
+    /*   right: 0; */
+    /*   top: 0; */
+    /* } */
   }
 `;
 export const ContactTexts = styled.div`

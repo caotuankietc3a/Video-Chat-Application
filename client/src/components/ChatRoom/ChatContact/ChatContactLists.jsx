@@ -4,15 +4,17 @@ import ChatContactItems from "./ChatContactItems";
 import { useSelector, useDispatch } from "react-redux";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
+import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
 
 const ChatContactLists = (props) => {
   const [conversations, setConversations] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { searchContactItems } = props;
+  console.log(isFetching);
 
   useEffect(() => {
     (async () => {
@@ -61,13 +63,17 @@ const ChatContactLists = (props) => {
 
         const friends = await resFriends.json();
         setFriends(compareString(friends));
-        setIsFetching(true);
+        setTimeout(() => {
+          setIsFetching(false);
+        }, 1000);
+        // setIsFetching(true);
       } catch (err) {
         console.error(err);
       }
     };
     getConversation();
   }, [window.location.href, isFetching]);
+  // }, [window.location.href]);
 
   const filterConversationsHandler = (conversations, searchContactItems) => {
     return conversations
@@ -148,14 +154,27 @@ const ChatContactLists = (props) => {
       });
     });
   }, [contactList, window.location.href]);
+  console.log(Array(5).fill(undefined));
 
   return (
     <ContactLists ref={contactList}>
       {/* <ContactLists> */}
-      {props.type !== "Friends" &&
-        filterConversationsHandler(conversations, searchContactItems)}
-      {props.type === "Friends" &&
-        filterFriendsHandler(friends, searchContactItems)}
+      {isFetching ? (
+        <>
+          {Array(5)
+            .fill()
+            .map(() => (
+              <SkeletonConatactItems />
+            ))}
+        </>
+      ) : (
+        <>
+          {props.type !== "Friends" &&
+            filterConversationsHandler(conversations, searchContactItems)}
+          {props.type === "Friends" &&
+            filterFriendsHandler(friends, searchContactItems)}
+        </>
+      )}
     </ContactLists>
   );
 };
