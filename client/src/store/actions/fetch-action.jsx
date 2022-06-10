@@ -24,7 +24,7 @@ export const fetchUserLogin = (navigate, socket_video) => {
       if (isLogin) {
         setTimeout(() => {
           navigate("/home-chat");
-        }, 1500);
+        }, 1250);
         dispatch(
           userLoginActions.setUserLogin({
             user: user,

@@ -63,14 +63,14 @@ const Login = (props) => {
             })
           );
           setIsClicked(false);
-        }, 1500);
+        }, 1250);
         return dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       }
       setTimeout(() => {
         if (type === "Register") navigate("/auth/login");
         else if (type === "Login") navigate("/home-chat");
         dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-      }, 1500);
+      }, 1250);
       dispatch(
         userLoginActions.setUserLogin({
           user: data,

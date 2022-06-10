@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   FriendFormContainer,
   FriendFormContent,
@@ -24,12 +25,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
 import { conversationActions } from "../../store/slices/conversation-slice";
 import { useNavigate } from "react-router-dom";
+import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 const FriendForm = (props) => {
   const { profilePhoto, fullname, birthdate, phone, email, website, address } =
     props.friendDetail;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
+  const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   const clickChatHandler = async () => {
@@ -52,112 +55,126 @@ const FriendForm = (props) => {
     navigate(`/home-chat/conversation/detail/${conversation._id}`);
   };
 
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      setIsFetching(false);
+    }, 1250);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
   return (
     <FriendFormContainer>
-      <FriendFormContent>
-        <FriendFormBody>
-          <FriendFormAvatar>
-            <img src={profilePhoto} alt="" />
-          </FriendFormAvatar>
-          <FriendFormDetail>
-            <h5>{fullname}</h5>
-            <FriendFormInfo_Btn>
-              <div className="chat" onClick={clickChatHandler}>
-                <BsChatDots />
+      {isFetching ? (
+        <TikTokSpinner />
+      ) : (
+        <FriendFormContent>
+          <FriendFormBody>
+            <FriendFormAvatar>
+              <img src={profilePhoto} alt="" />
+            </FriendFormAvatar>
+            <FriendFormDetail>
+              <h5>{fullname}</h5>
+              <FriendFormInfo_Btn>
+                <div className="chat" onClick={clickChatHandler}>
+                  <BsChatDots />
+                </div>
+                <div className="phone">
+                  <FiPhone />
+                </div>
+              </FriendFormInfo_Btn>
+            </FriendFormDetail>
+            <FriendFormOptions>
+              <BiDotsVerticalRounded />
+            </FriendFormOptions>
+          </FriendFormBody>
+          <ListGroupInfo>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Local Time</p>
+                <p>{formatDate(new Date(Date.now()))}</p>
               </div>
-              <div className="phone">
-                <FiPhone />
+              <MdAccessTime></MdAccessTime>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Birthdate</p>
+                <p>{birthdate}</p>
               </div>
-            </FriendFormInfo_Btn>
-          </FriendFormDetail>
-          <FriendFormOptions>
-            <BiDotsVerticalRounded />
-          </FriendFormOptions>
-        </FriendFormBody>
-        <ListGroupInfo>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Local Time</p>
-              <p>{formatDate(new Date(Date.now()))}</p>
-            </div>
-            <MdAccessTime></MdAccessTime>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Birthdate</p>
-              <p>{birthdate}</p>
-            </div>
-            <AiOutlineCalendar></AiOutlineCalendar>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Phone</p>
-              <p>{phone}</p>
-            </div>
-            <FiPhone></FiPhone>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Email</p>
-              <p>{email}</p>
-            </div>
-            <AiOutlineMail></AiOutlineMail>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Website</p>
-              <p>{website}</p>
-            </div>
-            <IoEarthOutline></IoEarthOutline>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Address</p>
-              <p>{address}</p>
-            </div>
-            <AiOutlineHome></AiOutlineHome>
-          </ListGroupInfoItem>
-        </ListGroupInfo>
+              <AiOutlineCalendar></AiOutlineCalendar>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Phone</p>
+                <p>{phone}</p>
+              </div>
+              <FiPhone></FiPhone>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Email</p>
+                <p>{email}</p>
+              </div>
+              <AiOutlineMail></AiOutlineMail>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Website</p>
+                <p>{website}</p>
+              </div>
+              <IoEarthOutline></IoEarthOutline>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Address</p>
+                <p>{address}</p>
+              </div>
+              <AiOutlineHome></AiOutlineHome>
+            </ListGroupInfoItem>
+          </ListGroupInfo>
 
-        <ListGroupInfo>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Facebook</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.facebook.com
-              </a>
-            </div>
-            <FiFacebook></FiFacebook>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Instagram</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.instagram.com
-              </a>
-            </div>
-            <FiInstagram></FiInstagram>
-          </ListGroupInfoItem>
-          <ListGroupInfoItem>
-            <div>
-              <p className="small">Twitter</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.twitter.com
-              </a>
-            </div>
-            <FiTwitter></FiTwitter>
-          </ListGroupInfoItem>
-        </ListGroupInfo>
-      </FriendFormContent>
+          <ListGroupInfo>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Facebook</p>
+                <a
+                  href="https://www.facebook.com/kiet.cao.7587370/"
+                  target="_blank"
+                >
+                  https://www.kietcao.facebook.com
+                </a>
+              </div>
+              <FiFacebook></FiFacebook>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Instagram</p>
+                <a
+                  href="https://www.facebook.com/kiet.cao.7587370/"
+                  target="_blank"
+                >
+                  https://www.kietcao.instagram.com
+                </a>
+              </div>
+              <FiInstagram></FiInstagram>
+            </ListGroupInfoItem>
+            <ListGroupInfoItem>
+              <div>
+                <p className="small">Twitter</p>
+                <a
+                  href="https://www.facebook.com/kiet.cao.7587370/"
+                  target="_blank"
+                >
+                  https://www.kietcao.twitter.com
+                </a>
+              </div>
+              <FiTwitter></FiTwitter>
+            </ListGroupInfoItem>
+          </ListGroupInfo>
+        </FriendFormContent>
+      )}
     </FriendFormContainer>
   );
 };

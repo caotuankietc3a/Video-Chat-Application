@@ -11,10 +11,10 @@ export const MessagesBodyContainer = styled.div`
 export const MessagesBodyContent = styled(ScrollToBottom)`
   max-width: 1320px;
   width: 100%;
-  margin: 0 auto 100rem auto;
+  margin: 0 auto 0px auto;
   padding: 0 15px;
   overflow-y: scroll;
-  height: 70vh;
+  height: 80vh;
   & > div {
     &::-webkit-scrollbar {
       display: none;

@@ -13,13 +13,13 @@ import {
 import ChatContactLists from "./ChatContactLists";
 import { BsBell, BsSearch } from "react-icons/bs";
 import { BiDotsVerticalRounded } from "react-icons/bi";
-const ChatContact = (props) => {
+const ChatContact = ({ header }) => {
   const [searchContactItems, setSearchContactItems] = useState("");
   return (
     <ChatContactContainer>
       <SideBarHeader>
         <SideBarHeaderContent>
-          <h3>{props.header}</h3>
+          <h3>{header}</h3>
           <UlBarHeader>
             <a href="">
               <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
@@ -34,16 +34,16 @@ const ChatContact = (props) => {
           </UlBarHeader>
         </SideBarHeaderContent>
         <SideBarSubHeader>
-          {props.header !== "Friends" && (
+          {header !== "Friends" && (
             <DropDownChats>
-              <button type="button">All Chats</button>
+              <button type="button">All {header}</button>
             </DropDownChats>
           )}
-          <SearchUserChats header={props.header}>
+          <SearchUserChats header={header}>
             <input
               type="text"
               placeholder={
-                props.header === "Chats"
+                header === "Chats" || header === "Calls"
                   ? "Search users..."
                   : "Search friends..."
               }
@@ -57,10 +57,8 @@ const ChatContact = (props) => {
           </SearchUserChats>
         </SideBarSubHeader>
       </SideBarHeader>
-      <ChatContactLists
-        type={props.header}
-        searchContactItems={searchContactItems}
-      />
+
+      <ChatContactLists type={header} searchContactItems={searchContactItems} />
     </ChatContactContainer>
   );
 };

@@ -6,15 +6,15 @@ import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
 import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
 
-const ChatContactLists = (props) => {
+const ChatContactLists = ({ searchContactItems, type }) => {
   const [conversations, setConversations] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
+  const [calls, setCalls] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
-  const { searchContactItems } = props;
-  console.log(isFetching);
+  const contactList = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -65,7 +65,7 @@ const ChatContactLists = (props) => {
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);
-        }, 1000);
+        }, 1250);
         // setIsFetching(true);
       } catch (err) {
         console.error(err);
@@ -73,7 +73,26 @@ const ChatContactLists = (props) => {
     };
     getConversation();
   }, [window.location.href, isFetching]);
-  // }, [window.location.href]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (userState.user?._id) {
+          const data = await fetch(
+            `${END_POINT_SERVER}/meeting?userId=${userState.user._id}`,
+            {
+              credentials: "include",
+            }
+          );
+          const res = await data.json();
+          console.log(res);
+          setCalls(res);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  }, [userState.user]);
 
   const filterConversationsHandler = (conversations, searchContactItems) => {
     return conversations
@@ -88,6 +107,7 @@ const ChatContactLists = (props) => {
             .includes(searchContactItems.toLowerCase())
         )
           return true;
+        return false;
       })
       .map((conversation, i) => {
         const member = conversation?.members.find(
@@ -99,8 +119,8 @@ const ChatContactLists = (props) => {
             key={i}
             id={conversation._id}
             conversation={conversation}
-            type={props.type}
-          ></ChatContactItems>
+            type={type}
+          />
         );
       });
   };
@@ -115,6 +135,7 @@ const ChatContactLists = (props) => {
             .includes(searchContactItems.toLowerCase())
         )
           return true;
+        return false;
       })
       .map((friend, i) => {
         let character = false;
@@ -129,14 +150,37 @@ const ChatContactLists = (props) => {
             key={i}
             id={friend._id}
             friend={friend}
-            type={props.type}
+            type={type}
             displayChar={character}
-          ></ChatContactItems>
+          />
         );
       });
   };
 
-  const contactList = useRef(null);
+  const filterCallsHandler = (meetings, searchContactItems) => {
+    return meetings
+      ?.filter((meeting, i) => {
+        if (searchContactItems === "") return true;
+        if (
+          meeting.callee.fullname
+            .toLowerCase()
+            .includes(searchContactItems.toLowerCase())
+        )
+          return true;
+        return false;
+      })
+      .map((meeting, i) => {
+        return (
+          <ChatContactItems
+            key={i}
+            type={type}
+            meeting={meeting}
+            id={meeting._id}
+          />
+        );
+      });
+  };
+
   useEffect(() => {
     const AddBgEl = (e) => {
       e.classList.add("active");
@@ -146,7 +190,6 @@ const ChatContactLists = (props) => {
         el.classList.remove("active");
       });
     };
-    console.log();
     contactList.current.querySelectorAll("li a").forEach((el) => {
       el.addEventListener("click", () => {
         RemoveBgEl(contactList.current.querySelectorAll("li a"));
@@ -154,25 +197,24 @@ const ChatContactLists = (props) => {
       });
     });
   }, [contactList, window.location.href]);
-  console.log(Array(5).fill(undefined));
 
   return (
     <ContactLists ref={contactList}>
-      {/* <ContactLists> */}
       {isFetching ? (
         <>
-          {Array(5)
-            .fill()
-            .map(() => (
-              <SkeletonConatactItems />
+          {Array(8)
+            .fill(undefined)
+            .map((_el, i) => (
+              <SkeletonConatactItems key={i} />
             ))}
         </>
       ) : (
         <>
-          {props.type !== "Friends" &&
+          {type === "Chats" &&
             filterConversationsHandler(conversations, searchContactItems)}
-          {props.type === "Friends" &&
+          {type === "Friends" &&
             filterFriendsHandler(friends, searchContactItems)}
+          {type === "Calls" && filterCallsHandler(calls, searchContactItems)}
         </>
       )}
     </ContactLists>

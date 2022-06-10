@@ -55,10 +55,10 @@ const MeetingRoom = (props) => {
     setShowTopControls(!showTopControls);
   };
   // console.log("showVideo: ", showVideo);
-  console.log("showUserVideo: ", showUserVideo);
+  // console.log("showUserVideo: ", showUserVideo);
   // console.log(conversation.members);
   // console.log(user);
-  console.log("muted: ", muted);
+  // console.log("muted: ", muted);
 
   useEffect(() => {
     if (stream) {

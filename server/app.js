@@ -17,6 +17,9 @@ const { SocketUser, users } = require("./models/socket-user");
 const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
+const meetingRoutes = require("./routes/meeting");
+
+const { saveMeeting } = require("./controllers/meeting.js");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -99,9 +102,13 @@ io_video.on("connection", (socket) => {
     });
   });
 
-  socket.on("reject-call", ({ conversationId }) => {
-    io_video.to(conversationId).emit("reject-call");
-  });
+  socket.on(
+    "reject-call",
+    ({ conversationId, caller, callee, date, callAccepted }) => {
+      saveMeeting(caller, callee, date, callAccepted);
+      io_video.to(conversationId).emit("reject-call");
+    }
+  );
 
   socket.on("call-user", ({ conversationId, signal }) => {
     socket.broadcast.to(conversationId).emit("call-user", { signal });
@@ -113,9 +120,13 @@ io_video.on("connection", (socket) => {
       .emit("accept-call", { signal, hasUserVideo: hasVideo });
   });
 
-  socket.on("join-meeting-room", ({ conversationId }) => {
-    io_video.to(conversationId).emit("join-meeting-room");
-  });
+  socket.on(
+    "join-meeting-room",
+    ({ conversationId, caller, callee, date, callAccepted }) => {
+      saveMeeting(caller, callee, date, callAccepted);
+      io_video.to(conversationId).emit("join-meeting-room");
+    }
+  );
 
   socket.on("toggle-video", ({ conversationId }) => {
     socket.broadcast.to(conversationId).emit("toggle-video");
@@ -134,6 +145,7 @@ io_video.on("connection", (socket) => {
 app.use("/auth", authRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
+app.use("/meeting", meetingRoutes);
 
 (async function () {
   try {

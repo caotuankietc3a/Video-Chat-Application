@@ -9,13 +9,12 @@ import { useNavigate } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 
-const ChatForm = (props) => {
+const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
-  const { conversation, user, socket_chat, socket_video } = props;
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   useEffect(() => {

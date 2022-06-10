@@ -54,6 +54,10 @@ const ChatRoom = (props) => {
             path={`/friends/*`}
             element={<ChatContact header="Friends" />}
           ></Route>
+          <Route
+            path={`/calls/*`}
+            element={<ChatContact header="Calls" />}
+          ></Route>
         </Routes>
 
         <ChatBodyContainer>
@@ -84,6 +88,7 @@ const ChatRoom = (props) => {
             ></Route>
 
             <Route path={`/`} element={<User user={user} />}></Route>
+            <Route path={`/friends`} element={<User user={user} />}></Route>
           </Routes>
         </ChatBodyContainer>
       </MainLayOut>

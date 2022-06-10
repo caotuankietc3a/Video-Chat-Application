@@ -25,7 +25,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { videoActions } from "../../store/slices/video-chat-slice";
 
-function MeetingForm(props) {
+function MeetingForm({ socket_video, conversation }) {
   console.log("MeetingForm running");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,7 +35,6 @@ function MeetingForm(props) {
     callAccepted,
     callEnded,
   } = useSelector((state) => state.video);
-  const { socket_video, conversation } = props;
 
   useEffect(() => {
     dispatch(videoStreamStart());
@@ -70,12 +69,22 @@ function MeetingForm(props) {
   }, []);
 
   const rejectCallHandler = () => {
-    socket_video.emit("reject-call", { conversationId: conversation._id });
+    socket_video.emit("reject-call", {
+      conversationId: conversation._id,
+      callAccepted: false,
+      caller,
+      callee,
+      date: new Date(Date.now()),
+    });
   };
 
   const anwserCallHandler = () => {
     socket_video.emit("join-meeting-room", {
       conversationId: conversation._id,
+      callAccepted: true,
+      caller,
+      callee,
+      date: new Date(Date.now()),
     });
     dispatch(answerCall(socket_video, true));
   };

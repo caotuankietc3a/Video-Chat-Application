@@ -33,7 +33,7 @@ const NavBarContact = (props) => {
           </LiTag>
         </Link>
         <Link
-          to=""
+          to="/home-chat/calls/"
           className={stateNavBar.phone}
           onClick={() => {
             dispatchNavBar({ type: "phone" });

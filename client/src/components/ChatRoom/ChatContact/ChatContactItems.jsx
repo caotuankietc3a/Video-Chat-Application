@@ -6,23 +6,39 @@ import {
   ContactInfo,
   ContactTexts,
 } from "./StyledContacts";
+
+import {
+  BsFillTelephoneInboundFill,
+  BsFillTelephoneOutboundFill,
+} from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { conversationActions } from "../../../store/slices/conversation-slice";
 import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
 import { formatDate } from "../../../store/actions/common-function";
-const ChatContactItems = (props) => {
+const ChatContactItems = ({
+  conversation,
+  friend,
+  meeting,
+  type,
+  id,
+  displayChar = null,
+}) => {
   const dispatch = useDispatch();
-  const { conversation, friend, type } = props;
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  const linkTo = props.type !== "Friends" ? `conversation` : "friend";
+  const linkTo =
+    type !== "Friends"
+      ? type === "Calls"
+        ? "meeting"
+        : "conversation"
+      : "friend";
   const userState = useSelector((state) => state.user);
   const clickHandler = async () => {
     try {
-      if (props.type !== "Friends") {
+      if (type === "Chats") {
         const res = await fetch(
-          `${END_POINT_SERVER}/conversation/detail/` + props.id
+          `${END_POINT_SERVER}/conversation/detail/` + id
         );
         const conversation = await res.json();
         if (conversation.members.length === 2) {
@@ -39,12 +55,11 @@ const ChatContactItems = (props) => {
             })
           );
         }
-      } else {
-        const res = await fetch(
-          `${END_POINT_SERVER}/friend/detail/` + props.id
-        );
+      } else if (type === "Friends") {
+        const res = await fetch(`${END_POINT_SERVER}/friend/detail/` + id);
         const friend = await res.json();
         dispatch(friendActions.setFriends({ friend: friend }));
+      } else if (type === "Calls") {
       }
     } catch (err) {
       console.error(err);
@@ -52,42 +67,57 @@ const ChatContactItems = (props) => {
   };
   return (
     <ContactItems onClick={clickHandler}>
-      {props.displayChar && <p>{friend.fullname[0].toUpperCase()}</p>}
-      <Link to={linkTo + `/detail/${props.id}`}>
-        <AvatarUser type={props.type}>
+      {displayChar && <p>{friend.fullname[0].toUpperCase()}</p>}
+      <Link to={linkTo + `/detail/${id}`}>
+        <AvatarUser type={type}>
           <img
             src={
               type === "Friends"
                 ? friend.profilePhoto
+                : type === "Calls"
+                ? meeting.callee.profilePhoto
                 : conversation.profilePhoto
             }
-            alt=""
+            alt="User"
           />
         </AvatarUser>
         <ContactContents>
           <ContactInfo>
             <h6 className="text-truncate">
-              {type === "Friends" ? friend.fullname : conversation.name}
+              {type === "Friends" && friend.fullname}
+              {type === "Calls" && meeting.callee.fullname}
+              {type === "Chats" && conversation.name}
             </h6>
-            {type !== "Friends" && (
+            {type === "Calls" && <div></div>}
+            {type === "Friends" && (
+              <div>{formatDate(new Date(Date.now()))}</div>
+            )}
+
+            {type === "Chats" && (
               <div>
-                {conversation.messages.length - 1 !== -1
-                  ? formatDate(
-                      conversation.messages[conversation.messages.length - 1]
-                        .date
-                    )
-                  : formatDate(new Date(Date.now()))}
+                {conversation.messages.length - 1 !== -1 &&
+                  formatDate(
+                    conversation.messages[conversation.messages.length - 1].date
+                  )}
               </div>
             )}
           </ContactInfo>
           <ContactTexts>
             {type === "Friends" && <BsPinMapFill />}
             <p className="text-truncate">
-              {type === "Friends"
-                ? friend.address
-                : conversation.messages.length - 1 !== -1
-                ? conversation.messages[conversation.messages.length - 1].text
-                : "......."}
+              {type === "Friends" ? (
+                friend.address
+              ) : type === "Calls" ? (
+                <span>
+                  <BsFillTelephoneInboundFill />
+                  {meeting.date}
+                </span>
+              ) : type === "Chats" &&
+                conversation.messages.length - 1 !== -1 ? (
+                conversation.messages[conversation.messages.length - 1].text
+              ) : (
+                "............"
+              )}
             </p>
           </ContactTexts>
         </ContactContents>
