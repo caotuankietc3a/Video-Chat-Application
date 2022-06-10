@@ -30,7 +30,7 @@ const ChatContactItems = ({
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
-        ? "meeting"
+        ? "call"
         : "conversation"
       : "friend";
   const userState = useSelector((state) => state.user);

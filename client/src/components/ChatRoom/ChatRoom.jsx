@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ChatContact from "./ChatContact/ChatContact";
 import FriendForm from "../FriendForm/FriendForm";
+import CallForm from "../CallForm/CallForm";
 import MeetingForm from "../MeetingForm/MeetingForm";
 import { fetchUserLogin } from "../../store/actions/fetch-action";
 import { conversationActions } from "../../store/slices/conversation-slice";
@@ -85,6 +86,10 @@ const ChatRoom = (props) => {
                   conversation={conversation}
                 />
               }
+            ></Route>
+            <Route
+              path={`/calls/call/detail/62a2e4452edf829b6e14b397`}
+              element={<CallForm />}
             ></Route>
 
             <Route path={`/`} element={<User user={user} />}></Route>
