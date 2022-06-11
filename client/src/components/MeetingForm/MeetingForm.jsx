@@ -92,6 +92,9 @@ function MeetingForm({ socket_video, conversation }) {
   const anwserCallWithoutVideoHandler = () => {
     socket_video.emit("join-meeting-room", {
       conversationId: conversation._id,
+      callAccepted: true,
+      caller,
+      callee,
     });
     dispatch(answerCall(socket_video, false));
   };

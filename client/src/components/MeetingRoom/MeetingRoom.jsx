@@ -29,10 +29,7 @@ import {
 } from "./StyledMeetingRoom";
 import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
-import {
-  leaveMeetingRoom,
-  rejectCall,
-} from "../../store/actions/video-chat-function";
+import { leaveMeetingRoom } from "../../store/actions/video-chat-function";
 
 const MeetingRoom = (props) => {
   console.log("MeetingRoom running");
@@ -48,9 +45,15 @@ const MeetingRoom = (props) => {
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
 
-  const { stream, userStream, showVideo, showUserVideo } = useSelector(
-    (state) => state.video
-  );
+  const {
+    stream,
+    userStream,
+    showVideo,
+    showUserVideo,
+    call: { callee, caller },
+  } = useSelector((state) => state.video);
+  console.log(callee._id);
+  console.log(caller._id);
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
@@ -106,6 +109,8 @@ const MeetingRoom = (props) => {
   const phoneOffHandler = () => {
     socket_video.emit("leave-meeting-room", {
       conversationId: conversation._id,
+      callerId: caller._id,
+      calleeId: callee._id,
     });
   };
 

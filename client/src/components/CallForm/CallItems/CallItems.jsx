@@ -8,23 +8,36 @@ import {
 } from "./StyledCallItems";
 import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { BsTelephone } from "react-icons/bs";
-const CallItems = () => {
+import { callComparedDate } from "../../../store/actions/common-function";
+import { useSelector } from "react-redux";
+const CallItems = ({ call }) => {
+  const userState = useSelector((state) => state.user);
   return (
     <CallItemsContainer>
       <CallItemsContent>
         <CallItemsMedia>
           <CallItemsMediaAvatar>
             <span>
-              <HiPhoneIncoming />
+              {userState.user._id.toString() === call.caller._id.toString() ? (
+                <HiPhoneOutgoing />
+              ) : (
+                <HiPhoneIncoming />
+              )}
             </span>
           </CallItemsMediaAvatar>
           <CallItemsMediaBody>
-            {/* <h6 className="missed-call">Incomming Call</h6> */}
-            <h6>Incomming Call</h6>
+            <h6 className={call.callAccepted ? "" : "missed-call"}>
+              {!call.callAccepted
+                ? "Missed Call"
+                : userState.user._id.toString() === call.caller._id.toString()
+                ? "Outgoing Call"
+                : "Incomming Call"}
+            </h6>
             <div>
-              <p>Just Now</p>
+              <p>{callComparedDate(call.date)}</p>
+              {/* Do later */}
               <span>•</span>
-              <p>2m 35s</p>
+              <p>{call.timeCall}</p>
             </div>
           </CallItemsMediaBody>
           <CallItemsMediaOptions>

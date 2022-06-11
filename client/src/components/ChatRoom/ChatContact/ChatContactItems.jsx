@@ -100,7 +100,6 @@ const ChatContactItems = ({
               {type === "Calls" && fullname}
               {type === "Chats" && conversation.name}
             </h6>
-            {type === "Calls" && <div></div>}
             {type === "Friends" && (
               <div>{formatDate(new Date(Date.now()))}</div>
             )}

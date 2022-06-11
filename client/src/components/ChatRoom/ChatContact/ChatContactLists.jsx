@@ -161,7 +161,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
 
   const filterCallsHandler = (meetings, searchContactItems) => {
     return meetings
-      ?.filter((meeting, i) => {
+      ?.filter((meeting, _i) => {
         if (searchContactItems === "") return true;
         if (
           meeting.callee.fullname

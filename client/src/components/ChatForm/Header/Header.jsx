@@ -11,7 +11,7 @@ import { BiDotsVerticalRounded } from "react-icons/bi";
 import { BsTelephone, BsSearch } from "react-icons/bs";
 
 const Header = (props) => {
-  const { conversation } = props;
+  const { conversation, onClickVideoCall } = props;
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
@@ -29,7 +29,7 @@ const Header = (props) => {
             <BsSearch />
           </LiTag>
         </a>
-        <a href="" onClick={props.onClickVideoCall}>
+        <a href="" onClick={onClickVideoCall}>
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BsTelephone />
           </LiTag>

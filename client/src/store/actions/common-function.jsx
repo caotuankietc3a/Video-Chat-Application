@@ -40,7 +40,6 @@ export const callComparedDate = (date) => {
       year: el.getUTCFullYear(),
     };
   });
-  console.log(date_array[0]);
   const {
     s: cur_s,
     m: cur_m,
@@ -69,7 +68,7 @@ export const callComparedDate = (date) => {
       }
       return Math.abs(cur_day - day) !== 1
         ? `${Math.abs(cur_day - day)} days ago`
-        : `1 day ago`;
+        : `Yesterday`;
     }
     return Math.abs(cur_month - month) !== 1
       ? `${Math.abs(cur_month - month)} months ago`

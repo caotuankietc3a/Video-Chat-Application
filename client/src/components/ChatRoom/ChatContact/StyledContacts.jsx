@@ -27,6 +27,9 @@ export const ContactItems = styled.li`
 
     &.active {
       background: #665dfe;
+      /* & > svg { */
+      /*   color: #fff !important; */
+      /* } */
     }
   }
 
@@ -127,6 +130,7 @@ export const ContactBtn = styled.div`
   align-items: center;
   justify-content: center;
   & svg {
+    /* color: #adb5bd; */
     color: #fff;
     height: 20px;
     width: 20px;
