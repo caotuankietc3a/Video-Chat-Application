@@ -14,6 +14,7 @@ import CallItems from "./CallItems/CallItems";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 
 const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
+  console.log(calls);
   return (
     <CallFormContainer>
       <CallFormContent>
@@ -32,8 +33,8 @@ const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
           </CallFormOptions>
         </CallFormBody>
         <CallFormGroupInfo>
-          {calls.map((call) => (
-            <CallItems />
+          {calls.map((call, i) => (
+            <CallItems key={i} />
           ))}
         </CallFormGroupInfo>
       </CallFormContent>

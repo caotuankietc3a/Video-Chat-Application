@@ -25,7 +25,7 @@ const userSchema = new Schema({
   },
   phone: {
     type: String,
-    default: ".........",
+    default: "Unkown phone",
   },
   website: {
     type: String,

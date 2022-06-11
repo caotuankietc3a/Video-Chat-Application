@@ -15,7 +15,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { conversationActions } from "../../../store/slices/conversation-slice";
 import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
-import { formatDate } from "../../../store/actions/common-function";
+import {
+  callComparedDate,
+  formatDate,
+} from "../../../store/actions/common-function";
 import { callActions } from "../../../store/slices/call-slice";
 const ChatContactItems = ({
   conversation,
@@ -24,6 +27,7 @@ const ChatContactItems = ({
   type,
   id,
   displayChar = null,
+  fullname,
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -93,7 +97,7 @@ const ChatContactItems = ({
           <ContactInfo>
             <h6 className="text-truncate">
               {type === "Friends" && friend.fullname}
-              {type === "Calls" && meeting.callee.fullname}
+              {type === "Calls" && fullname}
               {type === "Chats" && conversation.name}
             </h6>
             {type === "Calls" && <div></div>}
@@ -118,7 +122,7 @@ const ChatContactItems = ({
               ) : type === "Calls" ? (
                 <span>
                   <HiPhoneIncoming />
-                  {meeting.date}
+                  {callComparedDate(meeting.date)}
                 </span>
               ) : type === "Chats" &&
                 conversation.messages.length - 1 !== -1 ? (
@@ -128,10 +132,12 @@ const ChatContactItems = ({
               )}
             </p>
           </ContactTexts>
+        </ContactContents>
+        {type === "Calls" && (
           <ContactBtn>
             <BsTelephone />
           </ContactBtn>
-        </ContactContents>
+        )}
       </Link>
     </ContactItems>
   );

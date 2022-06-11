@@ -113,7 +113,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       })
       .map((conversation, i) => {
         const member = conversation?.members.find(
-          (member) => member._id !== userState.user._id
+          (member) => member._id.toString() !== userState.user._id.toString()
         );
         conversation.name = member.fullname;
         return (
@@ -172,11 +172,16 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         return false;
       })
       .map((meeting, i) => {
+        const fullname =
+          meeting.callee._id.toString() === userState.user._id.toString()
+            ? meeting.caller.fullname
+            : meeting.callee.fullname;
         return (
           <ChatContactItems
             key={i}
             type={type}
             meeting={meeting}
+            fullname={fullname}
             id={meeting._id}
           />
         );

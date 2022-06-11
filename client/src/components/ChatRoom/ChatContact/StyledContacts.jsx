@@ -122,4 +122,13 @@ export const ContactTexts = styled.div`
   }
 `;
 
-export const ContactBtn = styled.div``;
+export const ContactBtn = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & svg {
+    color: #fff;
+    height: 20px;
+    width: 20px;
+  }
+`;

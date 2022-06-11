@@ -38,7 +38,7 @@ exports.getMeetingDetail = async (req, res, next) => {
         : meeting.callee._id;
     const callee = await User.findById(id);
     const meetings = await Meeting.find({
-      $or: [{ caller: id }, { callee: id }],
+      $and: [{ caller: userId }, { callee: id }],
     }).populate({ path: "caller callee" });
     res.status(200).json({ calls_detail: meetings, callee: callee });
   } catch (err) {
