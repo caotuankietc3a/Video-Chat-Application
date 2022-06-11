@@ -29,7 +29,7 @@ exports.getConversations = async (req, res, next) => {
 
 exports.getConversationDetail = async (req, res, next) => {
   try {
-    const conversationId = req.params.conversationId;
+    const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId).populate({
       path: "members",
     });
