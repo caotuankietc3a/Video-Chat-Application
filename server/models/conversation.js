@@ -32,12 +32,6 @@ const conversationSchema = new Schema({
       },
     },
   ],
-  meetings: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Meeting",
-    },
-  ],
 });
 
 module.exports = model("Conversation", conversationSchema);

@@ -12,14 +12,14 @@ const http = require("http");
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const io = socketIo(server);
-const { SocketUser, users } = require("./models/socket-user");
+// const { SocketUser, users } = require("./models/socket-user");
 
 const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
 
-const { saveMeeting } = require("./controllers/meeting.js");
+const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -136,8 +136,9 @@ io_video.on("connection", (socket) => {
     socket.broadcast.to(conversationId).emit("toggle-muted");
   });
 
-  socket.on("leave-meeting-room", ({ conversationId }) => {
+  socket.on("leave-meeting-room", ({ conversationId, callerId, calleeId }) => {
     console.log("A user disconnected video-room!!!");
+    updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
 });
