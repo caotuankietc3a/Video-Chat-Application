@@ -6,12 +6,7 @@ import {
   CallItemsMediaBody,
   CallItemsMediaOptions,
 } from "./StyledCallItems";
-
-import {
-  BsFillTelephoneInboundFill,
-  BsFillTelephoneOutboundFill,
-} from "react-icons/bs";
-
+import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { BsTelephone } from "react-icons/bs";
 const CallItems = () => {
   return (
@@ -20,10 +15,11 @@ const CallItems = () => {
         <CallItemsMedia>
           <CallItemsMediaAvatar>
             <span>
-              <BsFillTelephoneInboundFill />
+              <HiPhoneIncoming />
             </span>
           </CallItemsMediaAvatar>
           <CallItemsMediaBody>
+            {/* <h6 className="missed-call">Incomming Call</h6> */}
             <h6>Incomming Call</h6>
             <div>
               <p>Just Now</p>

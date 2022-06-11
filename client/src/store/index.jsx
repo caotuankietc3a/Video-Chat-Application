@@ -5,6 +5,7 @@ import friendSlice from "./slices/friend-slice";
 import messageSlice from "./slices/message-slice";
 import videoSlice from "./slices/video-chat-slice";
 import socketSlice from "./slices/socket-slice";
+import callSlice from "./slices/call-slice";
 
 const store = configureStore({
   middleware: getDefaultMiddleware({
@@ -17,6 +18,7 @@ const store = configureStore({
     friend: friendSlice.reducer,
     video: videoSlice.reducer,
     socket: socketSlice.reducer,
+    call: callSlice.reducer,
   },
 });
 

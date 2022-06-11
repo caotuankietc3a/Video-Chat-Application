@@ -18,6 +18,7 @@ const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
+  const callState = useSelector((state) => state.call);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -88,8 +89,13 @@ const ChatRoom = (props) => {
               }
             ></Route>
             <Route
-              path={`/calls/call/detail/62a2e4452edf829b6e14b397`}
-              element={<CallForm />}
+              path={`/calls/call/detail/${callState?.meeting?.meetingId}`}
+              element={
+                <CallForm
+                  calls={callState?.calls}
+                  callee={callState?.meeting?.callee}
+                />
+              }
             ></Route>
 
             <Route path={`/`} element={<User user={user} />}></Route>

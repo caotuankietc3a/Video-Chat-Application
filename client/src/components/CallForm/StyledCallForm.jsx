@@ -26,6 +26,7 @@ export const CallFormContent = styled.div`
 
 export const CallFormBody = styled.div`
   position: relative;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -120,7 +121,7 @@ export const CallFormOptions = styled.div`
 export const CallFormGroupInfo = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   padding-left: 0;
-  background-color: #383f44;
 `;

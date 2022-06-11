@@ -11,23 +11,20 @@ import {
 } from "./StyledCallForm.jsx";
 // import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import CallItems from "./CallItems/CallItems";
-
 import { BiDotsVerticalRounded } from "react-icons/bi";
-import { FiPhone } from "react-icons/fi";
-const CallForm = () => {
+
+const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
   return (
     <CallFormContainer>
       <CallFormContent>
         <CallFormBody>
           <CallFormAvatar>
-            {/* <img src={profilePhoto} alt="" /> */}
-            <img src="/images/user-img.jpg" alt="" />
+            <img src={profilePhoto} alt="" />
           </CallFormAvatar>
           <CallFormDetail>
-            {/* <h5>{fullname}</h5> */}
-            <h5>Cao Tuan Kiettttt</h5>
+            <h5>{fullname}</h5>
             <CallFormInfo_Btn>
-              <div className="chat">sdfasdfasdfa</div>
+              <div className="chat">{phone}</div>
             </CallFormInfo_Btn>
           </CallFormDetail>
           <CallFormOptions>
@@ -35,7 +32,9 @@ const CallForm = () => {
           </CallFormOptions>
         </CallFormBody>
         <CallFormGroupInfo>
-          <CallItems />
+          {calls.map((call) => (
+            <CallItems />
+          ))}
         </CallFormGroupInfo>
       </CallFormContent>
     </CallFormContainer>

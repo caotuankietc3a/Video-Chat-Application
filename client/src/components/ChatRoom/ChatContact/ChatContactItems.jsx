@@ -5,18 +5,18 @@ import {
   ContactContents,
   ContactInfo,
   ContactTexts,
+  ContactBtn,
 } from "./StyledContacts";
+import { BsTelephone } from "react-icons/bs";
 
-import {
-  BsFillTelephoneInboundFill,
-  BsFillTelephoneOutboundFill,
-} from "react-icons/bs";
+import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { conversationActions } from "../../../store/slices/conversation-slice";
 import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
 import { formatDate } from "../../../store/actions/common-function";
+import { callActions } from "../../../store/slices/call-slice";
 const ChatContactItems = ({
   conversation,
   friend,
@@ -60,6 +60,14 @@ const ChatContactItems = ({
         const friend = await res.json();
         dispatch(friendActions.setFriends({ friend: friend }));
       } else if (type === "Calls") {
+        const res = await fetch(
+          `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userState.user._id}`
+        );
+        const { calls_detail, callee } = await res.json();
+        dispatch(callActions.setCalls({ calls: calls_detail }));
+        dispatch(
+          callActions.setMeeting({ meeting: { meetingId: id, callee } })
+        );
       }
     } catch (err) {
       console.error(err);
@@ -109,7 +117,7 @@ const ChatContactItems = ({
                 friend.address
               ) : type === "Calls" ? (
                 <span>
-                  <BsFillTelephoneInboundFill />
+                  <HiPhoneIncoming />
                   {meeting.date}
                 </span>
               ) : type === "Chats" &&
@@ -120,6 +128,9 @@ const ChatContactItems = ({
               )}
             </p>
           </ContactTexts>
+          <ContactBtn>
+            <BsTelephone />
+          </ContactBtn>
         </ContactContents>
       </Link>
     </ContactItems>
