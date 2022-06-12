@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AvatarUser } from "../../ChatRoom/ChatContact/StyledContacts";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
   MessageContainer,
   MessageDivider,
@@ -66,10 +67,12 @@ const Message = (props) => {
             <BiDotsHorizontalRounded onClick={menuShowHandler} />
             {showMenu && (
               <DropDownMenu>
-                <DropDownItem>
-                  <IoCopyOutline />
-                  <span>Copy</span>
-                </DropDownItem>
+                <CopyToClipboard text={text}>
+                  <DropDownItem>
+                    <IoCopyOutline />
+                    <span>Copy</span>
+                  </DropDownItem>
+                </CopyToClipboard>
 
                 <DropDownItem>
                   <IoReturnUpForward />

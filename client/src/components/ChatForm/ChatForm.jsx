@@ -60,13 +60,10 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   }, []);
   useEffect(() => {
     socket_chat.on("delete-message", ({ text }) => {
-      console.log("sdfasdfasdfasdfasffad");
       setMessages((preMessages) => {
         const new_messages = [...preMessages];
         const index = new_messages.findIndex((mes) => mes.text === text);
-        console.log(index);
         new_messages.splice(index, 1);
-        console.log(new_messages);
         return new_messages;
       });
     });
