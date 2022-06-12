@@ -12,6 +12,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
+  // const [isActive, setIsActive] = useState(false);
   const [calls, setCalls] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
@@ -96,6 +97,23 @@ const ChatContactLists = ({ searchContactItems, type }) => {
     })();
   }, [userState.user]);
 
+  useEffect(() => {
+    const AddBgEl = (e) => {
+      e.classList.add("active");
+    };
+    const RemoveBgEl = (els) => {
+      els.forEach((el) => {
+        el.classList.remove("active");
+      });
+    };
+    contactList.current.querySelectorAll("li a").forEach((el) => {
+      el.addEventListener("click", () => {
+        RemoveBgEl(contactList.current.querySelectorAll("li a"));
+        AddBgEl(el);
+      });
+    });
+  }, [contactList, window.location.href]);
+
   const filterConversationsHandler = (conversations, searchContactItems) => {
     return conversations
       .filter((conversation) => {
@@ -159,6 +177,10 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       });
   };
 
+  const setIsActiveHandler = (cb) => {
+    cb();
+  };
+
   const filterCallsHandler = (meetings, searchContactItems) => {
     return meetings
       ?.filter((meeting, _i) => {
@@ -187,23 +209,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         );
       });
   };
-
-  useEffect(() => {
-    const AddBgEl = (e) => {
-      e.classList.add("active");
-    };
-    const RemoveBgEl = (els) => {
-      els.forEach((el) => {
-        el.classList.remove("active");
-      });
-    };
-    contactList.current.querySelectorAll("li a").forEach((el) => {
-      el.addEventListener("click", () => {
-        RemoveBgEl(contactList.current.querySelectorAll("li a"));
-        AddBgEl(el);
-      });
-    });
-  }, [contactList, window.location.href]);
 
   return (
     <ContactLists ref={contactList}>

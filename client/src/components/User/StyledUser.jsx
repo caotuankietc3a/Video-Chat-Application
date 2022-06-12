@@ -31,6 +31,7 @@ export const UserContent = styled.div`
   & p {
     margin-bottom: 1rem;
     color: #f8f9fa;
+    white-space: nowrap;
   }
   & button {
     background: #665dfe;

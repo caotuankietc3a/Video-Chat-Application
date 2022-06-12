@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ContactItems,
   AvatarUser,
@@ -38,6 +38,7 @@ const ChatContactItems = ({
         : "conversation"
       : "friend";
   const userState = useSelector((state) => state.user);
+  const [isActive, setIsActive] = useState(false);
   const clickHandler = async () => {
     try {
       if (type === "Chats") {
@@ -73,6 +74,7 @@ const ChatContactItems = ({
           callActions.setMeeting({ meeting: { meetingId: id, callee } })
         );
       }
+      setIsActive(true);
     } catch (err) {
       console.error(err);
     }
@@ -114,26 +116,45 @@ const ChatContactItems = ({
             )}
           </ContactInfo>
           <ContactTexts>
-            {type === "Friends" && <BsPinMapFill />}
             <p className="text-truncate">
               {type === "Friends" ? (
-                friend.address
+                <span className={isActive ? "active" : "inactive"}>
+                  <BsPinMapFill />
+                  {friend.address}
+                </span>
               ) : type === "Calls" ? (
-                <span>
-                  <HiPhoneIncoming />
+                <span className={isActive ? "active" : "inactive"}>
+                  {userState.user._id.toString() ===
+                  meeting.caller._id.toString() ? (
+                    <HiPhoneOutgoing
+                      className={`${
+                        !meeting.callAccepted ? "missed-call" : "inactive"
+                      }`}
+                    />
+                  ) : (
+                    <HiPhoneIncoming
+                      className={`${
+                        !meeting.callAccepted ? "missed-call" : "inactive"
+                      }`}
+                    />
+                  )}
                   {callComparedDate(meeting.date)}
                 </span>
-              ) : type === "Chats" &&
-                conversation.messages.length - 1 !== -1 ? (
-                conversation.messages[conversation.messages.length - 1].text
               ) : (
-                "............"
+                type === "Chats" && (
+                  <span className={isActive ? "active" : "inactive"}>
+                    {conversation.messages.length - 1 !== -1
+                      ? conversation.messages[conversation.messages.length - 1]
+                          .text
+                      : "............"}
+                  </span>
+                )
               )}
             </p>
           </ContactTexts>
         </ContactContents>
         {type === "Calls" && (
-          <ContactBtn>
+          <ContactBtn className={isActive ? "active" : ""}>
             <BsTelephone />
           </ContactBtn>
         )}

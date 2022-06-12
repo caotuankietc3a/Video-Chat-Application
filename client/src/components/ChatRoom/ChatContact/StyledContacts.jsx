@@ -122,6 +122,15 @@ export const ContactTexts = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    & .missed-call {
+      color: #ff337c !important;
+    }
+    & .active {
+      color: #fff;
+    }
+    & .inactive {
+      color: #f8f9fa;
+    }
   }
 `;
 
@@ -129,10 +138,12 @@ export const ContactBtn = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  & svg {
-    /* color: #adb5bd; */
+  /* & svg { */
+  color: #f8f9fa;
+  height: 20px;
+  width: 20px;
+  &.active {
     color: #fff;
-    height: 20px;
-    width: 20px;
   }
+  /* } */
 `;
