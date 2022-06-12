@@ -90,3 +90,13 @@ exports.postNewConversation = async (req, res, next) => {
     console.error(err);
   }
 };
+
+exports.deleteMessage = async (conversationId, text) => {
+  try {
+    await Conversation.findByIdAndUpdate(conversationId, {
+      $pull: { messages: { text: text } },
+    });
+  } catch (err) {
+    console.error(err);
+  }
+};

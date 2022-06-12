@@ -20,6 +20,7 @@ const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
+const { deleteMessage } = require("./controllers/conversation.js");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -68,6 +69,11 @@ io_chat.on("connection", (socket) => {
     socket.leave(conversationId);
     console.log("A user disconnected chat-room!!!");
     // console.log("Chat Rooms: ", io_chat.adapter.rooms);
+  });
+
+  socket.on("delete-message", ({ conversationId, text }) => {
+    deleteMessage(conversationId, text);
+    io_chat.to(conversationId).emit("delete-message", { text });
   });
 });
 

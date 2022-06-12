@@ -10,6 +10,7 @@ import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
+  console.log("ChatForm running hhhhhhhhhhhhhhh");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -51,11 +52,28 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         },
       ]);
     });
+
     return function cleanup() {
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
     };
   }, []);
+  useEffect(() => {
+    socket_chat.on("delete-message", ({ text }) => {
+      console.log("sdfasdfasdfasdfasffad");
+      setMessages((preMessages) => {
+        const new_messages = [...preMessages];
+        const index = new_messages.findIndex((mes) => mes.text === text);
+        console.log(index);
+        new_messages.splice(index, 1);
+        console.log(new_messages);
+        return new_messages;
+      });
+    });
+    return function cleanup() {
+      socket_chat.off("delete-message");
+    };
+  }, [messages]);
 
   const onClickHandler = async (e) => {
     e.preventDefault();

@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
+import {} from "react-router-dom";
 import Message from "./Message";
 import { MessagesBodyContainer, MessagesBodyContent } from "./StyledBodyMsg";
 import { useSelector } from "react-redux";
 import { formatDate } from "../../../store/actions/common-function";
 
-const BodyBar = (props) => {
+const BodyBar = ({ messages }) => {
   const userState = useSelector((state) => state.user);
-  const { messages } = props;
   const bodyMessagesDisplay = (messages, formatDate) => {
     return messages.map((mes, i) => {
       let typeDisplay = "left";

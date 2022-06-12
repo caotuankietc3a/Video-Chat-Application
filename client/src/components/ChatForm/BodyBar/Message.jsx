@@ -18,8 +18,11 @@ import {
 } from "react-icons/io5";
 import { AiOutlineStar } from "react-icons/ai";
 import { RiDeleteBinLine } from "react-icons/ri";
+import { useSelector } from "react-redux";
 
 const Message = (props) => {
+  const { conversation } = useSelector((state) => state.conversation);
+  const { socket_chat } = useSelector((state) => state.socket);
   const {
     type,
     date,
@@ -29,6 +32,12 @@ const Message = (props) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
     setShowMenu(true);
+  };
+  const deleteMessageHandler = () => {
+    socket_chat.emit("delete-message", {
+      conversationId: conversation._id,
+      text,
+    });
   };
   useEffect(() => {
     const checkIsClickOutside = (e) => {
@@ -75,7 +84,7 @@ const Message = (props) => {
                   <AiOutlineStar />
                   <span>Favorite</span>
                 </DropDownItem>
-                <DropDownItem>
+                <DropDownItem onClick={deleteMessageHandler}>
                   <RiDeleteBinLine />
                   <span>Delete</span>
                 </DropDownItem>

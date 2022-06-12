@@ -1,9 +1,8 @@
 import { MainLayOut, Container, ChatBodyContainer } from "./StyledChatRoom";
 import React, { useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import ChatForm from "../ChatForm/ChatForm";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import ChatContact from "./ChatContact/ChatContact";
 import FriendForm from "../FriendForm/FriendForm";
 import CallForm from "../CallForm/CallForm";
