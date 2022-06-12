@@ -5,6 +5,8 @@ import {
   MessageContainer,
   MessageDivider,
   MessageContent,
+  ReplyHeader,
+  ReplyWrapper,
   MessageWrapper,
   MessageOptions,
   MessageOptionsDropDown,
@@ -18,19 +20,23 @@ import {
   IoReturnUpBack,
 } from "react-icons/io5";
 import { AiOutlineStar } from "react-icons/ai";
-import { RiDeleteBinLine } from "react-icons/ri";
-import { useSelector } from "react-redux";
+import { RiDeleteBinLine, RiReplyFill } from "react-icons/ri";
+import { useSelector, useDispatch } from "react-redux";
+import { replyActions } from "../../../store/slices/reply-slice";
 
-const Message = (props) => {
+const Message = ({
+  type,
+  date,
+  text,
+  mesDivider: { divider, data_label },
+  reply,
+}) => {
   const { conversation } = useSelector((state) => state.conversation);
+  const { user } = useSelector((state) => state.user);
   const { socket_chat } = useSelector((state) => state.socket);
-  const {
-    type,
-    date,
-    text,
-    mesDivider: { divider, data_label },
-  } = props;
+  const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
+  console.log(reply);
   const menuShowHandler = (e) => {
     setShowMenu(true);
   };
@@ -39,6 +45,16 @@ const Message = (props) => {
       conversationId: conversation._id,
       text,
     });
+  };
+  const replyMessageHandler = () => {
+    dispatch(
+      replyActions.setReply({
+        reply: {
+          text,
+          fullname: type === "right" ? user.fullname : conversation.name,
+        },
+      })
+    );
   };
   useEffect(() => {
     const checkIsClickOutside = (e) => {
@@ -53,6 +69,23 @@ const Message = (props) => {
     <MessageContainer type={type}>
       {divider && <MessageDivider data-label={data_label}></MessageDivider>}
       <MessageContent type={type}>
+        {reply && (
+          <>
+            <ReplyHeader type={type}>
+              <div>
+                <RiReplyFill />
+              </div>
+              {/* Need to fix */}
+              <div className="text">You replied to {reply.fullname}</div>
+            </ReplyHeader>
+            <ReplyWrapper type={type}>
+              <div className="reply-wrapper">
+                <span>{reply.text}</span>
+              </div>
+            </ReplyWrapper>
+          </>
+        )}
+
         <MessageWrapper type={type}>
           <div>
             <span>{text}</span>
@@ -74,9 +107,9 @@ const Message = (props) => {
                   </DropDownItem>
                 </CopyToClipboard>
 
-                <DropDownItem>
+                <DropDownItem onClick={replyMessageHandler}>
                   <IoReturnUpForward />
-                  <span>Replay</span>
+                  <span>Reply</span>
                 </DropDownItem>
 
                 <DropDownItem>

@@ -30,6 +30,7 @@ const BodyBar = ({ messages }) => {
           date={formatDate(new Date(mes.date))}
           type={typeDisplay}
           mesDivider={mesDivider}
+          reply={mes.reply}
         />
       );
     });

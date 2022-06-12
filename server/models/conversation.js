@@ -30,6 +30,10 @@ const conversationSchema = new Schema({
         type: Date,
         default: new Date(Date.now()),
       },
+      reply: {
+        type: Schema.Types.Mixed,
+        default: null,
+      },
     },
   ],
 });

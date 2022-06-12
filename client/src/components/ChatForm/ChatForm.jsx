@@ -2,21 +2,24 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import { useNavigate } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
+import { replyActions } from "../../store/slices/reply-slice";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
-  console.log("ChatForm running hhhhhhhhhhhhhhh");
+  console.log("ChatForm running");
   const dispatch = useDispatch();
+  const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(reply);
 
   useEffect(() => {
     let timer = 0;
@@ -42,12 +45,13 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   useEffect(() => {
     socket_chat.emit("join-chat", { conversationId: conversation._id });
 
-    socket_chat.on("receive-message", ({ text, userId }) => {
+    socket_chat.on("receive-message", ({ text, userId, reply }) => {
       setMessages((preMessages) => [
         ...preMessages,
         {
           text: text,
           senderId: userId,
+          reply,
           date: new Date(Date.now()),
         },
       ]);
@@ -76,14 +80,21 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     e.preventDefault();
     if (message) {
       const oldMes = message;
+      let replyOb = reply ? reply : null;
+      // Need to fix
+      // if (replyOb.fullname === user.fullname) {
+      //   replyOb.fullname;
+      // }
       socket_chat.emit("send-message", {
         userId: user._id,
         message: message,
+        reply: replyOb,
         conversationId: conversation._id,
       });
       setMessage("");
+      dispatch(replyActions.setReply({ reply: null }));
       await postData(
-        { newMessage: oldMes },
+        { newMessage: oldMes, replyOb },
         `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
       );
     }

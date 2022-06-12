@@ -58,9 +58,10 @@ io_chat.on("connection", (socket) => {
     // console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
-  socket.on("send-message", ({ userId, message, conversationId }) => {
+  socket.on("send-message", ({ userId, message, conversationId, reply }) => {
     io_chat.to(conversationId).emit("receive-message", {
       text: message,
+      reply,
       userId: userId,
     });
   });

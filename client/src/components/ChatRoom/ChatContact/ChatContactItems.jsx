@@ -20,6 +20,7 @@ import {
   formatDate,
 } from "../../../store/actions/common-function";
 import { callActions } from "../../../store/slices/call-slice";
+import { replyActions } from "../../../store/slices/reply-slice";
 const ChatContactItems = ({
   conversation,
   friend,
@@ -60,6 +61,7 @@ const ChatContactItems = ({
             })
           );
         }
+        dispatch(replyActions.setReply({ reply: null }));
       } else if (type === "Friends") {
         const res = await fetch(`${END_POINT_SERVER}/friend/detail/` + id);
         const friend = await res.json();

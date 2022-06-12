@@ -35,23 +35,73 @@ export const MessageContent = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: ${(props) =>
-    props.type === "right" ? "flex-end" : "flex-start"};
+  align-items: ${({ type }) => (type === "right" ? "flex-end" : "flex-start")};
+`;
+
+export const ReplyHeader = styled.div`
+  height: auto;
+  width: 100%;
+  display: flex;
+  margin-bottom: -0.8rem;
+  margin-top: 1.25rem;
+  margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
+  margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
+  justify-content: ${({ type }) =>
+    type === "right" ? "flex-end" : "flex-start"};
+  & .text {
+    font-size: 0.75rem;
+    padding-left: 4px;
+    color: #8a8d91;
+  }
+  & svg {
+    height: 16px;
+    width: 16px;
+    color: #8a8d91;
+  }
+`;
+export const ReplyWrapper = styled.div`
+  height: auto;
+  width: 100%;
+  display: flex;
+  justify-content: ${({ type }) =>
+    type === "right" ? "flex-end" : "flex-start"};
+  margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
+  margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
+  & span {
+    color: #adb5db;
+    height: 100%;
+    font-size: 0.875rem;
+    padding: 1px;
+  }
+  & .reply-wrapper {
+    position: relative;
+    bottom: -15px;
+    right: -5px;
+    height: auto;
+    max-width: 45%;
+    background: #4e4f5030;
+    padding: 1rem 2.25rem;
+    margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
+    margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
+    border-radius: 1.25rem;
+    color: #adb5db;
+    overflow-wrap: break-word;
+  }
 `;
 
 export const MessageWrapper = styled.div`
   height: auto;
   width: 100%;
   display: flex;
-  justify-content: ${(props) =>
-    props.type === "right" ? "flex-end" : "flex-start"};
+  justify-content: ${({ type }) =>
+    type === "right" ? "flex-end" : "flex-start"};
   div {
-    background-color: ${(props) =>
-      props.type === "left" ? "#383f44" : "#665DFE"};
-    color: ${(props) => (props.type === "left" ? "#b9b9b9" : "#FFFFFF")};
+    background-color: ${({ type }) =>
+      type === "left" ? "#383f44" : "#665DFE"};
+    color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF")};
     padding: 1rem 2.25rem;
-    margin-left: ${(props) => (props.type === "left" ? "1.25rem" : "0")};
-    margin-right: ${(props) => (props.type === "right" ? "1.25rem" : "0")};
+    margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
+    margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
     border-radius: 1.25rem;
     text-align: left;
     max-width: 25rem;
@@ -62,8 +112,7 @@ export const MessageWrapper = styled.div`
 
 export const MessageOptions = styled.div`
   display: flex;
-  flex-direction: ${(props) =>
-    props.type === "right" ? "row-reverse" : "row"};
+  flex-direction: ${({ type }) => (type === "right" ? "row-reverse" : "row")};
   align-items: center;
   justify-content: center;
   margin-top: 0.3125rem;
@@ -85,8 +134,8 @@ export const MessageOptions = styled.div`
     margin-bottom: 2rem;
     display: flex;
     align-items: center;
-    // justify-content: ${(props) =>
-      props.type === "right" ? "flex-end" : "center"};
+    justify-content: ${({ type }) =>
+      type === "right" ? "flex-end" : "center"};
     justify-content: center;
     &:before {
       display: none;

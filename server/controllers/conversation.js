@@ -42,7 +42,8 @@ exports.getConversationDetail = async (req, res, next) => {
 exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
-    const { newMessage } = req.body;
+    const { newMessage, replyOb } = req.body;
+    console.log(replyOb);
     await Conversation.updateOne(
       { _id: conversationId },
       {
@@ -51,6 +52,7 @@ exports.postNewMessage = async (req, res, next) => {
             text: newMessage,
             senderId: userId,
             date: new Date(Date.now()),
+            reply: replyOb,
           },
         },
       }

@@ -54,3 +54,69 @@ export const InputGroup = styled.div`
     margin: 0.75rem;
   }
 `;
+
+export const ReplyMessageContainer = styled.div`
+  padding: 10px 15px 3px 15px;
+  display: flex;
+  position: fixed;
+  right: 0;
+  bottom: 5rem;
+  width: calc(100% - 69px - 419px);
+  height: 5rem;
+  padding: 0.75rem 2.25rem;
+  background-color: #323333;
+  border-top: 1px solid #343a40;
+`;
+
+export const ReplyMessageContent = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 2.25rem;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+`;
+export const ReplyMessageInfo = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 10px;
+  width: 100%;
+`;
+export const ReplyMessageHeader = styled.div`
+  margin: 5px 0;
+  align-self: flex-start;
+  color: #fff;
+  font-size: 18px;
+`;
+export const ReplyMessageText = styled.div`
+  align-self: flex-start;
+  color: #b0b3b8;
+  max-width: 100%;
+  width: 100%;
+  & .text {
+    color: #b9b9b9;
+    display: inline-block;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+`;
+export const ReplyMessageBtn = styled.div`
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+  & svg {
+    position: absolute;
+    top: -15px;
+    color: #e4e6ed;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+  }
+  & svg:hover {
+    color: #b0b3b8;
+  }
+`;
