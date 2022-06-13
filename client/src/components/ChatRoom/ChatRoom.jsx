@@ -12,6 +12,7 @@ import { conversationActions } from "../../store/slices/conversation-slice";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import NavBarContact from "../NavBarContact/NavBarContact";
 import User from "../User/User";
+import FriendList from "../FriendList/FriendList";
 
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
@@ -47,6 +48,7 @@ const ChatRoom = (props) => {
   return (
     <Container>
       <MainLayOut>
+        {/* <FriendList /> */}
         <NavBarContact />
 
         <Routes>

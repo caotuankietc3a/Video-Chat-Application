@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { RiMailSendLine } from "react-icons/ri";
 import {
   ChatFooter,
@@ -19,6 +19,11 @@ import { replyActions } from "../../../store/slices/reply-slice";
 const Input = ({ changeHandler, clickHandler, message }) => {
   const { reply } = useSelector((state) => state.reply);
   const { user } = useSelector((state) => state.user);
+  const isFocus = useRef(null);
+  const focusHandler = () => {
+    isFocus.current.focus();
+  };
+  if (reply) focusHandler();
   const dispatch = useDispatch();
   return (
     <ChatFooter>
@@ -60,6 +65,7 @@ const Input = ({ changeHandler, clickHandler, message }) => {
           placeholder="Enter your message..."
           onChange={changeHandler}
           value={message}
+          ref={isFocus}
         ></input>
         <div>
           <MdOutlineInsertEmoticon />

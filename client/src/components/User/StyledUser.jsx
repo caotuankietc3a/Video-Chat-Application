@@ -43,7 +43,7 @@ export const UserContent = styled.div`
     cursor: pointer;
     border-style: none;
     &:active {
-      transform: scale(0.955);
+      box-shadow: 0 0 0 0.2rem rgb(125 117 254 / 50%);
     }
     &:hover {
       background: #4237fe;

@@ -77,9 +77,6 @@ export const ContactContents = styled.div`
   padding-left: 0.875rem;
   transition: all 0.4s;
   overflow: hidden;
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
 `;
 export const ContactInfo = styled.div`
   display: flex;
