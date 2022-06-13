@@ -12,7 +12,6 @@ const http = require("http");
 const server = http.createServer(app);
 const socketIo = require("socket.io");
 const io = socketIo(server);
-// const { SocketUser, users } = require("./models/socket-user");
 
 const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
