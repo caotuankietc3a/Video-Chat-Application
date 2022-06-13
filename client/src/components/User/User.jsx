@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { UserContainer, UserContent } from "./StyledUser.jsx";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 const User = (props) => {
-  const { user } = props;
+  const { user, isClickedHandler } = props;
   const [isFetching, setIsFetching] = useState(true);
   useEffect(() => {
     let timer = setTimeout(() => {
@@ -23,7 +23,7 @@ const User = (props) => {
           </div>
           <h5>Welcome, {user?.fullname}</h5>
           <p>Please select a chat to start messaging.</p>
-          <button>Start a conversation</button>
+          <button onClick={isClickedHandler}>Start a conversation</button>
         </UserContent>
       )}
     </UserContainer>

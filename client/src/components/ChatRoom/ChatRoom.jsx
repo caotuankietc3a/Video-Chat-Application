@@ -1,5 +1,5 @@
 import { MainLayOut, Container, ChatBodyContainer } from "./StyledChatRoom";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import ChatForm from "../ChatForm/ChatForm";
 import { useSelector, useDispatch } from "react-redux";
@@ -22,7 +22,15 @@ const ChatRoom = (props) => {
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isClickedConversation, setIsClickedConversation] = useState(false);
   const { socket_chat, socket_video } = useSelector((state) => state.socket);
+  const isClickedHandler = () => {
+    setIsClickedConversation(!isClickedConversation);
+  };
+  console.log(isClickedConversation);
+  // const isClickedHandler = () => {
+  //   setIsClickedConversation(true);
+  // };
 
   useEffect(() => {
     dispatch(fetchUserLogin(navigate, socket_video));
@@ -48,7 +56,9 @@ const ChatRoom = (props) => {
   return (
     <Container>
       <MainLayOut>
-        {/* <FriendList /> */}
+        {isClickedConversation && (
+          <FriendList isClickedHandler={isClickedHandler} />
+        )}
         <NavBarContact />
 
         <Routes>
@@ -99,9 +109,18 @@ const ChatRoom = (props) => {
               }
             ></Route>
 
-            <Route path={`/`} element={<User user={user} />}></Route>
-            <Route path={`/friends`} element={<User user={user} />}></Route>
-            <Route path={`/calls`} element={<User user={user} />}></Route>
+            <Route
+              path={`/`}
+              element={<User user={user} isClickedHandler={isClickedHandler} />}
+            ></Route>
+            <Route
+              path={`/friends`}
+              element={<User user={user} isClickedHandler={isClickedHandler} />}
+            ></Route>
+            <Route
+              path={`/calls`}
+              element={<User user={user} isClickedHandler={isClickedHandler} />}
+            ></Route>
           </Routes>
         </ChatBodyContainer>
       </MainLayOut>

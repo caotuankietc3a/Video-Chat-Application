@@ -1,21 +1,16 @@
-import {
-  FriendCol,
-  FriendColBody,
-  AvatarUser,
-  FriendName,
-} from "./StyledFriendShow.jsx";
-const FriendShow = () => {
+import { FriendColBody, AvatarUser, FriendName } from "./StyledFriendShow.jsx";
+const FriendShow = ({ friend, moveToConversationDetail }) => {
   return (
-    <FriendColBody>
+    <FriendColBody onClick={moveToConversationDetail}>
       <AvatarUser>
-        <img src="/images/user-img.jpg" alt="User" />
+        <img src={friend.profilePhoto} alt="User" />
       </AvatarUser>
       <FriendName>
         <div>
-          <h6 className="text-truncate">Cao Tuan Kiet</h6>
+          <h6 className="text-truncate">{friend.fullname}</h6>
         </div>
         <div>
-          <p className="status">offline</p>
+          <p className="status">{friend.timestamps ? "Online" : "Offline"}</p>
         </div>
       </FriendName>
     </FriendColBody>

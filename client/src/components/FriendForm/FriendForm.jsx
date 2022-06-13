@@ -22,10 +22,9 @@ import { FiPhone, FiFacebook, FiTwitter, FiInstagram } from "react-icons/fi";
 import { IoEarthOutline } from "react-icons/io5";
 import { formatDate } from "../../store/actions/common-function";
 import { useSelector, useDispatch } from "react-redux";
-import { postData } from "../../store/actions/fetch-action";
-import { conversationActions } from "../../store/slices/conversation-slice";
 import { useNavigate } from "react-router-dom";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
+import { postNewConversation } from "../../store/actions/conversation-function";
 const FriendForm = (props) => {
   const { profilePhoto, fullname, birthdate, phone, email, website, address } =
     props.friendDetail;
@@ -33,26 +32,9 @@ const FriendForm = (props) => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const [isFetching, setIsFetching] = useState(true);
-  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
-  const clickChatHandler = async () => {
-    const conversation = await postData(
-      { friend: props.friendDetail, userId: user._id },
-      `${END_POINT_SERVER}/conversation/new-conversation`
-    );
-    const member = conversation.members.find(
-      (member) => member._id !== user._id
-    );
-    dispatch(
-      conversationActions.setConversation({
-        conversation: {
-          _id: conversation._id,
-          members: conversation.members,
-          name: member.fullname,
-        },
-      })
-    );
-    navigate(`/home-chat/conversation/detail/${conversation._id}`);
+  const clickChatHandler = () => {
+    dispatch(postNewConversation(user, props.friendDetail, navigate));
   };
 
   useEffect(() => {

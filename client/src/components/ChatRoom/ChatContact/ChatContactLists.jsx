@@ -177,10 +177,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       });
   };
 
-  const setIsActiveHandler = (cb) => {
-    cb();
-  };
-
   const filterCallsHandler = (meetings, searchContactItems) => {
     return meetings
       ?.filter((meeting, _i) => {

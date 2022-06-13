@@ -9,6 +9,7 @@ export const FriendColBody = styled.div`
   align-items: center;
   border-bottom: 1px solid #2b2b2f;
   padding: 0.75rem 1.25rem;
+  cursor: pointer;
   & h6,
   & p {
     margin: 0;
@@ -27,6 +28,9 @@ export const FriendColBody = styled.div`
     color: #f8f9fa;
     margin-top: 0.25rem;
     font-weight: 500;
+  }
+  &:hover {
+    background-color: #665dfe;
   }
 `;
 
