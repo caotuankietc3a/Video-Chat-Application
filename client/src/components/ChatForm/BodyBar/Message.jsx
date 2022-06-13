@@ -5,8 +5,8 @@ import {
   MessageContainer,
   MessageDivider,
   MessageContent,
-  ReplyHeader,
-  ReplyWrapper,
+  Header,
+  Wrapper,
   MessageWrapper,
   MessageOptions,
   MessageOptionsDropDown,
@@ -20,9 +20,14 @@ import {
   IoReturnUpBack,
 } from "react-icons/io5";
 import { AiOutlineStar } from "react-icons/ai";
-import { RiDeleteBinLine, RiReplyFill } from "react-icons/ri";
+import {
+  RiDeleteBinLine,
+  RiReplyFill,
+  RiShareForwardFill,
+} from "react-icons/ri";
 import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
+import { forwardActions } from "../../../store/slices/forward-slice";
 
 const Message = ({
   type,
@@ -30,6 +35,7 @@ const Message = ({
   text,
   mesDivider: { divider, data_label },
   reply,
+  forward,
 }) => {
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
@@ -56,6 +62,17 @@ const Message = ({
       })
     );
   };
+
+  const forwardMessageHandler = () => {
+    dispatch(
+      forwardActions.setForward({
+        forward: {
+          text,
+          forwarder: user,
+        },
+      })
+    );
+  };
   useEffect(() => {
     const checkIsClickOutside = (e) => {
       if (showMenu) setShowMenu(false);
@@ -71,7 +88,7 @@ const Message = ({
       <MessageContent type={type}>
         {reply && (
           <>
-            <ReplyHeader type={type}>
+            <Header type={type}>
               <div>
                 <RiReplyFill />
               </div>
@@ -85,12 +102,25 @@ const Message = ({
                   ? "you"
                   : "themseft"}
               </div>
-            </ReplyHeader>
-            <ReplyWrapper type={type}>
+            </Header>
+            <Wrapper type={type}>
               <div className="reply-wrapper">
                 <span>{reply.text}</span>
               </div>
-            </ReplyWrapper>
+            </Wrapper>
+          </>
+        )}
+        {forward && (
+          <>
+            <Header type={type} isForwarded={forward ? true : false}>
+              <div>
+                <RiShareForwardFill />
+              </div>
+              <div className="text">
+                {type === "right" ? "You" : forward.forwarder.fullname}{" "}
+                forwarded a message
+              </div>
+            </Header>
           </>
         )}
 
@@ -120,7 +150,7 @@ const Message = ({
                   <span>Reply</span>
                 </DropDownItem>
 
-                <DropDownItem>
+                <DropDownItem onClick={forwardMessageHandler}>
                   <IoReturnUpBack />
                   <span>Forward</span>
                 </DropDownItem>

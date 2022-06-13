@@ -19,7 +19,10 @@ const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
-const { deleteMessage } = require("./controllers/conversation.js");
+const {
+  deleteMessage,
+  forwardMessage,
+} = require("./controllers/conversation.js");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -54,7 +57,7 @@ io_chat.on("connection", (socket) => {
   socket.on("join-chat", ({ conversationId }) => {
     console.log("A user connected to chat-room!!!");
     socket.join(conversationId);
-    // console.log("Chat Rooms: ", io_chat.adapter.rooms);
+    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on("send-message", ({ userId, message, conversationId, reply }) => {
@@ -68,12 +71,19 @@ io_chat.on("connection", (socket) => {
   socket.on("leave-chat", ({ conversationId }) => {
     socket.leave(conversationId);
     console.log("A user disconnected chat-room!!!");
-    // console.log("Chat Rooms: ", io_chat.adapter.rooms);
+    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on("delete-message", ({ conversationId, text }) => {
     deleteMessage(conversationId, text);
     io_chat.to(conversationId).emit("delete-message", { text });
+  });
+
+  socket.on("forward-message", async ({ forward }) => {
+    const conversation = await forwardMessage(forward);
+    io_chat.to(conversation._id.toString()).emit("forward-message", {
+      messageOb: conversation.messages[conversation.messages.length - 1],
+    });
   });
 });
 

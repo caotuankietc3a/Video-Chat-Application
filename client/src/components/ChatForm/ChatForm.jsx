@@ -19,7 +19,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(reply);
 
   useEffect(() => {
     let timer = 0;
@@ -57,20 +56,27 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
       ]);
     });
 
+    socket_chat.on("forward-message", ({ messageOb }) => {
+      setMessages((preMessages) => {
+        return [...preMessages, { ...messageOb }];
+      });
+    });
+
     return function cleanup() {
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
     };
   }, []);
+
   useEffect(() => {
     socket_chat.on("delete-message", ({ text }) => {
       setMessages((preMessages) => {
-        const new_messages = [...preMessages];
-        const index = new_messages.findIndex((mes) => mes.text === text);
-        new_messages.splice(index, 1);
-        return new_messages;
+        const index = preMessages.findIndex((mes) => mes.text === text);
+        preMessages.splice(index, 1);
+        return [...preMessages];
       });
     });
+
     return function cleanup() {
       socket_chat.off("delete-message");
     };
@@ -78,21 +84,25 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   const onClickHandler = async (e) => {
     e.preventDefault();
-    if (message) {
-      const oldMes = message;
-      let replyOb = reply ? reply : null;
-      socket_chat.emit("send-message", {
-        userId: user._id,
-        message: message,
-        reply: replyOb,
-        conversationId: conversation._id,
-      });
-      setMessage("");
-      dispatch(replyActions.setReply({ reply: null }));
-      await postData(
-        { newMessage: oldMes, replyOb },
-        `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
-      );
+    try {
+      if (message) {
+        const oldMes = message;
+        let replyOb = reply ? reply : null;
+        socket_chat.emit("send-message", {
+          userId: user._id,
+          message: message,
+          reply: replyOb,
+          conversationId: conversation._id,
+        });
+        setMessage("");
+        dispatch(replyActions.setReply({ reply: null }));
+        await postData(
+          { newMessage: oldMes, replyOb },
+          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
+        );
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 

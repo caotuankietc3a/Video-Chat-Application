@@ -38,11 +38,11 @@ export const MessageContent = styled.div`
   align-items: ${({ type }) => (type === "right" ? "flex-end" : "flex-start")};
 `;
 
-export const ReplyHeader = styled.div`
+export const Header = styled.div`
   height: auto;
   width: 100%;
   display: flex;
-  margin-bottom: -0.8rem;
+  margin-bottom: ${({ isForwarded }) => (isForwarded ? "0rem" : "-0.5rem")};
   margin-top: 1.25rem;
   margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
   margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
@@ -51,6 +51,7 @@ export const ReplyHeader = styled.div`
   & .text {
     font-size: 0.75rem;
     padding-left: 4px;
+    line-height: ${({ isForwarded }) => (isForwarded ? "1" : "1.4")};
     color: #8a8d91;
   }
   & svg {
@@ -59,7 +60,7 @@ export const ReplyHeader = styled.div`
     color: #8a8d91;
   }
 `;
-export const ReplyWrapper = styled.div`
+export const Wrapper = styled.div`
   height: auto;
   width: 100%;
   display: flex;

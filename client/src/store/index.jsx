@@ -6,6 +6,7 @@ import videoSlice from "./slices/video-chat-slice";
 import socketSlice from "./slices/socket-slice";
 import callSlice from "./slices/call-slice";
 import replySlice from "./slices/reply-slice";
+import forwardSlice from "./slices/forward-slice";
 
 const store = configureStore({
   middleware: getDefaultMiddleware({
@@ -19,6 +20,7 @@ const store = configureStore({
     socket: socketSlice.reducer,
     call: callSlice.reducer,
     reply: replySlice.reducer,
+    forward: forwardSlice.reducer,
   },
 });
 

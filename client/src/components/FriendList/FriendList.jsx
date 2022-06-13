@@ -13,11 +13,15 @@ import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
 import { postNewConversation } from "../../store/actions/conversation-function";
 import { useNavigate } from "react-router-dom";
-const FriendList = ({ isClickedHandler }) => {
+import { forwardActions } from "../../store/slices/forward-slice";
+import { postData } from "../../store/actions/fetch-action";
+const FriendList = ({ isClickedHandler, isClosedHandler }) => {
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const navigate = useNavigate();
   const [inputText, setInputText] = useState("");
   const { user } = useSelector((state) => state.user);
+  const { forward } = useSelector((state) => state.forward);
+  const { socket_chat } = useSelector((state) => state.socket);
   const [friends, setFriends] = useState([]);
   const dispatch = useDispatch();
   useEffect(() => {
@@ -52,15 +56,28 @@ const FriendList = ({ isClickedHandler }) => {
       .map((friend, i) => (
         <FriendShow
           key={i}
+          type={forward ? "forward-message" : null}
           friend={friend}
           moveToConversationDetail={() => moveToConversationDetail(friend)}
+          forwardToUserHandler={() => {
+            console.log(friend);
+            forwardToUserHandler(friend);
+          }}
         />
       ));
   };
 
   const moveToConversationDetail = (friendDetail) => {
     dispatch(postNewConversation(user, friendDetail, navigate));
-    isClickedHandler();
+    isClosedHandler();
+  };
+
+  const forwardToUserHandler = (friend) => {
+    socket_chat.emit("forward-message", {
+      userId: user._id,
+      forward: forward ? { ...forward, forwardee: friend } : null,
+    });
+    dispatch(forwardActions.setForward({ forward: null }));
   };
 
   return (
@@ -70,7 +87,7 @@ const FriendList = ({ isClickedHandler }) => {
           <div>
             <h5>{user.fullname}</h5>
           </div>
-          <div className="btn-close" onClick={isClickedHandler}>
+          <div className="btn-close" onClick={isClosedHandler}>
             <IoClose />
           </div>
         </Header>

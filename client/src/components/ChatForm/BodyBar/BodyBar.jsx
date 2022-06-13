@@ -31,6 +31,7 @@ const BodyBar = ({ messages }) => {
           type={typeDisplay}
           mesDivider={mesDivider}
           reply={mes.reply}
+          forward={mes.forward}
         />
       );
     });

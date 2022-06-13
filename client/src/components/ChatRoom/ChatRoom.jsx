@@ -13,11 +13,13 @@ import { videoActions } from "../../store/slices/video-chat-slice";
 import NavBarContact from "../NavBarContact/NavBarContact";
 import User from "../User/User";
 import FriendList from "../FriendList/FriendList";
+import { forwardActions } from "../../store/slices/forward-slice";
 
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
+  const { forward } = useSelector((state) => state.forward);
   const callState = useSelector((state) => state.call);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
@@ -25,7 +27,12 @@ const ChatRoom = (props) => {
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const { socket_chat, socket_video } = useSelector((state) => state.socket);
   const isClickedHandler = () => {
-    setIsClickedConversation(!isClickedConversation);
+    setIsClickedConversation(true);
+  };
+
+  const isClosedHandler = () => {
+    setIsClickedConversation(false);
+    dispatch(forwardActions.setForward({ forward: null }));
   };
   console.log(isClickedConversation);
   // const isClickedHandler = () => {
@@ -52,13 +59,26 @@ const ChatRoom = (props) => {
       }
     );
   }, []);
+  console.log(forward);
 
   return (
     <Container>
       <MainLayOut>
-        {isClickedConversation && (
-          <FriendList isClickedHandler={isClickedHandler} />
+        {isClickedConversation ? (
+          <FriendList
+            isClickedHandler={isClickedHandler}
+            isClosedHandler={isClosedHandler}
+            type={true}
+          />
+        ) : (
+          forward && (
+            <FriendList
+              isClickedHandler={isClickedHandler}
+              isClosedHandler={isClosedHandler}
+            />
+          )
         )}
+
         <NavBarContact />
 
         <Routes>

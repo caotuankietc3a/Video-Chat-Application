@@ -42,8 +42,7 @@ exports.getConversationDetail = async (req, res, next) => {
 exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
-    const { newMessage, replyOb } = req.body;
-    console.log(replyOb);
+    const { newMessage, replyOb, forwardOb } = req.body;
     await Conversation.updateOne(
       { _id: conversationId },
       {
@@ -52,12 +51,13 @@ exports.postNewMessage = async (req, res, next) => {
             text: newMessage,
             senderId: userId,
             date: new Date(Date.now()),
-            reply: replyOb,
+            reply: replyOb ? replyOb : null,
+            forward: forwardOb ? forwardOb : null,
           },
         },
       }
     );
-    res.status(200).json("successfully");
+    res.status(200).json({ msg: "successfully" });
   } catch (err) {
     console.error(err);
   }
@@ -98,6 +98,34 @@ exports.deleteMessage = async (conversationId, text) => {
     await Conversation.findByIdAndUpdate(conversationId, {
       $pull: { messages: { text: text } },
     });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.forwardMessage = async (forwardOb) => {
+  try {
+    const conversation = await Conversation.findOneAndUpdate(
+      {
+        $and: [
+          { members: forwardOb.forwarder._id },
+          { members: forwardOb.forwardee._id },
+        ],
+      },
+      {
+        $push: {
+          messages: {
+            text: forwardOb.text,
+            senderId: forwardOb.forwarder._id,
+            date: new Date(Date.now()),
+            forward: forwardOb,
+          },
+        },
+      },
+      { new: true }
+    );
+    console.log(conversation);
+    return await conversation;
   } catch (err) {
     console.error(err);
   }
