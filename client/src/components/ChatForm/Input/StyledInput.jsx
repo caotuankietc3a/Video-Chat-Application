@@ -30,6 +30,10 @@ export const ChatFooter = styled.form`
     font-size: 1.5rem;
     color: white;
   }
+
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+  }
 `;
 
 export const InputGroup = styled.div`

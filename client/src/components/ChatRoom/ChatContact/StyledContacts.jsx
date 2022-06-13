@@ -45,6 +45,12 @@ export const ContactItems = styled.li`
     font-weight: 500;
     margin-bottom: 0.5rem;
   }
+
+  @media screen and (max-width: 1200px) {
+    & a {
+      display: none;
+    }
+  }
 `;
 export const AvatarUser = styled.div`
   width: 48px;

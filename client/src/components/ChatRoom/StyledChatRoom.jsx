@@ -11,6 +11,9 @@ export const MainLayOut = styled.div`
   grid-template-columns: 69px 419px auto;
   height: 100%;
   width: 100%;
+  @media screen and (max-width: 1200px) {
+    grid-template-columns: 0 0 auto;
+  }
 `;
 export const ChatBodyContainer = styled.div`
   height: 100%;
