@@ -36,7 +36,6 @@ const Message = ({
   const { socket_chat } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
-  console.log(reply);
   const menuShowHandler = (e) => {
     setShowMenu(true);
   };
@@ -51,7 +50,8 @@ const Message = ({
       replyActions.setReply({
         reply: {
           text,
-          fullname: type === "right" ? user.fullname : conversation.name,
+          replyee: type === "right" ? user.fullname : conversation.name,
+          replyer: user.fullname,
         },
       })
     );
@@ -75,8 +75,16 @@ const Message = ({
               <div>
                 <RiReplyFill />
               </div>
-              {/* Need to fix */}
-              <div className="text">You replied to {reply.fullname}</div>
+              <div className="text">
+                {type === "right" ? "You" : reply.replyer} replied to{" "}
+                {type === "right"
+                  ? reply.replyee === user.fullname
+                    ? "yourself"
+                    : reply.replyee
+                  : reply.replyee === user.fullname
+                  ? "you"
+                  : "themseft"}
+              </div>
             </ReplyHeader>
             <ReplyWrapper type={type}>
               <div className="reply-wrapper">

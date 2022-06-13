@@ -3,6 +3,7 @@ export const ChatFooter = styled.form`
   display: flex;
   position: fixed;
   bottom: 0;
+  z-index: 10;
   width: calc(100% - 69px - 419px);
   height: 5rem;
   padding: 0.75rem 2.25rem;

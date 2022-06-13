@@ -81,10 +81,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     if (message) {
       const oldMes = message;
       let replyOb = reply ? reply : null;
-      // Need to fix
-      // if (replyOb.fullname === user.fullname) {
-      //   replyOb.fullname;
-      // }
       socket_chat.emit("send-message", {
         userId: user._id,
         message: message,

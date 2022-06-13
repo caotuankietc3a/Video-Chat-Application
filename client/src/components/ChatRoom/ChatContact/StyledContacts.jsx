@@ -50,6 +50,7 @@ export const AvatarUser = styled.div`
   width: 48px;
   height: 48px;
   position: relative;
+  z-index: 1;
 
   img {
     width: 48px;

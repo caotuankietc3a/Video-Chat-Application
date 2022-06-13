@@ -75,7 +75,7 @@ export const ReplyWrapper = styled.div`
   }
   & .reply-wrapper {
     position: relative;
-    bottom: -15px;
+    bottom: -10px;
     right: -5px;
     height: auto;
     max-width: 45%;
@@ -93,6 +93,7 @@ export const MessageWrapper = styled.div`
   height: auto;
   width: 100%;
   display: flex;
+  z-index: 1;
   justify-content: ${({ type }) =>
     type === "right" ? "flex-end" : "flex-start"};
   div {

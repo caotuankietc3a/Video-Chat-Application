@@ -30,9 +30,9 @@ const Input = ({ changeHandler, clickHandler, message }) => {
                 <span>
                   Replying to{" "}
                   <b>
-                    {reply.fullname === user.fullname
+                    {reply.replyee === user.fullname
                       ? "yourself"
-                      : reply.fullname}
+                      : reply.replyee}
                   </b>
                 </span>
               </ReplyMessageHeader>
