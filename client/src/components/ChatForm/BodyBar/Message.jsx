@@ -28,6 +28,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
 import { forwardActions } from "../../../store/slices/forward-slice";
+import { messageActions } from "../../../store/slices/message-slice";
 
 const Message = ({
   type,
@@ -50,6 +51,7 @@ const Message = ({
       conversationId: conversation._id,
       text,
     });
+    dispatch(messageActions.setReRender({ reRender: { text } }));
   };
   const replyMessageHandler = () => {
     dispatch(

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
-import { BsEnvelopeFill, BsEnvelopeOpenFill } from "react-icons/bs";
 import { FiSend } from "react-icons/fi";
+import { FaUndo } from "react-icons/fa";
 
 import {
   FriendColBody,
@@ -54,7 +54,7 @@ const FriendShow = ({
                 ) ? (
                   <FiSend />
                 ) : undoEl ? (
-                  <BsEnvelopeFill />
+                  <FaUndo />
                 ) : (
                   <FiSend />
                 )}

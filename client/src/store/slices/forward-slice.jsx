@@ -4,6 +4,7 @@ const forwardSlice = createSlice({
   name: "forward",
   initialState: {
     forward: null,
+    reRender: false,
   },
   reducers: {
     setForward(state, action) {

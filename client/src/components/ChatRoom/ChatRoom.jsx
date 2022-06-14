@@ -34,10 +34,6 @@ const ChatRoom = (props) => {
     setIsClickedConversation(false);
     dispatch(forwardActions.setForward({ forward: null }));
   };
-  console.log(isClickedConversation);
-  // const isClickedHandler = () => {
-  //   setIsClickedConversation(true);
-  // };
 
   useEffect(() => {
     dispatch(fetchUserLogin(navigate, socket_video));
@@ -65,18 +61,9 @@ const ChatRoom = (props) => {
     <Container>
       <MainLayOut>
         {isClickedConversation ? (
-          <FriendList
-            isClickedHandler={isClickedHandler}
-            isClosedHandler={isClosedHandler}
-            type={true}
-          />
+          <FriendList isClosedHandler={isClosedHandler} type={true} />
         ) : (
-          forward && (
-            <FriendList
-              isClickedHandler={isClickedHandler}
-              isClosedHandler={isClosedHandler}
-            />
-          )
+          forward && <FriendList isClosedHandler={isClosedHandler} />
         )}
 
         <NavBarContact />

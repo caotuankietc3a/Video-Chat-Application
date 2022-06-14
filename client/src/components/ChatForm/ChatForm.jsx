@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
+import { messageActions } from "../../store/slices/message-slice";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
@@ -54,6 +55,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           date: new Date(Date.now()),
         },
       ]);
+      dispatch(messageActions.setReRender({ reRender: { text } }));
     });
 
     socket_chat.on("forward-message", ({ messageOb }) => {
@@ -70,11 +72,16 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   useEffect(() => {
     socket_chat.on("delete-message", ({ text }) => {
+      console.log("hehehehehe");
       setMessages((preMessages) => {
         const index = preMessages.findIndex((mes) => mes.text === text);
-        preMessages.splice(index, 1);
+        console.log(index);
+        index !== -1 && preMessages.splice(index, 1);
+        // preMessages.splice(index, 1);
+        console.log(preMessages);
         return [...preMessages];
       });
+      dispatch(messageActions.setReRender({ reRender: { text } }));
     });
 
     return function cleanup() {

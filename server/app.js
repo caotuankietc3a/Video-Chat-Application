@@ -19,6 +19,7 @@ const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
+const { createNewConversation } = require("./controllers/conversation");
 const {
   deleteMessage,
   forwardMessage,
@@ -80,9 +81,11 @@ io_chat.on("connection", (socket) => {
   });
 
   socket.on("forward-message", async ({ forward }) => {
+    await createNewConversation(forward.forwardee, forward.forwarder._id);
     const conversation = await forwardMessage(forward);
     io_chat.to(conversation._id.toString()).emit("forward-message", {
       messageOb: conversation.messages[conversation.messages.length - 1],
+      conversation,
     });
   });
 });

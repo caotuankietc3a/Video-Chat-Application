@@ -12,10 +12,11 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
-  // const [isActive, setIsActive] = useState(false);
   const [calls, setCalls] = useState([]);
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
+  const { forward } = useSelector((state) => state.forward);
+  const { reRender } = useSelector((state) => state.message);
   const contactList = useRef(null);
 
   useEffect(() => {
@@ -74,7 +75,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       }
     };
     getConversation();
-  }, [window.location.href, isFetching]);
+  }, [window.location.href, isFetching, forward, reRender]);
 
   useEffect(() => {
     (async () => {
@@ -87,7 +88,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
             }
           );
           const res = await data.json();
-          console.log(res);
           setCalls(res);
           // dispatch(callActions.setMeeting())
         }

@@ -109,6 +109,7 @@ export const MessageWrapper = styled.div`
     max-width: 25rem;
     display: inline-block;
     font-size: 0.875rem;
+    overflow-wrap: break-word;
   }
 `;
 

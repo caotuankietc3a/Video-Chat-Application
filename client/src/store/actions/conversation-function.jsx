@@ -7,7 +7,6 @@ export const postNewConversation = (user, friendDetail, navigate) => {
       { friend: friendDetail, userId: user._id },
       `${END_POINT_SERVER}/conversation/new-conversation`
     );
-    console.log(conversation);
     const member = conversation.members.find(
       (member) => member._id !== user._id
     );

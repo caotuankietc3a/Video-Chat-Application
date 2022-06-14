@@ -73,21 +73,29 @@ exports.getMessages = async (req, res, next) => {
   }
 };
 
-exports.postNewConversation = async (req, res, next) => {
+const createNewConversation = async (friend, userId) => {
   try {
-    const { friend, userId } = req.body;
     const existedConversation = await Conversation.findOne({
       $and: [{ members: friend._id }, { members: userId }],
     }).populate({ path: "members" });
     if (existedConversation) {
-      return res.status(200).json(existedConversation);
+      return existedConversation;
     }
     const newConversation = new Conversation({
       members: [friend._id, userId],
       messages: [],
     });
     await newConversation.save();
-    res.status(200).json(await newConversation.populate({ path: "members" }));
+    return await newConversation.populate({ path: "members" });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.postNewConversation = async (req, res, _next) => {
+  try {
+    const { friend, userId } = req.body;
+    res.status(200).json(await createNewConversation(friend, userId));
   } catch (err) {
     console.error(err);
   }
@@ -130,3 +138,5 @@ exports.forwardMessage = async (forwardOb) => {
     console.error(err);
   }
 };
+
+module.exports.createNewConversation = createNewConversation;

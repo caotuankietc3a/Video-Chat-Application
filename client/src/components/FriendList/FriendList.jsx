@@ -75,7 +75,9 @@ const FriendList = ({ isClosedHandler }) => {
       userId: user._id,
       forward: forward ? { ...forward, forwardee: friend } : null,
     });
-    // dispatch(forwardActions.setForward({ forward: null }));
+    dispatch(
+      forwardActions.setForward({ forward: { ...forward, forwardee: friend } })
+    );
   };
 
   return (
