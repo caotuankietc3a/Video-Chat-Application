@@ -7,15 +7,14 @@ import {
   FriendCol,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BsSearch } from "react-icons/bs";
 import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
 import { postNewConversation } from "../../store/actions/conversation-function";
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
-import { postData } from "../../store/actions/fetch-action";
-const FriendList = ({ isClickedHandler, isClosedHandler }) => {
+const FriendList = ({ isClosedHandler }) => {
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const navigate = useNavigate();
   const [inputText, setInputText] = useState("");
@@ -60,7 +59,6 @@ const FriendList = ({ isClickedHandler, isClosedHandler }) => {
           friend={friend}
           moveToConversationDetail={() => moveToConversationDetail(friend)}
           forwardToUserHandler={() => {
-            console.log(friend);
             forwardToUserHandler(friend);
           }}
         />
@@ -77,7 +75,7 @@ const FriendList = ({ isClickedHandler, isClosedHandler }) => {
       userId: user._id,
       forward: forward ? { ...forward, forwardee: friend } : null,
     });
-    dispatch(forwardActions.setForward({ forward: null }));
+    // dispatch(forwardActions.setForward({ forward: null }));
   };
 
   return (
@@ -85,7 +83,7 @@ const FriendList = ({ isClickedHandler, isClosedHandler }) => {
       <Content>
         <Header>
           <div>
-            <h5>{user.fullname}</h5>
+            <h5>{forward ? "Forward" : user.fullname}</h5>
           </div>
           <div className="btn-close" onClick={isClosedHandler}>
             <IoClose />
@@ -95,7 +93,11 @@ const FriendList = ({ isClickedHandler, isClosedHandler }) => {
           <SearchBar>
             <input
               type="text"
-              placeholder="Search user....."
+              placeholder={
+                forward
+                  ? "Search user to forward message....."
+                  : "Search user to start a new conversation....."
+              }
               onChange={(e) => setInputText(e.target.value)}
             />
             <div>

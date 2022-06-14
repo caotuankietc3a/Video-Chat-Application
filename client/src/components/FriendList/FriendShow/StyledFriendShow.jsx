@@ -20,7 +20,8 @@ export const FriendColBody = styled.div`
     white-space: nowrap;
   }
   & h6 {
-    margin-bottom: 0.25rem;
+    margin-bottom: ${({ type }) =>
+      type === "forward-message" ? "0.25rem" : "0px"};
     font-weight: 700;
   }
 
@@ -29,9 +30,9 @@ export const FriendColBody = styled.div`
     margin-top: 0.25rem;
     font-weight: 500;
   }
-  &:hover {
-    background-color: #665dfe;
-  }
+  /* &:hover { */
+  /*   background-color: #00000050; */
+  /* } */
 `;
 
 export const AvatarUser = styled.div`
@@ -67,4 +68,55 @@ export const FriendName = styled.div`
   padding-left: 0.875rem;
   transition: all 0.4s;
   overflow: hidden;
+  & .sendBtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+`;
+
+export const SendBtn = styled.div`
+  padding: 0 12px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2d88ff33;
+  border-radius: 0.5rem;
+  &.un-send {
+    background-color: #14141450;
+    cursor: not-allowed;
+    div,
+    button {
+      cursor: not-allowed;
+      color: #ffffff4d;
+    }
+  }
+  & div,
+  & button {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    color: #2d88ff;
+  }
+  & button {
+    line-height: 1.5;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+  & div svg {
+    height: 16px;
+    width: 16px;
+    margin-right: 10px;
+  }
+  &:hover {
+    background-color: #14141450;
+  }
+  &:not(.un-send):active {
+    transform: scale(0.95);
+  }
 `;
