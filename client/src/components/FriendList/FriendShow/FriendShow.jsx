@@ -18,13 +18,16 @@ const FriendShow = ({
   const [undoEl, setUndoEl] = useState(false);
   useEffect(() => {
     let timer = setTimeout(() => {
-      if (undoEl) {
+      if (
+        undoEl &&
+        !disabledBtnEl.current?.parentElement?.classList?.contains("un-send")
+      ) {
         disabledBtnEl.current.disabled = true;
         disabledBtnEl.current.parentElement.classList.add("un-send");
         forwardToUserHandler();
         setUndoEl(false);
       }
-    }, 3500);
+    }, 3000);
     return () => {
       clearTimeout(timer);
     };
@@ -32,10 +35,6 @@ const FriendShow = ({
 
   const undoHandler = () => {
     setUndoEl(!undoEl);
-    console.log(
-      disabledBtnEl.current?.parentElement?.classList?.contains("un-send")
-    );
-    console.log(disabledBtnEl.current);
   };
   return (
     <FriendColBody
