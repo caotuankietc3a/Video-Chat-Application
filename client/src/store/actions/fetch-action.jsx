@@ -20,6 +20,7 @@ export const fetchUserLogin = (navigate, socket_video) => {
         credentials: "include",
       });
       const { user, isLogin } = await data.json();
+      console.log(user);
       if (socket_video) socket_video.emit("join-video", { userId: user._id });
       if (isLogin) {
         setTimeout(() => {

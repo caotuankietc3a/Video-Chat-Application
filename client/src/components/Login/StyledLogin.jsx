@@ -149,6 +149,7 @@ export const FormCheckRegister = styled.div`
     border-radius: 3px;
     border: 1px solid #f5f5f5;
     margin-right: 5px;
+    cursor: pointer;
   }
 
   input:checked {

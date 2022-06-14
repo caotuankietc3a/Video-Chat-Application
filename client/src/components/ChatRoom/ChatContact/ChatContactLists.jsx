@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
 import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
-import { callActions } from "../../../store/slices/call-slice";
 
 const ChatContactLists = ({ searchContactItems, type }) => {
   const [conversations, setConversations] = useState([]);

@@ -30,9 +30,9 @@ export const FriendColBody = styled.div`
     margin-top: 0.25rem;
     font-weight: 500;
   }
-  /* &:hover { */
-  /*   background-color: #00000050; */
-  /* } */
+  &.forward-message:hover {
+    background-color: #665dfe;
+  }
 `;
 
 export const AvatarUser = styled.div`

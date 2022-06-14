@@ -39,6 +39,7 @@ const FriendShow = ({
   return (
     <FriendColBody
       onClick={type !== "forward-message" ? moveToConversationDetail : null}
+      className={type !== "forward-message" ? "forward-message" : null}
     >
       <AvatarUser>
         <img src={friend.profilePhoto} alt="User" />

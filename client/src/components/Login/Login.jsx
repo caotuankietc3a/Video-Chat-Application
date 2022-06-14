@@ -19,7 +19,7 @@ import {
   faGoogle,
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
@@ -36,6 +36,7 @@ const Login = (props) => {
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
   const [isClicked, setIsClicked] = useState(false);
+  const inputEl = useRef(null);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
@@ -51,6 +52,7 @@ const Login = (props) => {
           password,
           confirmpassword,
           profilePhoto: "/images/user-img.jpg",
+          isChecked: inputEl?.current.checked,
         },
         END_POINT_SERVER
       );
@@ -166,8 +168,13 @@ const Login = (props) => {
                       <FormCheckRegister>
                         <input
                           type="checkbox"
-                          name="checkRegister"
-                          id="checkRegister"
+                          name="keep_login"
+                          id="keep_login"
+                          ref={inputEl}
+                          onChange={(e) => {
+                            console.log(inputEl?.current.checked);
+                            inputEl.current.checked = e.target.checked;
+                          }}
                         />
                         <label>Keep me login</label>
                       </FormCheckRegister>

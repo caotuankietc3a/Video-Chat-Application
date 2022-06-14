@@ -40,6 +40,7 @@ const store = new MongoDBStore({
   uri: uri,
   collection: "session-store",
 });
+
 app.use(
   session({
     secret: "my secret",

@@ -72,13 +72,9 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   useEffect(() => {
     socket_chat.on("delete-message", ({ text }) => {
-      console.log("hehehehehe");
       setMessages((preMessages) => {
         const index = preMessages.findIndex((mes) => mes.text === text);
-        console.log(index);
         index !== -1 && preMessages.splice(index, 1);
-        // preMessages.splice(index, 1);
-        console.log(preMessages);
         return [...preMessages];
       });
       dispatch(messageActions.setReRender({ reRender: { text } }));
