@@ -132,7 +132,6 @@ exports.forwardMessage = async (forwardOb) => {
       },
       { new: true }
     );
-    console.log(conversation);
     return await conversation;
   } catch (err) {
     console.error(err);

@@ -66,8 +66,6 @@ exports.saveMeeting = async (caller, callee, date, callAccepted) => {
 
 exports.updateMeeting = async (callerId, calleeId) => {
   try {
-    console.log(callerId);
-    console.log(calleeId);
     const existed_meeting = await Meeting.find({
       $or: [
         {
@@ -78,7 +76,6 @@ exports.updateMeeting = async (callerId, calleeId) => {
         },
       ],
     });
-    console.log(existed_meeting);
     const meeting = existed_meeting.reverse()[0];
     const s = meeting.date.getSeconds();
     const h = meeting.date.getHours();

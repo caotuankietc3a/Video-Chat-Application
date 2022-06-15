@@ -6,9 +6,8 @@ const initialState = {
   callAccepted: false,
   showVideo: false,
   showUserVideo: false,
-  callEnded: false,
-  // myStream
-  stream: null,
+  stream: null, // myStream
+  error: false,
   call: {
     isReceivedCall: false,
     caller: null,
@@ -41,7 +40,6 @@ const videoSlice = createSlice({
       state.callAccepted = false;
       state.showVideo = false;
       state.showUserVideo = false;
-      state.callEnded = false;
       state.userStream = null;
       state.connection = null;
     },
@@ -54,14 +52,14 @@ const videoSlice = createSlice({
     setShowUserVideo(state, action) {
       state.showUserVideo = action.payload.showUserVideo;
     },
-    setCallEndded(state, action) {
-      state.callEnded = action.payload.callEnded;
-    },
     setUserStream(state, action) {
       state.userStream = action.payload.userStream;
     },
     setConnection(state, action) {
       state.connection = action.payload.connection;
+    },
+    setError(state, action) {
+      state.error = action.payload.error;
     },
   },
 });

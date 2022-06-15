@@ -26,6 +26,8 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const { socket_chat, socket_video } = useSelector((state) => state.socket);
+  // const { error } = useSelector((state) => state.video);
+  // console.log(error);
   const isClickedHandler = () => {
     setIsClickedConversation(true);
   };
@@ -44,6 +46,7 @@ const ChatRoom = (props) => {
       "make-connection-call",
       ({ conversationId, conversation, caller, callee }) => {
         dispatch(conversationActions.setConversation({ conversation }));
+        console.log("Set call");
         dispatch(
           videoActions.setCall({
             call: { isReceivedCall: true, caller, callee, signal: null },
@@ -54,8 +57,14 @@ const ChatRoom = (props) => {
         }, 1000);
       }
     );
+
+    socket_video.on("call-user", ({ signal }) => {
+      // set showUserVideo to callee.
+      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
+      // set signal to callee.
+      dispatch(videoActions.setSignal({ signal }));
+    });
   }, []);
-  console.log(forward);
 
   return (
     <Container>

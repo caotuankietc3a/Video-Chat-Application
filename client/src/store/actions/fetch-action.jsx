@@ -20,7 +20,6 @@ export const fetchUserLogin = (navigate, socket_video) => {
         credentials: "include",
       });
       const { user, isLogin } = await data.json();
-      console.log(user);
       if (socket_video) socket_video.emit("join-video", { userId: user._id });
       if (isLogin) {
         setTimeout(() => {
@@ -34,7 +33,13 @@ export const fetchUserLogin = (navigate, socket_video) => {
           })
         );
       } else {
-        dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+        dispatch(
+          userLoginActions.setUserLogin({
+            user: user,
+            isFetching: false,
+            error: null,
+          })
+        );
       }
     } catch (err) {
       console.error(err);

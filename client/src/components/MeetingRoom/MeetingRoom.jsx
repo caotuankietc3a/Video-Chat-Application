@@ -11,7 +11,6 @@ import {
   FiUserPlus,
 } from "react-icons/fi";
 import { FaChevronDown } from "react-icons/fa";
-import { BiMicrophone, BiMicrophoneOff } from "react-icons/bi";
 import { CgScreen } from "react-icons/cg";
 import { VscSplitHorizontal } from "react-icons/vsc";
 import { MdGridView } from "react-icons/md";
@@ -29,7 +28,11 @@ import {
 } from "./StyledMeetingRoom";
 import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
-import { leaveMeetingRoom } from "../../store/actions/video-chat-function";
+import {
+  leaveMeetingRoom,
+  shareScreen,
+  videoStreamStart,
+} from "../../store/actions/video-chat-function";
 
 const MeetingRoom = (props) => {
   console.log("MeetingRoom running");
@@ -52,25 +55,24 @@ const MeetingRoom = (props) => {
     showUserVideo,
     call: { callee, caller },
   } = useSelector((state) => state.video);
-  console.log(callee._id);
-  console.log(caller._id);
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
-  // console.log("showVideo: ", showVideo);
-  // console.log("showUserVideo: ", showUserVideo);
-  // console.log(conversation.members);
-  // console.log(user);
-  // console.log("muted: ", muted);
+  console.log("showVideo: ", showVideo);
+  console.log("showUserVideo: ", showUserVideo);
+  console.log("showUserStream: ", userStream);
+  console.log("showStream: ", stream);
+  console.log("muted: ", muted);
 
   useEffect(() => {
     if (stream) {
+      console.log(stream);
       if (myVideo.current) myVideo.current.srcObject = stream;
-      console.log("myVideo: ", myVideo);
+      // console.log("myVideo: ", myVideo);
     }
     if (userStream) {
       if (userVideo.current) userVideo.current.srcObject = userStream;
-      console.log("userVideo: ", userVideo);
+      // console.log("userVideo: ", userVideo);
     }
   }, [
     stream,
@@ -121,7 +123,6 @@ const MeetingRoom = (props) => {
     dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
   };
 
-  // Check again
   const returnPeerHandler = (
     { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
     conversation,
@@ -170,6 +171,10 @@ const MeetingRoom = (props) => {
   const makeMutedAudio = (e) => {
     socket_video.emit("toggle-muted", { conversationId: conversation._id });
     setToggleMuted(!toggleMuted);
+  };
+
+  const shareScreenHandler = async () => {
+    dispatch(shareScreen());
   };
 
   return (
@@ -273,7 +278,7 @@ const MeetingRoom = (props) => {
           <FunctionControls onClick={makeMutedAudio}>
             {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
           </FunctionControls>
-          <FunctionControls>
+          <FunctionControls onClick={shareScreenHandler}>
             <CgScreen />
           </FunctionControls>
           <FunctionControls className="phone_off" onClick={phoneOffHandler}>

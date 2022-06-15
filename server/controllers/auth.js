@@ -11,13 +11,12 @@ exports.postLogin = async (req, res, next) => {
       throw new Error(errors.array()[0].msg);
     }
     const { email, isChecked } = req.body;
-    console.log(isChecked);
     const user = await User.findOne({ email: email });
     if (isChecked) {
       req.session.isLogin = true;
-      req.session.userId = user._id;
-      req.session.save();
     }
+    req.session.userId = user._id;
+    req.session.save();
     res.status(200).json(user);
   } catch (err) {
     res.status(400).json({ msg: err.message, status: "error" });
@@ -50,7 +49,6 @@ exports.postRegister = async (req, res, next) => {
 exports.getSession = async (req, res, next) => {
   try {
     const { isLogin, userId } = req.session;
-    console.log(isLogin);
     const user = await User.findById(userId);
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {

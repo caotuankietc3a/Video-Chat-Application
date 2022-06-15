@@ -10,6 +10,10 @@ import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
+import {
+  // connectionCallHandler,
+  videoStreamStart,
+} from "../../store/actions/video-chat-function";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
@@ -74,6 +78,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     socket_chat.on("delete-message", ({ text }) => {
       setMessages((preMessages) => {
         const index = preMessages.findIndex((mes) => mes.text === text);
+        // App will delete two times and does not know why
         index !== -1 && preMessages.splice(index, 1);
         return [...preMessages];
       });
@@ -115,25 +120,9 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   const clickVideoCall = async (e) => {
     e.preventDefault();
-    socket_video.emit(
-      "make-connection-call",
-      { conversationId: conversation._id, caller: user },
-      (callee) => {
-        dispatch(
-          videoActions.setCall({
-            call: {
-              isReceivedCall: false,
-              caller: user,
-              callee: callee,
-            },
-          })
-        );
-      }
-    );
-    setTimeout(() => {
-      navigate(`/home-chat/meetings/${conversation._id}`);
-    }, 500);
+    dispatch(videoStreamStart(navigate, conversation, true));
   };
+
   return (
     <ChatFormContainer>
       <Header conversation={conversation} onClickVideoCall={clickVideoCall} />
