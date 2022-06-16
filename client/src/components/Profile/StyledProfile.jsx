@@ -32,7 +32,7 @@ export const ProfileContainer = styled.main`
   display: flex;
   align-items: center;
   flex-direction: column;
-  background-color: #323232;
+  background-color: #2a2a2a;
 `;
 
 export const ProfileContent = styled.div`

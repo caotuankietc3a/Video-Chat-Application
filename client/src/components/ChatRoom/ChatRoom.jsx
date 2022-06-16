@@ -16,6 +16,7 @@ import FriendList from "../FriendList/FriendList";
 import { forwardActions } from "../../store/slices/forward-slice";
 import Notification from "../Notification/Notification";
 import Profile from "../Profile/Profile";
+import Settings from "../Profile/Settings/Settings.jsx";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
@@ -143,6 +144,8 @@ const ChatRoom = (props) => {
                 />
               }
             ></Route>
+
+            <Route path={`/profile/*`} element={<Settings />}></Route>
 
             <Route
               path={`/`}

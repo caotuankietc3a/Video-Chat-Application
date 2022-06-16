@@ -12,14 +12,12 @@ import {
   ListGroupInfo,
   ListGroupInfoItem,
 } from "./StyledProfile";
-import { BsChatDots } from "react-icons/bs";
 import { BiDotsVerticalRounded, BiLogOut } from "react-icons/bi";
 import { MdAccessTime } from "react-icons/md";
 import { FiPhone, FiFacebook, FiTwitter, FiInstagram } from "react-icons/fi";
 import { IoEarthOutline } from "react-icons/io5";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchUserLogin } from "../../store/actions/fetch-action.jsx";
 import {
   AiOutlineCalendar,
   AiOutlineMail,
@@ -30,7 +28,6 @@ import { logoutHandler } from "../../store/actions/fetch-action.jsx";
 const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { socket_video } = useSelector((state) => state.socket);
   const { user } = useSelector((state) => state.user);
   useEffect(() => {
     if (!user) navigate("/home-chat");

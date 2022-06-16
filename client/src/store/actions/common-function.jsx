@@ -94,3 +94,118 @@ export const compareString = (friends) => {
   }
   return friends;
 };
+
+export const arrayDisplay = [
+  {
+    header: {
+      h5: "Account",
+      p: "Update personal & contact information",
+    },
+    rows: [
+      {
+        label: "First name",
+        type: "text",
+        placeholder: "Type your first name",
+      },
+      {
+        label: "Last name",
+        type: "text",
+        placeholder: "Type your last name",
+      },
+      {
+        label: "Mobile number",
+        type: "tel",
+        placeholder: "Type your mobile phone",
+      },
+      { label: "Birth date", type: "date", placeholder: "mm/dd/yyyy" },
+      {
+        label: "Email Address",
+        type: "email",
+        placeholder: "Type your email address",
+      },
+      { label: "Website", type: "text", placeholder: "Type your website" },
+      {
+        label: "Address",
+        type: "text",
+        placeholder: "Type your address",
+        width: "100%",
+      },
+    ],
+  },
+
+  {
+    header: {
+      h5: "Social network profiles",
+      p: "Update social network information",
+    },
+    rows: [
+      {
+        label: "Facebook",
+        type: "text",
+        placeholder: "Type your facebook site",
+      },
+      {
+        label: "Instagram",
+        type: "text",
+        placeholder: "Type your instagram site",
+      },
+      {
+        label: "Twitter",
+        type: "text",
+        placeholder: "Type your twitter site",
+      },
+      {
+        label: "Linkedin",
+        type: "text",
+        placeholder: "Type your linkedin site",
+      },
+    ],
+  },
+
+  {
+    header: {
+      h5: "Password",
+      p: "Update password information",
+    },
+    rows: [
+      {
+        label: "Current Password",
+        type: "password",
+        placeholder: "Current password",
+        width: "100%",
+      },
+      {
+        label: "New Password",
+        type: "password",
+        placeholder: "New password",
+      },
+      {
+        label: "Repeat Password",
+        type: "password",
+        placeholder: "Repeat password",
+      },
+    ],
+  },
+
+  {
+    header: {
+      h5: "Security",
+      p: "Update secure information",
+      typeDisplay: "secure",
+    },
+    rows: [
+      {
+        p1: "Use two-factor authentication",
+        p2: "Ask for a code if attempted login from an unrecognised device or browser",
+        width: "100%",
+        id: "two-factor",
+      },
+      {
+        p1: "Get alerts about unrecognised logins",
+        p2: "You will be notified if anyone logs in from a device or browser you don't usually use",
+        width: "100%",
+        id: "unrecognised-logins",
+      },
+    ],
+  },
+];
