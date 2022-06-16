@@ -7,18 +7,19 @@ import ChatContact from "./ChatContact/ChatContact";
 import FriendForm from "../FriendForm/FriendForm";
 import CallForm from "../CallForm/CallForm";
 import MeetingForm from "../MeetingForm/MeetingForm";
-import { fetchUserLogin } from "../../store/actions/fetch-action";
+import { fetchFriends, fetchUserLogin } from "../../store/actions/fetch-action";
 import { conversationActions } from "../../store/slices/conversation-slice";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import NavBarContact from "../NavBarContact/NavBarContact";
 import User from "../User/User";
 import FriendList from "../FriendList/FriendList";
 import { forwardActions } from "../../store/slices/forward-slice";
-
+import Notification from "../Notification/Notification";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
+  const { error } = useSelector((state) => state.video);
   const { forward } = useSelector((state) => state.forward);
   const callState = useSelector((state) => state.call);
   const { friend } = useSelector((state) => state.friend);
@@ -26,8 +27,14 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const { socket_chat, socket_video } = useSelector((state) => state.socket);
-  // const { error } = useSelector((state) => state.video);
-  // console.log(error);
+  const closeNotification = () => {
+    dispatch(
+      videoActions.setError({
+        error: null,
+      })
+    );
+  };
+
   const isClickedHandler = () => {
     setIsClickedConversation(true);
   };
@@ -46,7 +53,6 @@ const ChatRoom = (props) => {
       "make-connection-call",
       ({ conversationId, conversation, caller, callee }) => {
         dispatch(conversationActions.setConversation({ conversation }));
-        console.log("Set call");
         dispatch(
           videoActions.setCall({
             call: { isReceivedCall: true, caller, callee, signal: null },
@@ -66,13 +72,23 @@ const ChatRoom = (props) => {
     });
   }, []);
 
+  useEffect(() => {
+    dispatch(fetchFriends());
+  }, [user]);
+
   return (
     <Container>
       <MainLayOut>
         {isClickedConversation ? (
-          <FriendList isClosedHandler={isClosedHandler} type={true} />
+          <FriendList
+            isClosedHandler={isClosedHandler}
+            type={true}
+            friends={friend}
+          />
         ) : (
-          forward && <FriendList isClosedHandler={isClosedHandler} />
+          forward && (
+            <FriendList isClosedHandler={isClosedHandler} friends={friend} />
+          )
         )}
 
         <NavBarContact />
@@ -138,6 +154,8 @@ const ChatRoom = (props) => {
               element={<User user={user} isClickedHandler={isClickedHandler} />}
             ></Route>
           </Routes>
+
+          <Notification error={error} closeNotification={closeNotification} />
         </ChatBodyContainer>
       </MainLayOut>
     </Container>

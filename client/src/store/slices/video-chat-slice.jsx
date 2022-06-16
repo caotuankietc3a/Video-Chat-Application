@@ -7,7 +7,7 @@ const initialState = {
   showVideo: false,
   showUserVideo: false,
   stream: null, // myStream
-  error: false,
+  error: null,
   call: {
     isReceivedCall: false,
     caller: null,

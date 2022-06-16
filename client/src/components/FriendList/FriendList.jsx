@@ -7,42 +7,20 @@ import {
   FriendCol,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BsSearch } from "react-icons/bs";
 import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
 import { postNewConversation } from "../../store/actions/conversation-function";
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
-const FriendList = ({ isClosedHandler }) => {
-  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+const FriendList = ({ isClosedHandler, friends }) => {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState("");
   const { user } = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { socket_chat } = useSelector((state) => state.socket);
-  const [friends, setFriends] = useState([]);
   const dispatch = useDispatch();
-  useEffect(() => {
-    (async () => {
-      try {
-        const resFriends = await fetch(
-          `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,
-          {
-            credentials: "include",
-          }
-        );
-
-        const friends = await resFriends.json();
-        setFriends(friends);
-        // setTimeout(() => {
-        //   setIsFetching(false);
-        // }, 1250);
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, []);
 
   const friendsHandler = (friends, searchText) => {
     return friends

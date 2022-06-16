@@ -1,3 +1,4 @@
+import { friendActions } from "../slices/friend-slice";
 import { userLoginActions } from "../slices/user-login-slice";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postData = async (data, typeUrl) => {
@@ -25,21 +26,41 @@ export const fetchUserLogin = (navigate, socket_video) => {
         setTimeout(() => {
           navigate("/home-chat");
         }, 500);
-        dispatch(
+        return dispatch(
           userLoginActions.setUserLogin({
             user: user,
             isFetching: true,
             error: null,
           })
         );
-      } else {
-        dispatch(
-          userLoginActions.setUserLogin({
-            user: user,
-            isFetching: false,
-            error: null,
-          })
+      }
+
+      dispatch(
+        userLoginActions.setUserLogin({
+          user: user,
+          isFetching: false,
+          error: null,
+        })
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+};
+
+export const fetchFriends = () => {
+  return async (dispatch, getState) => {
+    try {
+      const { user } = getState().user;
+      if (user) {
+        const resFriends = await fetch(
+          `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,
+          {
+            credentials: "include",
+          }
         );
+        const friends = await resFriends.json();
+        dispatch(friendActions.setFriends({ friend: friends }));
       }
     } catch (err) {
       console.error(err);

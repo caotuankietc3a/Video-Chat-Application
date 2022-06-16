@@ -114,10 +114,14 @@ export const SearchBar = styled.div`
   }
 `;
 
-export const FriendCol = styled.div`
+export const FriendCol = styled.ul`
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  list-style-type: none;
   width: 100%;
+  height: auto;
+  padding: 0;
+  margin: 0;
 `;

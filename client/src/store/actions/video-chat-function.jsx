@@ -43,6 +43,14 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
         dispatch(connectionCallHandler(navigate, conversation));
       }
     } catch (err) {
+      console.log("Error");
+      dispatch(
+        videoActions.setError({
+          error: {
+            text: "Please activate microphone to make calls!!!",
+          },
+        })
+      );
       console.error(err);
     }
   };

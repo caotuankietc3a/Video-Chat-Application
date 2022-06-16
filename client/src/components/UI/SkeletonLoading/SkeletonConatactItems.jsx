@@ -6,7 +6,6 @@ import {
   ContactInfo,
   ContactTexts,
 } from "../../ChatRoom/ChatContact/StyledContacts";
-import { BsPinMapFill } from "react-icons/bs";
 import "react-loading-skeleton/dist/skeleton.css";
 const SkeletonConatactItems = () => {
   return (

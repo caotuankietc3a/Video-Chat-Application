@@ -3,7 +3,7 @@ export const ContactLists = styled.ul`
   width: 100%;
   height: 100%;
   padding: 0.75rem;
-  list-style: none;
+  list-style-type: none;
   margin: 0;
   background-color: #2a2a2a;
 `;
@@ -89,6 +89,8 @@ export const ContactInfo = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  min-width: 195px;
+  min-height: 24px;
   margin-bottom: 0.375px;
   h6 {
     margin: 0 auto 0 0;
