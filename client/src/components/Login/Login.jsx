@@ -41,6 +41,8 @@ const Login = (props) => {
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
   else END_POINT_SERVER += "/forgot-password";
+  console.log(isFetching);
+  console.log(inputEl?.current?.checked);
 
   const submitHandler = async (e) => {
     e.preventDefault();

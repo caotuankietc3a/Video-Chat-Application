@@ -15,6 +15,7 @@ import User from "../User/User";
 import FriendList from "../FriendList/FriendList";
 import { forwardActions } from "../../store/slices/forward-slice";
 import Notification from "../Notification/Notification";
+import Profile from "../Profile/Profile";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
@@ -27,6 +28,7 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const { socket_chat, socket_video } = useSelector((state) => state.socket);
+
   const closeNotification = () => {
     dispatch(
       videoActions.setError({
@@ -103,6 +105,7 @@ const ChatRoom = (props) => {
             path={`/calls/*`}
             element={<ChatContact header="Calls" />}
           ></Route>
+          <Route path={`/profile/*`} element={<Profile />}></Route>
         </Routes>
 
         <ChatBodyContainer>

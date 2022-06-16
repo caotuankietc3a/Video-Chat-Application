@@ -61,7 +61,7 @@ const NavBarContact = (props) => {
           </LiTag>
         </Link>
         <Link
-          to=""
+          to="/home-chat/profile"
           className={stateNavBar.info}
           onClick={() => {
             dispatchNavBar({ type: "info" });

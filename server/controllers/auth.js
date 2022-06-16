@@ -55,3 +55,13 @@ exports.getSession = async (req, res, next) => {
     res.status(400).json({ msg: "Something went wrong!!!" });
   }
 };
+
+exports.postLogout = async (req, res, next) => {
+  try {
+    console.log("Destroy");
+    req.session.destroy();
+    req.session.update();
+  } catch (err) {
+    res.status(400).json({ msg: "Something went wrong!!!" });
+  }
+};

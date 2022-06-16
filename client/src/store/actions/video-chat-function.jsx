@@ -9,7 +9,6 @@ const connectionCallHandler = (navigate, conversation) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
     const { socket_video } = getState().socket;
-    console.log(socket_video);
     socket_video.emit(
       "make-connection-call",
       { conversationId: conversation._id, caller: user },
@@ -61,7 +60,6 @@ export const answerCall = (socket_video, hasVideo = false) => {
     try {
       const { _id } = getState().conversation.conversation;
       const { call, stream } = getState().video;
-      console.log(call);
       const peer = new Peer({
         initiator: false,
         trickle: false,
@@ -80,7 +78,6 @@ export const answerCall = (socket_video, hasVideo = false) => {
       });
 
       peer.on("stream", (currentStream) => {
-        console.log(currentStream);
         dispatch(videoActions.setUserStream({ userStream: currentStream }));
       });
 
@@ -108,7 +105,6 @@ export const callUser = () => {
       dispatch(videoActions.setShowVideo({ showVideo: false }));
 
       peer.on("signal", (data) => {
-        console.log("hahahahahah");
         socket_video.emit("call-user", {
           conversationId: _id,
           signal: data,
@@ -116,7 +112,6 @@ export const callUser = () => {
       });
 
       peer.on("stream", (currentStream) => {
-        console.log(currentStream);
         dispatch(videoActions.setUserStream({ userStream: currentStream }));
       });
 

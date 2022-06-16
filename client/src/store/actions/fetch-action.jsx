@@ -21,8 +21,9 @@ export const fetchUserLogin = (navigate, socket_video) => {
         credentials: "include",
       });
       const { user, isLogin } = await data.json();
-      if (socket_video) socket_video.emit("join-video", { userId: user._id });
-      if (isLogin) {
+      if (socket_video && user)
+        socket_video.emit("join-video", { userId: user._id });
+      if (isLogin && user) {
         setTimeout(() => {
           navigate("/home-chat");
         }, 500);
@@ -65,5 +66,16 @@ export const fetchFriends = () => {
     } catch (err) {
       console.error(err);
     }
+  };
+};
+
+export const logoutHandler = (navigate) => {
+  return async (dispatch) => {
+    console.log("Destroy");
+    dispatch(userLoginActions.setUserLogout());
+    await postData({ msg: "logout" }, `${END_POINT_SERVER}/auth/logout`);
+    setTimeout(() => {
+      navigate("/");
+    }, 50);
   };
 };
