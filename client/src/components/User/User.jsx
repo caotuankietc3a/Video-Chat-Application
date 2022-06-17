@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { UserContainer, UserContent } from "./StyledUser.jsx";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
-const User = (props) => {
-  const { user, isClickedHandler } = props;
+const User = ({ user, isClickedHandler }) => {
   const [isFetching, setIsFetching] = useState(true);
   useEffect(() => {
     let timer = setTimeout(() => {

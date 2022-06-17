@@ -50,8 +50,7 @@ export const AvatarUser = styled.div`
     content: "";
     background-color: #44a675;
     position: absolute;
-    /* display: ${({ type }) => (type !== "Friends" ? "block" : "none")}; */
-    display: block;
+    display: ${({ status }) => (status ? "block" : "none")};
     width: 0.8rem;
     height: 0.8rem;
     border-radius: 50%;

@@ -14,6 +14,7 @@ const FriendShow = ({
   forwardToUserHandler,
   type,
 }) => {
+  console.log(friend.status);
   const disabledBtnEl = useRef(null);
   const [undoEl, setUndoEl] = useState(false);
   useEffect(() => {
@@ -41,7 +42,7 @@ const FriendShow = ({
       onClick={type !== "forward-message" ? moveToConversationDetail : null}
       className={type !== "forward-message" ? "forward-message" : null}
     >
-      <AvatarUser>
+      <AvatarUser status={friend.status}>
         <img src={friend.profilePhoto} alt="User" />
       </AvatarUser>
       <FriendName type={type}>
@@ -74,7 +75,7 @@ const FriendShow = ({
         </div>
         {type !== "forward-message" && (
           <div>
-            <p className="status">{friend.timestamps ? "Online" : "Offline"}</p>
+            <p className="status">{friend.status ? "Online" : "Offline"}</p>
           </div>
         )}
       </FriendName>

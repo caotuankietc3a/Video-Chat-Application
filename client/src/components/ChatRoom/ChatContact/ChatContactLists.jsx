@@ -20,27 +20,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   const contactList = useRef(null);
   const { socket_video } = useSelector((state) => state.socket);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const data = await fetch(`${END_POINT_SERVER}/auth/session`, {
-  //         credentials: "include",
-  //       });
-  //       const res = await data.json();
-  //       if (res.isLogin) {
-  //         dispatch(
-  //           userLoginActions.setUserLogin({
-  //             user: res.user,
-  //             isFetching: true,
-  //             error: null,
-  //           })
-  //         );
-  //       }
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   })();
-  // }, []);
   useEffect(() => {
     socket_video.on("log-out", () => {
       setRendering(!rendering);

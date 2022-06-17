@@ -58,6 +58,7 @@ const ChatContactItems = ({
                 _id: conversation._id,
                 members: conversation.members,
                 name: member.fullname,
+                status: member.status,
               },
             })
           );

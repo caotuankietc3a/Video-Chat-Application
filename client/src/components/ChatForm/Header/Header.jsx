@@ -10,17 +10,16 @@ import { LiTag } from "../../NavBarContact/StyledNavBarContact";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 import { BsTelephone, BsSearch } from "react-icons/bs";
 
-const Header = (props) => {
-  const { conversation, onClickVideoCall } = props;
+const Header = ({ conversation, onClickVideoCall }) => {
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
-        <AvatarUser>
+        <AvatarUser status={conversation.status}>
           <img src="/images/user-img.jpg" alt="" />
         </AvatarUser>
         <Media>
           <h6 className="text-truncate">{conversation.name}</h6>
-          <small>Just now</small>
+          <small>{conversation.status ? "Online" : "Offline"}</small>
         </Media>
       </ChatHeaderAvatar>
       <UlChatHeaderOptions>
