@@ -15,7 +15,7 @@ import {
   videoStreamStart,
 } from "../../store/actions/video-chat-function";
 
-const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
+const ChatForm = ({ conversation, user, socket_chat }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
   const { reply } = useSelector((state) => state.reply);

@@ -12,33 +12,43 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [friends, setFriends] = useState([]);
   const [calls, setCalls] = useState([]);
-  const dispatch = useDispatch();
+  const [rendering, setRendering] = useState(false);
+  // const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { reRender } = useSelector((state) => state.message);
   const contactList = useRef(null);
+  const { socket_video } = useSelector((state) => state.socket);
 
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const data = await fetch(`${END_POINT_SERVER}/auth/session`, {
+  //         credentials: "include",
+  //       });
+  //       const res = await data.json();
+  //       if (res.isLogin) {
+  //         dispatch(
+  //           userLoginActions.setUserLogin({
+  //             user: res.user,
+  //             isFetching: true,
+  //             error: null,
+  //           })
+  //         );
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   })();
+  // }, []);
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await fetch(`${END_POINT_SERVER}/auth/session`, {
-          credentials: "include",
-        });
-        const res = await data.json();
-        if (res.isLogin) {
-          dispatch(
-            userLoginActions.setUserLogin({
-              user: res.user,
-              isFetching: true,
-              error: null,
-            })
-          );
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, []);
+    socket_video.on("log-out", () => {
+      setRendering(!rendering);
+    });
+    return () => {
+      socket_video.off("log-out");
+    };
+  }, [rendering]);
 
   useEffect(() => {
     const getConversation = async () => {
@@ -74,7 +84,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       }
     };
     getConversation();
-  }, [window.location.href, isFetching, forward, reRender]);
+  }, [window.location.href, isFetching, forward, reRender, rendering]);
 
   useEffect(() => {
     (async () => {
@@ -139,6 +149,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
             id={conversation._id}
             conversation={conversation}
             type={type}
+            status={member.status}
           />
         );
       });

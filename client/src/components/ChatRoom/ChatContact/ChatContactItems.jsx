@@ -29,6 +29,7 @@ const ChatContactItems = ({
   id,
   displayChar = null,
   fullname,
+  status,
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -81,11 +82,12 @@ const ChatContactItems = ({
       console.error(err);
     }
   };
+
   return (
     <ContactItems onClick={clickHandler}>
       {displayChar && <p>{friend.fullname[0].toUpperCase()}</p>}
       <Link to={linkTo + `/detail/${id}`}>
-        <AvatarUser type={type}>
+        <AvatarUser type={type} status={status}>
           <img
             src={
               type === "Friends"

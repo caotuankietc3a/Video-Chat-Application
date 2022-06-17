@@ -11,7 +11,11 @@ exports.postLogin = async (req, res, next) => {
       throw new Error(errors.array()[0].msg);
     }
     const { email, isChecked } = req.body;
-    const user = await User.findOne({ email: email });
+    const user = await User.findOneAndUpdate(
+      { email: email },
+      { status: true },
+      { new: true }
+    );
     if (isChecked) {
       req.session.isLogin = true;
     }
@@ -49,7 +53,15 @@ exports.postRegister = async (req, res, next) => {
 exports.getSession = async (req, res, next) => {
   try {
     const { isLogin, userId } = req.session;
-    const user = await User.findById(userId);
+    const { type } = req.query;
+    const status = parseInt(type) ? true : isLogin ? true : false;
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        status,
+      },
+      { new: true }
+    );
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });
@@ -58,9 +70,15 @@ exports.getSession = async (req, res, next) => {
 
 exports.postLogout = async (req, res, next) => {
   try {
-    console.log("Destroy");
+    const { user } = req.body;
+    await User.findOneAndUpdate(
+      { email: user.email },
+      { status: false },
+      { new: true }
+    );
     req.session.destroy();
     req.session.update();
+    next();
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });
   }

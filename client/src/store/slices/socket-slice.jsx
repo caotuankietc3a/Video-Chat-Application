@@ -13,5 +13,13 @@ const socketSlice = createSlice({
       transports: ["websocket"],
     }),
   },
+  reducers: {
+    setSocket_Video(state, _action) {
+      state.socket_video = io(`${END_POINT_SERVER}/video-room`, {
+        transports: ["websocket"],
+      });
+    },
+  },
 });
+export const socketActions = socketSlice.actions;
 export default socketSlice;

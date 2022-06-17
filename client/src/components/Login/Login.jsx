@@ -29,7 +29,7 @@ import Error from "../Error/Error";
 const Login = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isFetching, error } = useSelector((state) => state.user);
+  const { isFetching, error, user } = useSelector((state) => state.user);
   const { type } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,12 +37,11 @@ const Login = (props) => {
   const [fullname, setFullName] = useState("");
   const [isClicked, setIsClicked] = useState(false);
   const inputEl = useRef(null);
+  const { socket_video } = useSelector((state) => state.socket);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
   else END_POINT_SERVER += "/forgot-password";
-  console.log(isFetching);
-  console.log(inputEl?.current?.checked);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -75,6 +74,8 @@ const Login = (props) => {
         else if (type === "Login") navigate("/home-chat");
         dispatch(userLoginActions.setIsFetching({ isFetching: false }));
       }, 1250);
+
+      socket_video.emit("log-out");
       dispatch(
         userLoginActions.setUserLogin({
           user: data,

@@ -161,6 +161,11 @@ io_video.on("connection", (socket) => {
     updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
+
+  socket.on("log-out", () => {
+    // to all clients in the current namespace except the sender
+    socket.broadcast.emit("log-out");
+  });
 });
 
 app.use("/auth", authRoutes);

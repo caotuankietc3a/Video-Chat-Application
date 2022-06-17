@@ -1,10 +1,6 @@
 import Peer from "simple-peer";
 import { videoActions } from "../slices/video-chat-slice";
 
-// const waitUserMediaHandler = async () => {
-//   return await
-// };
-
 const connectionCallHandler = (navigate, conversation) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
@@ -24,6 +20,7 @@ const connectionCallHandler = (navigate, conversation) => {
         );
       }
     );
+
     setTimeout(() => {
       navigate(`/home-chat/meetings/${conversation._id}`);
     }, 500);
@@ -31,8 +28,21 @@ const connectionCallHandler = (navigate, conversation) => {
 };
 
 export const videoStreamStart = (navigate, conversation, type = false) => {
-  return async (dispatch, _getState) => {
+  return async (dispatch, getState) => {
     try {
+      const { user } = getState().user;
+      const member = conversation.members.find(
+        (member) => member._id !== user._id
+      );
+      if (!member.status) {
+        return dispatch(
+          videoActions.setError({
+            error: {
+              text: "Can't call user because user is offline",
+            },
+          })
+        );
+      }
       const currentStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -42,7 +52,6 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
         dispatch(connectionCallHandler(navigate, conversation));
       }
     } catch (err) {
-      console.log("Error");
       dispatch(
         videoActions.setError({
           error: {

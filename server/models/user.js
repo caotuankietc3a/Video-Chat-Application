@@ -35,6 +35,10 @@ const userSchema = new Schema({
     type: String,
     default: "Unknown address",
   },
+  status: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = model("User", userSchema);

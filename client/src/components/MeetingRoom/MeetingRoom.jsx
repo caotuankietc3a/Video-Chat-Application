@@ -58,15 +58,14 @@ const MeetingRoom = (props) => {
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
-  console.log("showVideo: ", showVideo);
-  console.log("showUserVideo: ", showUserVideo);
-  console.log("showUserStream: ", userStream);
-  console.log("showStream: ", stream);
-  console.log("muted: ", muted);
+  // console.log("showVideo: ", showVideo);
+  // console.log("showUserVideo: ", showUserVideo);
+  // console.log("showUserStream: ", userStream);
+  // console.log("showStream: ", stream);
+  // console.log("muted: ", muted);
 
   useEffect(() => {
     if (stream) {
-      console.log(stream);
       if (myVideo.current) myVideo.current.srcObject = stream;
       // console.log("myVideo: ", myVideo);
     }

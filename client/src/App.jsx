@@ -3,10 +3,10 @@ import Login from "./components/Login/Login";
 import ChatRoom from "./components/ChatRoom/ChatRoom";
 import MeetingRoom from "./components/MeetingRoom/MeetingRoom";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 
 function App() {
-  const userState = useSelector((state) => state.user);
+  // const userState = useSelector((state) => state.user);
 
   return (
     <BrowserRouter>
@@ -26,12 +26,8 @@ function App() {
             <Login title="Recover Your Password" type="Change password" />
           }
         ></Route>
-        <Route
-          path="/home-chat/*"
-          element={
-            !userState.isLogin ? <ChatRoom /> : <Navigate to="/auth/login" />
-          }
-        ></Route>
+        <Route path="/home-chat/*" element={<ChatRoom />}></Route>
+        {/* <Navigate to="/auth/login" /> */}
 
         <Route
           path="/meeting/:conversationId"

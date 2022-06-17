@@ -48,7 +48,7 @@ const ChatRoom = (props) => {
   };
 
   useEffect(() => {
-    dispatch(fetchUserLogin(navigate, socket_video));
+    dispatch(fetchUserLogin(navigate, 1));
   }, []);
 
   useEffect(() => {
@@ -118,7 +118,6 @@ const ChatRoom = (props) => {
                   conversation={conversation}
                   user={user}
                   socket_chat={socket_chat}
-                  socket_video={socket_video}
                 />
               }
             ></Route>
