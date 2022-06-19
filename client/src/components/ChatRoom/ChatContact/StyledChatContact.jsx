@@ -3,10 +3,15 @@ export const LiTag = styled.li`
   list-style: none;
   padding: ${(props) => props.ptd} ${(props) => props.plr};
   height: 100%;
+  position: relative;
+  cursor: pointer;
   svg {
     width: ${(props) => props.w};
     height: ${(props) => props.h};
     margin-top: 1.8px;
+  }
+  @media screen and (max-width: 1200px) {
+    z-index: -1;
   }
 `;
 
@@ -43,8 +48,41 @@ export const UlBarHeader = styled.ul`
   svg {
     color: #adb5bd;
   }
-  & a:hover {
-    opacity: 0.7;
+  & div:hover {
+    svg {
+      color: #5d646b;
+    }
+  }
+`;
+
+export const DropDownMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  inset: 0px auto auto 0px;
+  transform: translate(-140px, 35px);
+  font-size: 0.875rem;
+  background-color: #2b2b2b;
+  padding: 0.5rem 0;
+  min-width: 11rem;
+  text-align: center;
+  list-style: none;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+`;
+
+export const DropDownItem = styled.a`
+  width: 100%;
+  font-weight: 400;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  color: rgba(197, 201, 223, 0.8);
+  white-space: nowrap;
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  &:hover {
+    background-color: #383f44;
   }
 `;
 
@@ -125,5 +163,5 @@ export const ChatContactContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  /* height: 100vh; */
 `;

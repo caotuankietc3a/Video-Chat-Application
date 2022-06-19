@@ -12,10 +12,23 @@ const socketSlice = createSlice({
     socket_video: io(`${END_POINT_SERVER}/video-room`, {
       transports: ["websocket"],
     }),
+    socket_notify: io(`${END_POINT_SERVER}/notify`, {
+      transports: ["websocket"],
+    }),
   },
   reducers: {
     setSocket_Video(state, _action) {
       state.socket_video = io(`${END_POINT_SERVER}/video-room`, {
+        transports: ["websocket"],
+      });
+    },
+    setSocket_Chat(state, _action) {
+      state.socket_chat = io(`${END_POINT_SERVER}/chat-room`, {
+        transports: ["websocket"],
+      });
+    },
+    setSocket_Notify(state, _action) {
+      state.socket_notify = io(`${END_POINT_SERVER}/notify`, {
         transports: ["websocket"],
       });
     },

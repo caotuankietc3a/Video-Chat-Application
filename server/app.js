@@ -161,10 +161,20 @@ io_video.on("connection", (socket) => {
     updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
+});
 
+const io_notify = io.of("/notify");
+io_notify.on("connection", (socket) => {
+  console.log(io_notify.adapter.rooms);
   socket.on("log-out", () => {
     // to all clients in the current namespace except the sender
+    console.log("dfasdf ");
     socket.broadcast.emit("log-out");
+  });
+
+  socket.on("log-in", () => {
+    console.log("dfasdf asdassdfa");
+    socket.broadcast.emit("log-in");
   });
 });
 

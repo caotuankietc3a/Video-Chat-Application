@@ -9,7 +9,10 @@ export const FriendColBody = styled.div`
   align-items: center;
   border-bottom: 1px solid #2b2b2f;
   padding: 0.75rem 1.25rem;
-  cursor: pointer;
+  &.new-chat {
+    cursor: pointer;
+  }
+  z-index: -1;
   & h6,
   & p {
     margin: 0;
@@ -30,7 +33,7 @@ export const FriendColBody = styled.div`
     margin-top: 0.25rem;
     font-weight: 500;
   }
-  &.forward-message:hover {
+  &.new-chat:hover {
     background-color: #665dfe;
   }
 `;
@@ -80,9 +83,7 @@ export const SendBtn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #2d88ff33;
-  border-radius: 0.5rem;
-  &.un-send {
+  &.forward-message.un-send {
     background-color: #14141450;
     cursor: not-allowed;
     div,
@@ -91,8 +92,41 @@ export const SendBtn = styled.div`
       color: #ffffff4d;
     }
   }
+
+  &.forward-message button {
+    line-height: 1.5;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  &.forward-message {
+    background-color: #2d88ff33;
+    border-radius: 0.5rem;
+  }
+  &.forward-message:hover {
+    background-color: #14141450;
+    &:not(.un-send):active {
+      transform: scale(0.95);
+    }
+  }
+
+  &.create-group input {
+    width: 1.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  &.forward-message div svg {
+    height: 16px;
+    width: 16px;
+    margin-right: 10px;
+  }
+
   & div,
-  & button {
+  & button,
+  & input {
     font-size: 0.9375rem;
     font-weight: 600;
     display: flex;
@@ -100,22 +134,5 @@ export const SendBtn = styled.div`
     align-items: center;
     padding: 0;
     color: #2d88ff;
-  }
-  & button {
-    line-height: 1.5;
-    background-color: transparent;
-    border: 0;
-    cursor: pointer;
-  }
-  & div svg {
-    height: 16px;
-    width: 16px;
-    margin-right: 10px;
-  }
-  &:hover {
-    background-color: #14141450;
-  }
-  &:not(.un-send):active {
-    transform: scale(0.95);
   }
 `;

@@ -18,7 +18,7 @@ export const postData = async (data, typeUrl) => {
 export const fetchUserLogin = (navigate, type = 0) => {
   return async (dispatch, getState) => {
     try {
-      const { socket_video } = getState().socket;
+      const { socket_notify, socket_video } = getState().socket;
       const data = await fetch(
         `${END_POINT_SERVER}/auth/session?type=${type}`,
         {
@@ -26,14 +26,16 @@ export const fetchUserLogin = (navigate, type = 0) => {
         }
       );
       const { user, isLogin } = await data.json();
+      console.log(user);
       if (!type) {
         if (isLogin) {
           setTimeout(() => {
             navigate("/home-chat");
           }, 500);
           socket_video.emit("join-video", { userId: user._id });
+          socket_notify.emit("log-in");
         }
-        socket_video.emit("log-out");
+        socket_notify.emit("log-out");
         return dispatch(
           userLoginActions.setUserLogin({
             user: isLogin ? user : null,
@@ -43,6 +45,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
         );
       } else {
         socket_video.emit("join-video", { userId: user._id });
+        socket_notify.emit("log-in");
         dispatch(
           userLoginActions.setUserLogin({
             user: user,
@@ -80,12 +83,16 @@ export const fetchFriends = () => {
 export const logoutHandler = (navigate) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
-    const { socket_video } = getState().socket;
+    const { socket_video, socket_notify, socket_chat } = getState().socket;
     await postData({ user }, `${END_POINT_SERVER}/auth/logout`);
     socket_video.disconnect();
+    socket_chat.disconnect();
+    socket_notify.disconnect();
     dispatch(userLoginActions.setUserLogout());
     setTimeout(() => {
       dispatch(socketActions.setSocket_Video());
+      dispatch(socketActions.setSocket_Chat());
+      dispatch(socketActions.setSocket_Notify());
       navigate("/");
     }, 50);
   };

@@ -30,7 +30,7 @@ const Notification = ({ error, closeNotification }) => {
           </NotificationIcon>
           <NotificationCountDown></NotificationCountDown>
         </NotificationWrapper>
-        <NotificationText>{error?.text}</NotificationText>
+        <NotificationText>{error}</NotificationText>
         <NotificationCloseBtn onClick={closeNotification}>
           <IoClose />
         </NotificationCloseBtn>

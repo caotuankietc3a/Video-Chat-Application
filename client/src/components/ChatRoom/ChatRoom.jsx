@@ -17,22 +17,27 @@ import { forwardActions } from "../../store/slices/forward-slice";
 import Notification from "../Notification/Notification";
 import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
+import Portal from "../Portal/Portal";
+import { errorActions } from "../../store/slices/error-slice";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
-  const { error } = useSelector((state) => state.video);
+  const { error } = useSelector((state) => state.error);
   const { forward } = useSelector((state) => state.forward);
   const callState = useSelector((state) => state.call);
   const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
-  const { socket_chat, socket_video } = useSelector((state) => state.socket);
+  const [createGroup, setCreateGroup] = useState(false);
+  const { socket_chat, socket_video, socket_notify } = useSelector(
+    (state) => state.socket
+  );
 
   const closeNotification = () => {
     dispatch(
-      videoActions.setError({
+      errorActions.setError({
         error: null,
       })
     );
@@ -42,8 +47,13 @@ const ChatRoom = (props) => {
     setIsClickedConversation(true);
   };
 
+  const createGroupHandler = () => {
+    setCreateGroup(!createGroup);
+  };
+
   const isClosedHandler = () => {
     setIsClickedConversation(false);
+    setCreateGroup(false);
     dispatch(forwardActions.setForward({ forward: null }));
   };
 
@@ -76,39 +86,72 @@ const ChatRoom = (props) => {
   }, []);
 
   useEffect(() => {
+    socket_notify.on("log-out", () => {
+      dispatch(fetchFriends());
+    });
+
+    socket_notify.on("log-in", () => {
+      dispatch(fetchFriends());
+    });
+  }, [friend]);
+
+  useEffect(() => {
     dispatch(fetchFriends());
   }, [user]);
 
   return (
     <Container>
       <MainLayOut>
-        {isClickedConversation ? (
-          <FriendList
-            isClosedHandler={isClosedHandler}
-            type={true}
-            friends={friend}
-          />
-        ) : (
-          forward && (
+        {isClickedConversation || forward ? (
+          <Portal>
             <FriendList isClosedHandler={isClosedHandler} friends={friend} />
+          </Portal>
+        ) : (
+          createGroup && (
+            <Portal>
+              <FriendList
+                isClosedHandler={isClosedHandler}
+                friends={friend}
+                createGroup={createGroup}
+                error={error}
+              />
+            </Portal>
           )
         )}
-
         <NavBarContact />
-
         <Routes>
-          <Route path={`/*`} element={<ChatContact header="Chats" />}></Route>
+          <Route
+            path={`/*`}
+            element={
+              <ChatContact
+                header="Chats"
+                isClickedHandler={isClickedHandler}
+                createGroupHandler={createGroupHandler}
+              />
+            }
+          ></Route>
           <Route
             path={`/friends/*`}
-            element={<ChatContact header="Friends" />}
+            element={
+              <ChatContact
+                header="Friends"
+                isClickedHandler={isClickedHandler}
+                createGroupHandler={createGroupHandler}
+              />
+            }
           ></Route>
           <Route
             path={`/calls/*`}
-            element={<ChatContact header="Calls" />}
+            element={
+              <ChatContact
+                header="Calls"
+                isClickedHandler={isClickedHandler}
+                createGroup={createGroup}
+              />
+            }
           ></Route>
           <Route path={`/profile/*`} element={<Profile />}></Route>
         </Routes>
-
         <ChatBodyContainer>
           <Routes>
             <Route

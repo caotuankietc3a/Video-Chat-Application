@@ -6,7 +6,7 @@ const User = ({ user, isClickedHandler }) => {
   useEffect(() => {
     let timer = setTimeout(() => {
       setIsFetching(false);
-    }, 1250);
+    }, 500);
     return () => {
       clearTimeout(timer);
     };

@@ -1,4 +1,5 @@
 import Peer from "simple-peer";
+import { errorActions } from "../slices/error-slice";
 import { videoActions } from "../slices/video-chat-slice";
 
 const connectionCallHandler = (navigate, conversation) => {
@@ -28,15 +29,11 @@ const connectionCallHandler = (navigate, conversation) => {
 };
 
 export const videoStreamStart = (navigate, conversation, type = false) => {
-  return async (dispatch, getState) => {
+  return async (dispatch, _getState) => {
     try {
-      const { user } = getState().user;
-      const member = conversation.members.find(
-        (member) => member._id !== user._id
-      );
-      if (!member.status) {
+      if (!conversation.status && type) {
         return dispatch(
-          videoActions.setError({
+          errorActions.setError({
             error: {
               text: "Can't call user because user is offline",
             },
@@ -53,7 +50,7 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
       }
     } catch (err) {
       dispatch(
-        videoActions.setError({
+        errorActions.setError({
           error: {
             text: "Please activate microphone to make calls!!!",
           },

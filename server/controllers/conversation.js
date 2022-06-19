@@ -1,12 +1,22 @@
 const Conversation = require("../models/conversation");
-exports.postConversation = async (req, res, next) => {
+const { Types } = require("mongoose");
+exports.postNewGroupConversation = async (req, res, next) => {
   try {
-    const { senderId, receiverId } = req.body;
+    const { members, groupName, groupImg } = req.body;
+    const existedConversation = await Conversation.findOne({
+      members: [...members],
+    }).populate({ path: "members" });
+    if (existedConversation) {
+      return res.status(200).json(existedConversation);
+    }
     const newConversation = new Conversation({
-      members: [senderId, receiverId],
+      members: members.map((mem) => Types.ObjectId(mem)),
+      messages: [],
+      name: groupName,
+      profilePhoto: groupImg,
     });
     await newConversation.save();
-    res.send("Start new conversation!!!");
+    res.status(200).json(await newConversation.populate({ path: "members" }));
   } catch (err) {
     console.error(err);
   }

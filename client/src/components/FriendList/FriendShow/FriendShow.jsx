@@ -1,20 +1,21 @@
 import { useRef, useState, useEffect } from "react";
 import { FiSend } from "react-icons/fi";
 import { FaUndo } from "react-icons/fa";
-
 import {
   FriendColBody,
   AvatarUser,
   FriendName,
   SendBtn,
 } from "./StyledFriendShow.jsx";
+
 const FriendShow = ({
   friend,
   moveToConversationDetail,
   forwardToUserHandler,
+  pushArrayMembers,
+  popArrayMembers,
   type,
 }) => {
-  console.log(friend.status);
   const disabledBtnEl = useRef(null);
   const [undoEl, setUndoEl] = useState(false);
   useEffect(() => {
@@ -37,19 +38,20 @@ const FriendShow = ({
   const undoHandler = () => {
     setUndoEl(!undoEl);
   };
+
   return (
     <FriendColBody
-      onClick={type !== "forward-message" ? moveToConversationDetail : null}
-      className={type !== "forward-message" ? "forward-message" : null}
+      onClick={type === "new-chat" ? moveToConversationDetail : null}
+      className={type === "new-chat" ? "new-chat" : null}
     >
       <AvatarUser status={friend.status}>
         <img src={friend.profilePhoto} alt="User" />
       </AvatarUser>
-      <FriendName type={type}>
+      <FriendName>
         <div className="sendBtn">
           <h6>{friend.fullname}</h6>
           {type === "forward-message" && (
-            <SendBtn onClick={undoHandler}>
+            <SendBtn onClick={undoHandler} className="forward-message">
               <div>
                 {disabledBtnEl.current?.parentElement?.classList?.contains(
                   "un-send"
@@ -72,8 +74,19 @@ const FriendShow = ({
               </button>
             </SendBtn>
           )}
+          {type === "create-group" && (
+            <SendBtn className="create-group">
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  if (e.target.checked) pushArrayMembers(friend._id);
+                  else popArrayMembers(friend._id);
+                }}
+              ></input>
+            </SendBtn>
+          )}
         </div>
-        {type !== "forward-message" && (
+        {type === "new-chat" && (
           <div>
             <p className="status">{friend.status ? "Online" : "Offline"}</p>
           </div>

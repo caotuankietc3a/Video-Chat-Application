@@ -19,6 +19,7 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   const [message, setMessage] = useState("");
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
+  console.log(conversation.status);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
       const data = await res.json();
       timer = setTimeout(() => {
         setIsFetching(false);
-      }, 1250);
+      }, 500);
       setMessages((preMessages) => [...preMessages, ...data]);
     })();
 

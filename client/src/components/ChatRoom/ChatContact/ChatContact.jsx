@@ -8,29 +8,63 @@ import {
   SideBarHeaderContent,
   DropDownChats,
   SearchUserChats,
-  ChatBodyContainer,
+  DropDownMenu,
+  DropDownItem,
 } from "./StyledChatContact";
 import ChatContactLists from "./ChatContactLists";
 import { BsBell, BsSearch } from "react-icons/bs";
 import { BiDotsVerticalRounded } from "react-icons/bi";
-const ChatContact = ({ header }) => {
+const ChatContact = ({ header, isClickedHandler, createGroupHandler }) => {
   const [searchContactItems, setSearchContactItems] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+
+  const menuShowHandler = (e) => {
+    setShowMenu(true);
+  };
+
+  useEffect(() => {
+    const checkIsClickOutside = (e) => {
+      if (showMenu) {
+        setShowMenu(false);
+        createGroupHandler();
+      }
+    };
+    document.addEventListener("click", checkIsClickOutside);
+    return () => {
+      document.removeEventListener("click", checkIsClickOutside);
+    };
+  }, [showMenu]);
+
   return (
     <ChatContactContainer>
       <SideBarHeader>
         <SideBarHeaderContent>
           <h3>{header}</h3>
           <UlBarHeader>
-            <a href="">
+            <div>
               <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
                 <BsBell />
               </LiTag>
-            </a>
-            <a href="">
+            </div>
+            <div onClick={menuShowHandler}>
               <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
                 <BiDotsVerticalRounded />
+
+                {showMenu && (
+                  <DropDownMenu>
+                    <DropDownItem onClick={isClickedHandler}>
+                      <span>New Chat</span>
+                    </DropDownItem>
+                    <DropDownItem onClick={createGroupHandler}>
+                      <span>Create Group</span>
+                    </DropDownItem>
+                    <DropDownItem>
+                      <span>Invite Others</span>
+                    </DropDownItem>
+                  </DropDownMenu>
+                )}
               </LiTag>
-            </a>
+            </div>
           </UlBarHeader>
         </SideBarHeaderContent>
         <SideBarSubHeader>

@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
 import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
+import { conversationActions } from "../../../store/slices/conversation-slice";
 
 const ChatContactLists = ({ searchContactItems, type }) => {
   const [conversations, setConversations] = useState([]);
@@ -13,19 +14,26 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   const [friends, setFriends] = useState([]);
   const [calls, setCalls] = useState([]);
   const [rendering, setRendering] = useState(false);
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { reRender } = useSelector((state) => state.message);
   const contactList = useRef(null);
-  const { socket_video } = useSelector((state) => state.socket);
+  const { socket_notify } = useSelector((state) => state.socket);
 
   useEffect(() => {
-    socket_video.on("log-out", () => {
+    socket_notify.on("log-out", () => {
       setRendering(!rendering);
+      dispatch(conversationActions.setStatus({ status: false }));
+    });
+
+    socket_notify.on("log-in", () => {
+      setRendering(!rendering);
+      dispatch(conversationActions.setStatus({ status: true }));
     });
     return () => {
-      socket_video.off("log-out");
+      socket_notify.off("log-out");
+      socket_notify.off("log-in");
     };
   }, [rendering]);
 
@@ -41,6 +49,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
+        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(
@@ -56,7 +65,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);
-        }, 1250);
+        }, 500);
         // setIsFetching(true);
       } catch (err) {
         console.error(err);

@@ -44,6 +44,7 @@ export const ErrorContent = styled.div`
     p {
       font-size: 20px;
       color: #333333;
+      text-align: center;
     }
   }
 

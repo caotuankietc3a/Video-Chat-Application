@@ -31,16 +31,22 @@ const FriendForm = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
+  const { conversation } = useSelector((state) => state.conversation);
+  console.log(conversation);
   const [isFetching, setIsFetching] = useState(true);
 
   const clickChatHandler = () => {
     dispatch(postNewConversation(user, props.friendDetail, navigate));
   };
 
+  const clickPhoneHandler = async () => {
+    dispatch(postNewConversation(user, props.friendDetail, navigate, true));
+  };
+
   useEffect(() => {
     let timer = setTimeout(() => {
       setIsFetching(false);
-    }, 1250);
+    }, 500);
 
     return () => {
       clearTimeout(timer);
@@ -63,7 +69,7 @@ const FriendForm = (props) => {
                 <div className="chat" onClick={clickChatHandler}>
                   <BsChatDots />
                 </div>
-                <div className="phone">
+                <div className="phone" onClick={clickPhoneHandler}>
                   <FiPhone />
                 </div>
               </FriendFormInfo_Btn>

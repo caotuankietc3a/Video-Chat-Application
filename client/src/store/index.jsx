@@ -8,6 +8,7 @@ import callSlice from "./slices/call-slice";
 import replySlice from "./slices/reply-slice";
 import forwardSlice from "./slices/forward-slice";
 import messageSlice from "./slices/message-slice";
+import errorSlice from "./slices/error-slice";
 
 const store = configureStore({
   middleware: getDefaultMiddleware({
@@ -23,6 +24,7 @@ const store = configureStore({
     reply: replySlice.reducer,
     forward: forwardSlice.reducer,
     message: messageSlice.reducer,
+    error: errorSlice.reducer,
   },
 });
 

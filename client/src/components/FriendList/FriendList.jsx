@@ -5,22 +5,61 @@ import {
   Body,
   SearchBar,
   FriendCol,
+  Footer,
+  GroupName,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { BsSearch } from "react-icons/bs";
 import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
-import { postNewConversation } from "../../store/actions/conversation-function";
+import {
+  postNewConversation,
+  postNewGroupConversation,
+} from "../../store/actions/conversation-function";
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
-const FriendList = ({ isClosedHandler, friends }) => {
+const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   const navigate = useNavigate();
   const [inputText, setInputText] = useState("");
+  const [no_members, setNo_Members] = useState([]);
+  const [groupName, setGroupName] = useState("");
+  const [groupImg, setGroupImg] = useState("");
+  const inputFileEl = useRef(null);
   const { user } = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { socket_chat } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
+
+  const pushArrayMembers = (mem) => {
+    setNo_Members((preMems) => {
+      const index = preMems.findIndex((el) => el === mem);
+      if (index !== -1) return [...preMems];
+      return [...preMems, mem];
+    });
+  };
+
+  const popArrayMembers = (mem) => {
+    setNo_Members((preMems) => {
+      const index = preMems.findIndex((el) => el === mem);
+      if (index !== -1) {
+        preMems.splice(index, 1);
+        return [...preMems];
+      }
+      return [...preMems];
+    });
+  };
+
+  const groupNameHandle = (e) => {
+    setGroupName(e.target.value);
+  };
+  const groupImgHandle = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setGroupImg(reader.result);
+    };
+    reader.readAsDataURL(inputFileEl?.current.files[0]);
+  };
 
   const friendsHandler = (friends, searchText) => {
     return friends
@@ -33,12 +72,20 @@ const FriendList = ({ isClosedHandler, friends }) => {
       .map((friend, i) => (
         <FriendShow
           key={i}
-          type={forward ? "forward-message" : null}
+          type={
+            forward
+              ? "forward-message"
+              : createGroup
+              ? "create-group"
+              : "new-chat"
+          }
           friend={friend}
           moveToConversationDetail={() => moveToConversationDetail(friend)}
           forwardToUserHandler={() => {
             forwardToUserHandler(friend);
           }}
+          pushArrayMembers={pushArrayMembers}
+          popArrayMembers={popArrayMembers}
         />
       ));
   };
@@ -63,19 +110,55 @@ const FriendList = ({ isClosedHandler, friends }) => {
       <Content>
         <Header>
           <div>
-            <h5>{forward ? "Forward" : user.fullname}</h5>
+            <h5>
+              {forward
+                ? "Forward message"
+                : createGroup
+                ? "Create new group"
+                : user.fullname}
+            </h5>
           </div>
           <div className="btn-close" onClick={isClosedHandler}>
             <IoClose />
           </div>
         </Header>
         <Body>
+          {createGroup && (
+            <>
+              <GroupName>
+                <label>Group name</label>
+                <input
+                  type="text"
+                  placeholder="Type group name here"
+                  onChange={groupNameHandle}
+                ></input>
+              </GroupName>
+              <GroupName>
+                <div>
+                  <label className="label">Choose profile picture</label>
+                  <div className="custom-file" onChange={groupImgHandle}>
+                    <label htmlFor="upload-file" className="choose-file">
+                      Choose file
+                    </label>
+                    <input
+                      type="file"
+                      id="upload-file"
+                      hidden={true}
+                      ref={inputFileEl}
+                    ></input>
+                  </div>
+                </div>
+              </GroupName>
+            </>
+          )}
           <SearchBar>
             <input
               type="text"
               placeholder={
                 forward
                   ? "Search user to forward message....."
+                  : createGroup
+                  ? "Search users to create a new group....."
                   : "Search user to start a new conversation....."
               }
               onChange={(e) => setInputText(e.target.value)}
@@ -86,6 +169,32 @@ const FriendList = ({ isClosedHandler, friends }) => {
           </SearchBar>
           <FriendCol>{friendsHandler(friends, inputText)}</FriendCol>
         </Body>
+        {createGroup && (
+          <Footer>
+            <button className="cancel" onClick={isClosedHandler}>
+              Cancel
+            </button>
+            <button
+              className="create-group"
+              onClick={() => {
+                dispatch(
+                  postNewGroupConversation(
+                    navigate,
+                    dispatch,
+                    {
+                      members: no_members,
+                      groupImg,
+                      groupName,
+                    },
+                    isClosedHandler
+                  )
+                );
+              }}
+            >
+              Create Group
+            </button>
+          </Footer>
+        )}
       </Content>
     </Container>
   );

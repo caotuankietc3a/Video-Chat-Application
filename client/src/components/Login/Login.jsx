@@ -37,7 +37,7 @@ const Login = (props) => {
   const [fullname, setFullName] = useState("");
   const [isClicked, setIsClicked] = useState(false);
   const inputEl = useRef(null);
-  const { socket_video } = useSelector((state) => state.socket);
+  const { socket_video, socket_notify } = useSelector((state) => state.socket);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
@@ -53,7 +53,7 @@ const Login = (props) => {
           password,
           confirmpassword,
           profilePhoto: "/images/user-img.jpg",
-          isChecked: inputEl?.current.checked,
+          isChecked: type === "Login" ? inputEl?.current.checked : null,
         },
         END_POINT_SERVER
       );
@@ -66,16 +66,20 @@ const Login = (props) => {
             })
           );
           setIsClicked(false);
-        }, 1250);
+        }, 500);
         return dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       }
+
       setTimeout(() => {
         if (type === "Register") navigate("/auth/login");
-        else if (type === "Login") navigate("/home-chat");
+        else if (type === "Login") {
+          console.log("sdfasdfadfs  fasfa");
+          socket_notify.emit("log-in");
+          navigate("/home-chat");
+        }
         dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-      }, 1250);
+      }, 500);
 
-      socket_video.emit("log-out");
       dispatch(
         userLoginActions.setUserLogin({
           user: data,

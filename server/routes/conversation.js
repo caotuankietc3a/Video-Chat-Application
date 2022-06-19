@@ -1,8 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {postConversation, getConversations, getConversationDetail, postNewMessage, getMessages, postNewConversation} = require('../controllers/conversation');
+const {
+  postNewGroupConversation,
+  getConversations,
+  getConversationDetail,
+  postNewMessage,
+  getMessages,
+  postNewConversation,
+} = require("../controllers/conversation");
 
-router.post("/", postConversation);
+router.post("/new-group-conversation", postNewGroupConversation);
 router.get("/:userId", getConversations);
 router.get("/detail/:conversationId", getConversationDetail);
 router.get("/messages/:conversationId", getMessages);
