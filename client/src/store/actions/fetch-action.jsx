@@ -60,7 +60,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
   };
 };
 
-export const fetchFriends = () => {
+export const fetchFriends = (type = false) => {
   return async (dispatch, getState) => {
     try {
       const { user } = getState().user;
@@ -72,7 +72,38 @@ export const fetchFriends = () => {
           }
         );
         const friends = await resFriends.json();
-        dispatch(friendActions.setFriends({ friend: friends }));
+
+        if (type) {
+          const resGroupConversations = await fetch(
+            `${END_POINT_SERVER}/conversation/${
+              user ? user._id : "error"
+            }?isGroup=${1}`,
+            {
+              credentials: "include",
+            }
+          );
+          let group_conversations = await resGroupConversations.json();
+          group_conversations = group_conversations.map((el) => {
+            return {
+              status: true,
+              fullname: el.name,
+              profilePhoto: el.profilePhoto,
+              isGroup: true,
+              _id: el._id,
+            };
+          });
+          return dispatch(
+            friendActions.setFriends({
+              friend: [...friends, ...group_conversations],
+            })
+          );
+        }
+
+        return dispatch(
+          friendActions.setFriends({
+            friend: [...friends],
+          })
+        );
       }
     } catch (err) {
       console.error(err);

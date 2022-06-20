@@ -20,6 +20,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
 const FriendList = ({ isClosedHandler, friends, createGroup }) => {
+  console.log(friends);
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
   const { user } = useSelector((state) => state.user);
@@ -97,7 +98,6 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
 
   const forwardToUserHandler = (friend) => {
     socket_chat.emit("forward-message", {
-      userId: user._id,
       forward: forward ? { ...forward, forwardee: friend } : null,
     });
     dispatch(

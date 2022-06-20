@@ -4,12 +4,6 @@ const { Types } = require("mongoose");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
-    const existedConversation = await Conversation.findOne({
-      members: [...members],
-    }).populate({ path: "members" });
-    if (existedConversation) {
-      return res.status(200).json(existedConversation);
-    }
     const newConversation = new Conversation({
       members: members.map((mem) => Types.ObjectId(mem)),
       messages: [],
@@ -26,11 +20,23 @@ exports.postNewGroupConversation = async (req, res, next) => {
 exports.getConversations = async (req, res, next) => {
   try {
     const userId = req.params.userId;
+    const { isGroup } = req.query;
     let conversations = [];
     if (userId !== "error") {
-      conversations = await Conversation.find({
-        members: { $in: [userId] },
-      }).populate({ path: "members messages.sender" });
+      if (!parseInt(isGroup)) {
+        conversations = await Conversation.find({
+          members: { $in: [userId] },
+        }).populate({ path: "members messages.sender" });
+      } else {
+        conversations = await Conversation.find({
+          $and: [
+            {
+              $expr: { $gte: [{ $size: "$members" }, 3] },
+            },
+            { members: userId },
+          ],
+        }).populate({ path: "members messages.sender" });
+      }
     }
     res.status(200).json(conversations);
   } catch (err) {
@@ -86,20 +92,29 @@ exports.getMessages = async (req, res, next) => {
   }
 };
 
-const createNewConversation = async (friend, userId) => {
+const findGroupConversation = async (groupId) => {
+  return await Conversation.findById(groupId);
+};
+
+const createNewConversation = async (friend, userId, group = null) => {
   try {
     const existedConversation = await Conversation.findOne({
-      $and: [{ members: [friend._id, userId] }, { members: { $size: 2 } }],
+      $and: [
+        { members: friend._id },
+        { members: userId },
+        { $expr: { $lte: [{ $size: "$members" }, 2] } },
+      ],
     }).populate({ path: "members" });
+
     if (existedConversation) {
-      await existedConversation.save();
       return existedConversation;
     }
-    const newConversation = new Conversation({
+    const newConversation = await new Conversation({
       members: [friend._id, userId],
       messages: [],
     });
     await newConversation.save();
+
     return await newConversation.populate({ path: "members" });
   } catch (err) {
     console.error(err);
@@ -108,8 +123,13 @@ const createNewConversation = async (friend, userId) => {
 
 exports.postNewConversation = async (req, res, _next) => {
   try {
-    const { friend, userId } = req.body;
-    res.status(200).json(await createNewConversation(friend, userId));
+    const { friend, userId, group } = req.body;
+    if (friend.isGroup) {
+      return res.status(200).json(await findGroupConversation(friend._id));
+    }
+    return res
+      .status(200)
+      .json(await createNewConversation(friend, userId, group));
   } catch (err) {
     console.error(err);
   }
@@ -127,26 +147,47 @@ exports.deleteMessage = async (conversationId, text) => {
 
 exports.forwardMessage = async (forwardOb) => {
   try {
-    const conversation = await Conversation.findOneAndUpdate(
-      {
-        $and: [
-          { members: forwardOb.forwarder._id },
-          { members: forwardOb.forwardee._id },
-        ],
-      },
-      {
-        $push: {
-          messages: {
-            text: forwardOb.text,
-            sender: forwardOb.forwarder._id,
-            date: new Date(Date.now()),
-            forward: forwardOb,
+    let conversation = null;
+    if (!forwardOb.forwardee.isGroup) {
+      await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
+      conversation = await Conversation.findOneAndUpdate(
+        {
+          $and: [
+            { members: forwardOb.forwarder._id },
+            { members: forwardOb.forwardee._id },
+            { $expr: { $lte: [{ $size: "$members" }, 2] } },
+          ],
+        },
+        {
+          $push: {
+            messages: {
+              text: forwardOb.text,
+              sender: forwardOb.forwarder._id,
+              date: new Date(Date.now()),
+              forward: forwardOb,
+            },
           },
         },
-      },
-      { new: true }
-    );
-    return await conversation;
+        { new: true }
+      ).populate({ path: "messages.sender" });
+    } else {
+      conversation = await Conversation.findByIdAndUpdate(
+        forwardOb.forwardee._id,
+        {
+          $push: {
+            messages: {
+              text: forwardOb.text,
+              sender: forwardOb.forwarder._id,
+              date: new Date(Date.now()),
+              forward: forwardOb,
+            },
+          },
+        },
+        { new: true }
+      ).populate({ path: "messages.sender" });
+    }
+
+    return conversation;
   } catch (err) {
     console.error(err);
   }

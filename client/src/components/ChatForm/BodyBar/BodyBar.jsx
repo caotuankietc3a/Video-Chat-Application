@@ -15,6 +15,7 @@ const BodyBar = ({ messages, isGroup = false }) => {
         data_label: "",
       };
       if (userState.user._id === mes.sender._id) typeDisplay = "right";
+
       if (
         i === 0 ||
         formatDate(messages[i - 1].date).split(",")[0] !==

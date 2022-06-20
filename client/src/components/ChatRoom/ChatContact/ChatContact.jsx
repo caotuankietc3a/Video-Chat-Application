@@ -26,7 +26,6 @@ const ChatContact = ({ header, isClickedHandler, createGroupHandler }) => {
     const checkIsClickOutside = (e) => {
       if (showMenu) {
         setShowMenu(false);
-        createGroupHandler();
       }
     };
     document.addEventListener("click", checkIsClickOutside);

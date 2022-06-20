@@ -6,16 +6,17 @@ const connectionCallHandler = (navigate, conversation) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
     const { socket_video } = getState().socket;
+    console.log(user);
     socket_video.emit(
       "make-connection-call",
       { conversationId: conversation._id, caller: user },
-      (callee) => {
+      (callees) => {
         dispatch(
           videoActions.setCall({
             call: {
               isReceivedCall: false,
               caller: user,
-              callee: callee,
+              callees: callees,
             },
           })
         );
@@ -31,6 +32,8 @@ const connectionCallHandler = (navigate, conversation) => {
 export const videoStreamStart = (navigate, conversation, type = false) => {
   return async (dispatch, _getState) => {
     try {
+      console.log(conversation);
+      console.log(conversation.status);
       if (!conversation.status && type) {
         return dispatch(
           errorActions.setError({
@@ -40,15 +43,23 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
           })
         );
       }
-      const currentStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      dispatch(videoActions.setStream({ stream: currentStream }));
+      // const currentStream = await navigator.mediaDevices.getUserMedia({
+      //   video: true,
+      //   audio: true,
+      // });
+      // dispatch(videoActions.setStream({ stream: currentStream }));
       if (type === true) {
+        const currentStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        console.log(currentStream);
+        dispatch(videoActions.setStream({ stream: currentStream }));
+        console.log("ddddddddddddddddddddddddddddddddddddddd");
         dispatch(connectionCallHandler(navigate, conversation));
       }
     } catch (err) {
+      console.error(err);
       dispatch(
         errorActions.setError({
           error: {

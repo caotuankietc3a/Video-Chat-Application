@@ -34,8 +34,6 @@ const ChatContactItems = ({
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation);
-  console.log(isGroup);
   const linkTo =
     type !== "Friends"
       ? type === "Calls"

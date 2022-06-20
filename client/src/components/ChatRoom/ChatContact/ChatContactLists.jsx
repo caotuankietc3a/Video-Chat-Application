@@ -50,7 +50,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
-        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(
@@ -66,7 +65,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);
-        }, 500);
+        }, 0);
         // setIsFetching(true);
       } catch (err) {
         console.error(err);
@@ -116,13 +115,24 @@ const ChatContactLists = ({ searchContactItems, type }) => {
     return conversations
       .filter((conversation) => {
         if (searchContactItems === "") return true;
-        if (
-          conversation.name
-            .toLowerCase()
-            .includes(searchContactItems.toLowerCase())
-        )
-          return true;
-
+        if (conversation.members.length <= 2) {
+          const member = conversation?.members.find(
+            (member) => member._id.toString() !== userState.user._id.toString()
+          );
+          if (
+            member.fullname
+              .toLowerCase()
+              .includes(searchContactItems.toLowerCase())
+          )
+            return true;
+        } else {
+          if (
+            conversation.name
+              .toLowerCase()
+              .includes(searchContactItems.toLowerCase())
+          )
+            return true;
+        }
         return false;
       })
       .map((conversation, i) => {
@@ -130,13 +140,14 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           const member = conversation?.members.find(
             (member) => member._id.toString() !== userState.user._id.toString()
           );
+          conversation.name = member?.fullname;
           return (
             <ChatContactItems
               key={i}
               id={conversation._id}
               conversation={conversation}
               type={type}
-              status={member.status}
+              status={member?.status}
             />
           );
         } else {

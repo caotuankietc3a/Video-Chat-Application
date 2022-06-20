@@ -23,7 +23,6 @@ import {
 } from "../../store/actions/video-chat-function";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { videoActions } from "../../store/slices/video-chat-slice";
 
 function MeetingForm({ conversation }) {
   console.log("MeetingForm running");
@@ -33,9 +32,13 @@ function MeetingForm({ conversation }) {
     call: { isReceivedCall, caller, callee },
     stream,
   } = useSelector((state) => state.video);
+  console.log(isReceivedCall);
+  console.log(caller);
+  console.log(callee);
   const { socket_video } = useSelector((state) => state.socket);
 
   useEffect(() => {
+    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     if (stream && !isReceivedCall) {
       dispatch(callUser());
     }
@@ -48,7 +51,7 @@ function MeetingForm({ conversation }) {
       // depend on stream (null or not)
       socket_video.off("reject-call");
     };
-  }, [stream, isReceivedCall]);
+  }, [isReceivedCall]);
 
   useEffect(() => {
     if (isReceivedCall) {

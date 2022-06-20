@@ -19,7 +19,6 @@ const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
-const { createNewConversation } = require("./controllers/conversation");
 const {
   deleteMessage,
   forwardMessage,
@@ -95,7 +94,6 @@ io_chat.on("connection", (socket) => {
   });
 
   socket.on("forward-message", async ({ forward }) => {
-    await createNewConversation(forward.forwardee, forward.forwarder._id);
     const conversation = await forwardMessage(forward);
     io_chat.to(conversation._id.toString()).emit("forward-message", {
       messageOb: conversation.messages[conversation.messages.length - 1],
@@ -121,17 +119,19 @@ io_video.on("connection", (socket) => {
     const conversation = await Conversation.findById(conversationId).populate({
       path: "members",
     });
-    const callee = conversation.members.find(
-      (user) => user._id.toString() !== caller._id
+    const callees = conversation.members.filter(
+      (user) => user._id.toString() !== caller._id.toString()
     );
-    cb(callee);
+    cb(callees);
+    const index = callees.findIndex((el) => el.status === true);
 
     // sending to all clients except sender
     socket.broadcast.to(conversationId).emit("make-connection-call", {
       conversationId,
       conversation,
       caller,
-      callee,
+      callees,
+      status: index !== -1 ? true : false,
     });
   });
 

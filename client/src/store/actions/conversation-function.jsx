@@ -10,39 +10,59 @@ export const postNewConversation = (
   type = false
 ) => {
   return async (dispatch) => {
+    console.log(friendDetail);
     const conversation = await postData(
       { friend: friendDetail, userId: user._id },
       `${END_POINT_SERVER}/conversation/new-conversation`
     );
-    const member = conversation.members.find(
-      (member) => member._id !== user._id
-    );
-    dispatch(
-      conversationActions.setConversation({
-        conversation: {
-          _id: conversation._id,
-          members: conversation.members,
-          name: member.fullname,
-          status: member.status,
-          profilePhoto: member.profilePhoto,
-        },
-      })
-    );
-    navigate(`/home-chat/conversation/detail/${conversation._id}`);
-    if (type) {
+    console.log(conversation);
+    if (friendDetail.isGroup) {
       dispatch(
-        videoStreamStart(
-          navigate,
-          {
+        conversationActions.setConversation({
+          conversation: {
+            _id: conversation._id,
+            members: conversation.members,
+            name: conversation.name,
+            status: true,
+            profilePhoto: conversation.profilePhoto,
+            no_mems: conversation.members.length,
+          },
+        })
+      );
+    } else {
+      const member = conversation.members.find(
+        (member) => member._id !== user._id
+      );
+      dispatch(
+        conversationActions.setConversation({
+          conversation: {
             _id: conversation._id,
             members: conversation.members,
             name: member.fullname,
             status: member.status,
+            profilePhoto: member.profilePhoto,
           },
-          true
-        )
+        })
       );
     }
+    setTimeout(() => {
+      navigate(`/home-chat/conversation/detail/${conversation._id}`);
+    }, 500);
+
+    // if (type) {
+    //   dispatch(
+    //     videoStreamStart(
+    //       navigate,
+    //       {
+    //         _id: conversation._id,
+    //         members: conversation.members,
+    //         name: member.fullname,
+    //         status: member.status,
+    //       },
+    //       true
+    //     )
+    //   );
+    // }
   };
 };
 

@@ -144,7 +144,9 @@ const Message = ({
 
         <MessageWrapper type={type}>
           <div>
-            {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
+            {!forward && isGroup && type === "left" && (
+              <h6>{sender.fullname}</h6>
+            )}
             <span>{text}</span>
           </div>
         </MessageWrapper>
