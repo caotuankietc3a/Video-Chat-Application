@@ -24,6 +24,7 @@ export const postNewConversation = (
           members: conversation.members,
           name: member.fullname,
           status: member.status,
+          profilePhoto: member.profilePhoto,
         },
       })
     );
@@ -78,6 +79,8 @@ export const postNewGroupConversation = (
           _id: group_conversation._id,
           members: group_conversation.members,
           name: group_conversation.name,
+          profilePhoto: group_conversation.profilePhoto,
+          no_mems: group_conversation.members.length,
           status: true,
         },
       })

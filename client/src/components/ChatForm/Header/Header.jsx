@@ -14,12 +14,18 @@ const Header = ({ conversation, onClickVideoCall }) => {
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
-        <AvatarUser status={conversation.status}>
-          <img src="/images/user-img.jpg" alt="" />
+        <AvatarUser status={conversation.status ? true : false}>
+          <img src={`${conversation.profilePhoto}`} alt="" />
         </AvatarUser>
         <Media>
           <h6 className="text-truncate">{conversation.name}</h6>
-          <small>{conversation.status ? "Online" : "Offline"}</small>
+          <small>
+            {conversation.no_mems
+              ? `${conversation.no_mems} participants`
+              : conversation.status
+              ? "Online"
+              : "Offline"}
+          </small>
         </Media>
       </ChatHeaderAvatar>
       <UlChatHeaderOptions>

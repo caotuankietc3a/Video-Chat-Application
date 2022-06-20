@@ -8,6 +8,7 @@ import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItem
 import { conversationActions } from "../../../store/slices/conversation-slice";
 
 const ChatContactLists = ({ searchContactItems, type }) => {
+  console.log("ChatContactLists running!!!");
   const [conversations, setConversations] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -115,31 +116,41 @@ const ChatContactLists = ({ searchContactItems, type }) => {
     return conversations
       .filter((conversation) => {
         if (searchContactItems === "") return true;
-        const member = conversation?.members.find(
-          (member) => member._id !== userState.user._id
-        );
         if (
-          member.fullname
+          conversation.name
             .toLowerCase()
             .includes(searchContactItems.toLowerCase())
         )
           return true;
+
         return false;
       })
       .map((conversation, i) => {
-        const member = conversation?.members.find(
-          (member) => member._id.toString() !== userState.user._id.toString()
-        );
-        conversation.name = member.fullname;
-        return (
-          <ChatContactItems
-            key={i}
-            id={conversation._id}
-            conversation={conversation}
-            type={type}
-            status={member.status}
-          />
-        );
+        if (conversation.members.length <= 2) {
+          const member = conversation?.members.find(
+            (member) => member._id.toString() !== userState.user._id.toString()
+          );
+          return (
+            <ChatContactItems
+              key={i}
+              id={conversation._id}
+              conversation={conversation}
+              type={type}
+              status={member.status}
+            />
+          );
+        } else {
+          return (
+            <ChatContactItems
+              key={i}
+              id={conversation._id}
+              conversation={conversation}
+              type={type}
+              status={true}
+              isGroup={true}
+            />
+          );
+        }
       });
   };
 

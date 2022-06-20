@@ -21,15 +21,15 @@ import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
 const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   const navigate = useNavigate();
-  const [inputText, setInputText] = useState("");
-  const [no_members, setNo_Members] = useState([]);
-  const [groupName, setGroupName] = useState("");
-  const [groupImg, setGroupImg] = useState("");
   const inputFileEl = useRef(null);
   const { user } = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { socket_chat } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
+  const [inputText, setInputText] = useState("");
+  const [no_members, setNo_Members] = useState([user._id]);
+  const [groupName, setGroupName] = useState("");
+  const [groupImg, setGroupImg] = useState("");
 
   const pushArrayMembers = (mem) => {
     setNo_Members((preMems) => {

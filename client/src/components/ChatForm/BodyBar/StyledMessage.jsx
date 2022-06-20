@@ -111,6 +111,15 @@ export const MessageWrapper = styled.div`
     font-size: 0.875rem;
     overflow-wrap: break-word;
   }
+
+  & h6 {
+    color: #f8f9fa;
+    font-size: 0.875rem;
+    margin: 0;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
 `;
 
 export const MessageOptions = styled.div`

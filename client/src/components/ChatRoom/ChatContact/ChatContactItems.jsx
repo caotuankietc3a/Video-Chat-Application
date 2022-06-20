@@ -30,9 +30,12 @@ const ChatContactItems = ({
   displayChar = null,
   fullname,
   status,
+  isGroup = false,
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(conversation);
+  console.log(isGroup);
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
@@ -48,6 +51,7 @@ const ChatContactItems = ({
           `${END_POINT_SERVER}/conversation/detail/` + id
         );
         const conversation = await res.json();
+
         if (conversation.members.length === 2) {
           const member = conversation.members.find(
             (member) => member._id !== userState.user._id
@@ -58,7 +62,21 @@ const ChatContactItems = ({
                 _id: conversation._id,
                 members: conversation.members,
                 name: member.fullname,
+                profilePhoto: member.profilePhoto,
                 status: member.status,
+              },
+            })
+          );
+        } else {
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: conversation.name,
+                no_mems: conversation.members.length,
+                profilePhoto: conversation.profilePhoto,
+                status: true,
               },
             })
           );
@@ -145,6 +163,10 @@ const ChatContactItems = ({
               ) : (
                 type === "Chats" && (
                   <span className={isActive ? "active" : "inactive"}>
+                    {isGroup &&
+                      conversation.messages.length - 1 !== -1 &&
+                      conversation.messages[conversation.messages.length - 1]
+                        .sender.fullname + ": "}
                     {conversation.messages.length - 1 !== -1
                       ? conversation.messages[conversation.messages.length - 1]
                           .text

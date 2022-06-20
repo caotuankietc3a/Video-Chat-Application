@@ -5,7 +5,7 @@ import { MessagesBodyContainer, MessagesBodyContent } from "./StyledBodyMsg";
 import { useSelector } from "react-redux";
 import { formatDate } from "../../../store/actions/common-function";
 
-const BodyBar = ({ messages }) => {
+const BodyBar = ({ messages, isGroup = false }) => {
   const userState = useSelector((state) => state.user);
   const bodyMessagesDisplay = (messages, formatDate) => {
     return messages.map((mes, i) => {
@@ -14,7 +14,7 @@ const BodyBar = ({ messages }) => {
         divider: false,
         data_label: "",
       };
-      if (userState.user._id === mes.senderId) typeDisplay = "right";
+      if (userState.user._id === mes.sender._id) typeDisplay = "right";
       if (
         i === 0 ||
         formatDate(messages[i - 1].date).split(",")[0] !==
@@ -32,6 +32,8 @@ const BodyBar = ({ messages }) => {
           mesDivider={mesDivider}
           reply={mes.reply}
           forward={mes.forward}
+          sender={mes.sender}
+          isGroup={isGroup}
         />
       );
     });

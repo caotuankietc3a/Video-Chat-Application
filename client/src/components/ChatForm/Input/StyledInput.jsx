@@ -71,6 +71,9 @@ export const ReplyMessageContainer = styled.div`
   padding: 0.75rem 2.25rem;
   background-color: #323333;
   border-top: 1px solid #343a40;
+  @media screen and (max-width: 1200px) {
+    width: 100%;
+  }
 `;
 
 export const ReplyMessageContent = styled.div`

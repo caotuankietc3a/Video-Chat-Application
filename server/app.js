@@ -24,6 +24,7 @@ const {
   deleteMessage,
   forwardMessage,
 } = require("./controllers/conversation.js");
+const User = require("./models/user");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -62,13 +63,25 @@ io_chat.on("connection", (socket) => {
     console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
-  socket.on("send-message", ({ userId, message, conversationId, reply }) => {
-    io_chat.to(conversationId).emit("receive-message", {
-      text: message,
-      reply,
-      userId: userId,
-    });
-  });
+  socket.on(
+    "send-message",
+    async ({ userId, message, conversationId, reply }) => {
+      const sender = await User.findById(userId);
+      io_chat.to(conversationId).emit("receive-message", {
+        text: message,
+        reply,
+        userId: userId,
+        sender,
+      });
+    }
+  );
+
+  // socket.on("send-group-message", ({conversationId, message, }) => {
+  //   io_chat.to(conversationId).emit("receive-group-message", {
+  //     text: message,
+  //     userId: userId,
+  //   });
+  // });
 
   socket.on("leave-chat", ({ conversationId }) => {
     socket.leave(conversationId);

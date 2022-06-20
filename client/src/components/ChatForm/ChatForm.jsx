@@ -19,7 +19,7 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   const [message, setMessage] = useState("");
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
-  console.log(conversation.status);
+  console.log(conversation);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   useEffect(() => {
@@ -32,6 +32,7 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
         }
       );
       const data = await res.json();
+      console.log(data);
       timer = setTimeout(() => {
         setIsFetching(false);
       }, 500);
@@ -46,12 +47,12 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   useEffect(() => {
     socket_chat.emit("join-chat", { conversationId: conversation._id });
 
-    socket_chat.on("receive-message", ({ text, userId, reply }) => {
+    socket_chat.on("receive-message", ({ text, sender, reply }) => {
       setMessages((preMessages) => [
         ...preMessages,
         {
           text: text,
-          senderId: userId,
+          sender,
           reply,
           date: new Date(Date.now()),
         },
@@ -123,7 +124,14 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   return (
     <ChatFormContainer>
       <Header conversation={conversation} onClickVideoCall={clickVideoCall} />
-      {isFetching ? <TikTokSpinner /> : <BodyBar messages={messages} />}
+      {isFetching ? (
+        <TikTokSpinner />
+      ) : (
+        <BodyBar
+          messages={messages}
+          isGroup={conversation.no_mems ? true : false}
+        />
+      )}
       <Input
         clickHandler={onClickHandler}
         message={message}

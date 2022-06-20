@@ -37,6 +37,8 @@ const Message = ({
   mesDivider: { divider, data_label },
   reply,
   forward,
+  sender,
+  isGroup,
 }) => {
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
@@ -58,7 +60,11 @@ const Message = ({
       replyActions.setReply({
         reply: {
           text,
-          replyee: type === "right" ? user.fullname : conversation.name,
+          replyee: isGroup
+            ? sender.fullname
+            : type === "right"
+            ? user.fullname
+            : conversation.name,
           replyer: user.fullname,
         },
       })
@@ -96,7 +102,17 @@ const Message = ({
               </div>
               <div className="text">
                 {type === "right" ? "You" : reply.replyer} replied to{" "}
-                {type === "right"
+                {isGroup
+                  ? type === "right"
+                    ? reply.replyee === user.fullname
+                      ? "yourself"
+                      : reply.replyee
+                    : reply.replyee === user.fullname
+                    ? "you"
+                    : reply.replyee === reply.replyer
+                    ? "themseft"
+                    : reply.replyee
+                  : type === "right"
                   ? reply.replyee === user.fullname
                     ? "yourself"
                     : reply.replyee
@@ -128,6 +144,7 @@ const Message = ({
 
         <MessageWrapper type={type}>
           <div>
+            {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
             <span>{text}</span>
           </div>
         </MessageWrapper>

@@ -17,7 +17,7 @@ const conversationSchema = new Schema({
   ],
   messages: [
     {
-      senderId: {
+      sender: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
