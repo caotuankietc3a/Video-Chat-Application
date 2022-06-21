@@ -13,7 +13,6 @@ const initialState = {
     caller: null,
     callees: null,
     signal: null,
-    isGroup: false,
   },
 };
 

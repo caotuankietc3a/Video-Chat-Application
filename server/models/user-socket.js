@@ -13,9 +13,17 @@ class User_Socket {
     const index = users.findIndex(
       (user) => user.userId === userId && user.conversationId === conversationId
     );
-    console.log(index);
     if (index !== -1) {
       users.splice(index, 1);
+    }
+  }
+
+  static removeUsersInRoom(conversationId) {
+    for (let i = 0; i < users.length; i++) {
+      if (users[i].conversationId.toString() === conversationId.toString()) {
+        users.splice(i, 1);
+        i--;
+      }
     }
   }
 

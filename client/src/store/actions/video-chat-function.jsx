@@ -39,8 +39,6 @@ export const videoStreamStart = (
 ) => {
   return async (dispatch, _getState) => {
     try {
-      console.log(conversation);
-      console.log(conversation.status);
       if (!conversation.status && type) {
         return dispatch(
           errorActions.setError({

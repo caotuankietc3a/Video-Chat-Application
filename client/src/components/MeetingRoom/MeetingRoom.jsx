@@ -53,14 +53,11 @@ const MeetingRoom = (props) => {
     userStream,
     showVideo,
     showUserVideo,
-    call: { callees, caller, group },
+    call: { callees, caller },
   } = useSelector((state) => state.video);
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
-  console.log(group);
-  console.log(callees);
-  console.log(caller);
   // console.log("showVideo: ", showVideo);
   // console.log("showUserVideo: ", showUserVideo);
   // console.log("showUserStream: ", userStream);
@@ -110,26 +107,29 @@ const MeetingRoom = (props) => {
     };
   }, [showUserVideo, muted]);
 
-  // const phoneOffHandler = () => {
-  //   socket_video.emit("leave-meeting-room", {
-  //     conversationId: conversation._id,
-  //     callerId: caller._id,
-  //     calleeId: callee._id,
-  //   });
-  // };
-  //
-  // const toggleVideoHandler = () => {
-  //   socket_video.emit("toggle-video", {
-  //     conversationId: conversation._id,
-  //   });
-  //   dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
-  // };
+  const phoneOffHandler = () => {
+    socket_video.emit("leave-meeting-room", {
+      conversationId: conversation._id,
+      callerId: caller._id,
+      calleeId: callees[0]._id,
+    });
+  };
+
+  const toggleVideoHandler = () => {
+    socket_video.emit("toggle-video", {
+      conversationId: conversation._id,
+    });
+    dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
+  };
+  console.log(conversation.members);
+  console.log(showTopControls);
 
   const returnPeerHandler = (
     { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
+    conversation,
     isShowTop = false
   ) => {
-    return callees.map((peer, i) => (
+    return conversation.members.map((peer, i) => (
       <Fragment key={i}>
         {isShowTop ? (
           <Peer
@@ -167,14 +167,14 @@ const MeetingRoom = (props) => {
     setIsFullScreen(!isFullScreen);
   };
 
-  // const makeMutedAudio = (e) => {
-  //   socket_video.emit("toggle-muted", { conversationId: conversation._id });
-  //   setToggleMuted(!toggleMuted);
-  // };
-  //
-  // const shareScreenHandler = async () => {
-  //   dispatch(shareScreen());
-  // };
+  const makeMutedAudio = (e) => {
+    socket_video.emit("toggle-muted", { conversationId: conversation._id });
+    setToggleMuted(!toggleMuted);
+  };
+
+  const shareScreenHandler = async () => {
+    dispatch(shareScreen());
+  };
 
   return (
     <MeetingContainer>
@@ -190,16 +190,16 @@ const MeetingRoom = (props) => {
 
         {showTopControls && (
           <Peers>
-            <Peer
-              type="main-peer"
-              padding="10px 0"
-              fontsize="11px"
-              heightImg="40px"
-              widthImg="40px"
-              userImg={user.profilePhoto}
-              name={user.fullname}
-              isTurnOnAudio={false}
-            />
+            {/* <Peer */}
+            {/*   type="main-peer" */}
+            {/*   padding="10px 0" */}
+            {/*   fontsize="11px" */}
+            {/*   heightImg="40px" */}
+            {/*   widthImg="40px" */}
+            {/*   userImg={user.profilePhoto} */}
+            {/*   name={user.fullname} */}
+            {/*   isTurnOnAudio={false} */}
+            {/* /> */}
 
             {!showUserVideo ? (
               returnPeerHandler(
@@ -211,6 +211,7 @@ const MeetingRoom = (props) => {
                   widthImg: "40px",
                   isTurnOnAudio: false,
                 },
+                conversation,
                 showTopControls
               )
             ) : (
@@ -246,6 +247,7 @@ const MeetingRoom = (props) => {
                 widthImg: "120px",
                 isTurnOnAudio: false,
               },
+              conversation,
               showTopControls
             )
           ) : (
@@ -263,26 +265,27 @@ const MeetingRoom = (props) => {
               widthImg: "120px",
               isTurnOnAudio: false,
             },
+            conversation,
             showTopControls
           )
         )}
 
         <MeetingBottomControls>
-          {/* <FunctionControls onClick={toggleVideoHandler}> */}
-          {/*   {showVideo ? <FiVideo /> : <FiVideoOff />} */}
-          {/* </FunctionControls> */}
-          {/* <FunctionControls onClick={makeMutedAudio}> */}
-          {/*   {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />} */}
-          {/* </FunctionControls> */}
-          {/* <FunctionControls onClick={shareScreenHandler}> */}
-          {/*   <CgScreen /> */}
-          {/* </FunctionControls> */}
-          {/* <FunctionControls className="phone_off" onClick={phoneOffHandler}> */}
-          {/*   <FiPhoneOff /> */}
-          {/* </FunctionControls> */}
-          {/* <FunctionControls> */}
-          {/*   <FiUserPlus /> */}
-          {/* </FunctionControls> */}
+          <FunctionControls onClick={toggleVideoHandler}>
+            {showVideo ? <FiVideo /> : <FiVideoOff />}
+          </FunctionControls>
+          <FunctionControls onClick={makeMutedAudio}>
+            {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
+          </FunctionControls>
+          <FunctionControls onClick={shareScreenHandler}>
+            <CgScreen />
+          </FunctionControls>
+          <FunctionControls className="phone_off" onClick={phoneOffHandler}>
+            <FiPhoneOff />
+          </FunctionControls>
+          <FunctionControls>
+            <FiUserPlus />
+          </FunctionControls>
           <FunctionControls onClick={makeFullScreen}>
             {isFullScreen ? <RiFullscreenFill /> : <RiFullscreenExitFill />}
           </FunctionControls>

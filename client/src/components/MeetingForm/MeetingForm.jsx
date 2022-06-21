@@ -46,12 +46,14 @@ function MeetingForm({ conversation }) {
       dispatch(callUser());
     }
 
-    socket_video.on("reject-call", () => {
+    socket_video.on("reject-call", ({ error }) => {
       dispatch(rejectCall(navigate));
 
       dispatch(
         errorActions.setError({
-          error: "There is no user accepting the call!!!",
+          error: !error
+            ? "There is no user accepting the call!!!"
+            : "Caller canceled the call!!!",
         })
       );
     });
@@ -78,6 +80,7 @@ function MeetingForm({ conversation }) {
     socket_video.emit("reject-call", {
       conversationId: conversation._id,
       userId: user._id,
+      isReceivedCall,
     });
 
     dispatch(rejectCall(navigate));
@@ -129,8 +132,8 @@ function MeetingForm({ conversation }) {
           {group
             ? group?.groupName
             : isReceivedCall
-            ? callees[0]?.fullname
-            : caller?.fullname}
+            ? caller?.fullname
+            : callees[0]?.fullname}
         </p>
         <MeetingPicture>
           <MeetingImgWrapper>

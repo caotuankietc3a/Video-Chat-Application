@@ -120,7 +120,6 @@ io_video.on("connection", (socket) => {
       const callees = conversation.members.filter(
         (user) => user._id.toString() !== caller._id.toString()
       );
-      console.log(callees);
 
       callees
         .filter((callee) => callee.status)
@@ -130,7 +129,6 @@ io_video.on("connection", (socket) => {
             conversationId,
           });
         });
-      console.log(User_Socket.getUsersInRoom(conversationId));
 
       cb(callees, conversation.name, conversation.profilePhoto);
       const index = callees.findIndex((el) => el.status === true);
@@ -160,16 +158,26 @@ io_video.on("connection", (socket) => {
   //   }
   // );
 
-  socket.on("reject-call", ({ conversationId, userId }) => {
-    console.log(userId);
+  socket.on("reject-call", ({ conversationId, userId, isReceivedCall }) => {
+    console.log(isReceivedCall);
+    if (!isReceivedCall) {
+      User_Socket.removeUsersInRoom(conversationId);
+      return io_video
+        .to(conversationId.toString())
+        .emit("reject-call", { error: true });
+    }
+
     User_Socket.removeUser({
       conversationId: conversationId.toString(),
       userId: userId.toString(),
     });
-    console.log(User_Socket.getUsersInRoom(conversationId));
     if (User_Socket.getNo_UsersInRoom(conversationId) === 0) {
-      io_video.to(conversationId.toString()).emit("reject-call");
+      io_video
+        .to(conversationId.toString())
+        .emit("reject-call", { error: false });
     }
+
+    console.log(User_Socket.getUsersInRoom(conversationId));
   });
 
   socket.on("call-user", ({ conversationId, signal }) => {
