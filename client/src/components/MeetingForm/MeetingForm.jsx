@@ -30,15 +30,14 @@ function MeetingForm({ conversation }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
-    call: { isReceivedCall, caller, callees, group },
+    call: { isReceivedCall, caller, callee, group },
     stream,
   } = useSelector((state) => state.video);
-  const { user } = useSelector((state) => state.user);
-  console.log(user);
-  console.log(isReceivedCall);
-  console.log(caller);
-  console.log(callees);
-  console.log(group);
+  // const { user } = useSelector((state) => state.user);
+  // console.log(user);
+  // console.log(isReceivedCall);
+  // console.log(callee);
+  // console.log(group);
   const { socket_video } = useSelector((state) => state.socket);
 
   useEffect(() => {
@@ -51,9 +50,7 @@ function MeetingForm({ conversation }) {
 
       dispatch(
         errorActions.setError({
-          error: !error
-            ? "There is no user accepting the call!!!"
-            : "Caller canceled the call!!!",
+          error,
         })
       );
     });
@@ -79,7 +76,6 @@ function MeetingForm({ conversation }) {
   const rejectCallHandler = () => {
     socket_video.emit("reject-call", {
       conversationId: conversation._id,
-      userId: user._id,
       isReceivedCall,
     });
 
@@ -91,7 +87,7 @@ function MeetingForm({ conversation }) {
   //     conversationId: conversation._id,
   //     callAccepted: false,
   //     caller,
-  //     callees,
+  //     callee,
   //     date: new Date(Date.now()),
   //   });
   //
@@ -103,7 +99,7 @@ function MeetingForm({ conversation }) {
       conversationId: conversation._id,
       callAccepted: true,
       caller,
-      callees,
+      callee,
       date: new Date(Date.now()),
     });
     dispatch(answerCall(socket_video, true));
@@ -114,7 +110,7 @@ function MeetingForm({ conversation }) {
       conversationId: conversation._id,
       callAccepted: true,
       caller,
-      callees,
+      callee,
     });
     dispatch(answerCall(socket_video, false));
   };
@@ -133,7 +129,7 @@ function MeetingForm({ conversation }) {
             ? group?.groupName
             : isReceivedCall
             ? caller?.fullname
-            : callees[0]?.fullname}
+            : callee?.fullname}
         </p>
         <MeetingPicture>
           <MeetingImgWrapper>
@@ -142,7 +138,7 @@ function MeetingForm({ conversation }) {
                 group
                   ? group?.groupImg
                   : isReceivedCall
-                  ? callees[0]?.profilePhoto
+                  ? callee?.profilePhoto
                   : caller?.profilePhoto
               }
               alt=""

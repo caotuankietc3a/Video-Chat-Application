@@ -5,13 +5,12 @@ const meetingSchema = new Schema({
     ref: "User",
     required: true,
   },
-  callees: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  ],
+
+  callee: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   // stream: {
   //   type: Schema.Types.Mixed,
   //   default: {},

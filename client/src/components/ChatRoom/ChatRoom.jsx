@@ -64,7 +64,7 @@ const ChatRoom = (props) => {
   useEffect(() => {
     socket_video.on(
       "make-connection-call",
-      ({ conversationId, conversation, caller, callees, status, group }) => {
+      ({ conversationId, conversation, caller, callee, status, group }) => {
         dispatch(
           conversationActions.setConversation({
             conversation: {
@@ -83,7 +83,7 @@ const ChatRoom = (props) => {
             call: {
               isReceivedCall: true,
               caller,
-              callees,
+              callee,
               signal: null,
               group: group,
             },

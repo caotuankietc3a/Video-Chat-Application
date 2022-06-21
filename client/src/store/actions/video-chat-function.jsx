@@ -2,22 +2,20 @@ import Peer from "simple-peer";
 import { errorActions } from "../slices/error-slice";
 import { videoActions } from "../slices/video-chat-slice";
 
-const connectionCallHandler = (navigate, conversation, isGroup) => {
+const connectionCallHandler = (navigate, conversation) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
     const { socket_video } = getState().socket;
-    console.log(user);
     socket_video.emit(
       "make-connection-call",
-      { conversationId: conversation._id, caller: user, isGroup },
-      (callees, groupName, groupImg) => {
+      { conversationId: conversation._id, caller: user },
+      (callee) => {
         dispatch(
           videoActions.setCall({
             call: {
               isReceivedCall: false,
               caller: user,
-              callees: callees,
-              group: isGroup ? { groupName, groupImg } : null,
+              callee: callee,
               signal: null,
             },
           })
@@ -31,12 +29,7 @@ const connectionCallHandler = (navigate, conversation, isGroup) => {
   };
 };
 
-export const videoStreamStart = (
-  navigate,
-  conversation,
-  type = false,
-  isGroup = false
-) => {
+export const videoStreamStart = (navigate, conversation, type = false) => {
   return async (dispatch, _getState) => {
     try {
       if (!conversation.status && type) {
@@ -52,13 +45,8 @@ export const videoStreamStart = (
       });
       dispatch(videoActions.setStream({ stream: currentStream }));
       if (type === true) {
-        // const currentStream = await navigator.mediaDevices.getUserMedia({
-        //   video: true,
-        //   audio: true,
-        // });
-        // console.log(currentStream);
         dispatch(videoActions.setStream({ stream: currentStream }));
-        dispatch(connectionCallHandler(navigate, conversation, isGroup));
+        dispatch(connectionCallHandler(navigate, conversation));
       }
     } catch (err) {
       console.error(err);
@@ -170,7 +158,9 @@ export const rejectCall = (navigate) => {
       // connection.current.on("close", () => {
       //   connection.current.destroy();
       // });
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   };
 };
 

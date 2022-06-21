@@ -118,9 +118,11 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
 
   const clickVideoCall = async (e) => {
     e.preventDefault();
-    if (conversation.no_mems)
-      return dispatch(videoStreamStart(navigate, conversation, true, true));
-    return dispatch(videoStreamStart(navigate, conversation, true));
+    if (conversation.no_mems) {
+      return;
+    }
+    //   return dispatch(videoStreamStart(navigate, conversation, true, true));
+    dispatch(videoStreamStart(navigate, conversation, true));
   };
 
   return (

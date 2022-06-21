@@ -28,14 +28,9 @@ import {
 } from "./StyledMeetingRoom";
 import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
-import {
-  leaveMeetingRoom,
-  shareScreen,
-  videoStreamStart,
-} from "../../store/actions/video-chat-function";
 
-const MeetingRoom = (props) => {
-  console.log("MeetingRoom running");
+const MeetingGroupRoom = (props) => {
+  console.log("MeetingGroupRoom running");
   const [showTopControls, setShowTopControls] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [muted, setMuted] = useState(false);
@@ -46,7 +41,6 @@ const MeetingRoom = (props) => {
   const navigate = useNavigate();
   const { socket_video } = useSelector((state) => state.socket);
   const { conversation } = useSelector((state) => state.conversation);
-  const { user } = useSelector((state) => state.user);
 
   const {
     stream,

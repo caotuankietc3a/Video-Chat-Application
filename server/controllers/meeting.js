@@ -5,7 +5,7 @@ exports.getMeetings = async (req, res, _next) => {
     const { userId } = req.query;
     const meetings = await Meeting.find({
       $or: [{ caller: userId }, { callee: userId }],
-    }).populate({ path: "caller callees" });
+    }).populate({ path: "caller callee" });
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
@@ -42,7 +42,7 @@ exports.getMeetingDetail = async (req, res, next) => {
         { $or: [{ caller: id }, { callee: id }] },
         { $or: [{ caller: userId }, { callee: userId }] },
       ],
-    }).populate({ path: "caller callees" });
+    }).populate({ path: "caller callee" });
     const reversed_meetings = meetings.reverse();
     res.status(200).json({ calls_detail: reversed_meetings, callee: callee });
   } catch (err) {
@@ -50,11 +50,11 @@ exports.getMeetingDetail = async (req, res, next) => {
   }
 };
 
-exports.saveMeeting = async (caller, callees, date, callAccepted) => {
+exports.saveMeeting = async (caller, callee, date, callAccepted) => {
   try {
     const newMeeting = new Meeting({
       caller,
-      callees,
+      callee,
       date,
       callAccepted,
     });

@@ -9,6 +9,7 @@ import replySlice from "./slices/reply-slice";
 import forwardSlice from "./slices/forward-slice";
 import messageSlice from "./slices/message-slice";
 import errorSlice from "./slices/error-slice";
+import videoGroupSlice from "./slices/video-group-slice";
 
 const store = configureStore({
   middleware: getDefaultMiddleware({
@@ -19,6 +20,7 @@ const store = configureStore({
     conversation: conversationSlice.reducer,
     friend: friendSlice.reducer,
     video: videoSlice.reducer,
+    videoGroup: videoGroupSlice.reducer,
     socket: socketSlice.reducer,
     call: callSlice.reducer,
     reply: replySlice.reducer,
