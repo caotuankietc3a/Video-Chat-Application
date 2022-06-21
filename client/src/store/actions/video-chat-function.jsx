@@ -2,21 +2,23 @@ import Peer from "simple-peer";
 import { errorActions } from "../slices/error-slice";
 import { videoActions } from "../slices/video-chat-slice";
 
-const connectionCallHandler = (navigate, conversation) => {
+const connectionCallHandler = (navigate, conversation, isGroup) => {
   return async (dispatch, getState) => {
     const { user } = getState().user;
     const { socket_video } = getState().socket;
     console.log(user);
     socket_video.emit(
       "make-connection-call",
-      { conversationId: conversation._id, caller: user },
-      (callees) => {
+      { conversationId: conversation._id, caller: user, isGroup },
+      (callees, groupName, groupImg) => {
         dispatch(
           videoActions.setCall({
             call: {
               isReceivedCall: false,
               caller: user,
               callees: callees,
+              group: isGroup ? { groupName, groupImg } : null,
+              signal: null,
             },
           })
         );
@@ -29,7 +31,12 @@ const connectionCallHandler = (navigate, conversation) => {
   };
 };
 
-export const videoStreamStart = (navigate, conversation, type = false) => {
+export const videoStreamStart = (
+  navigate,
+  conversation,
+  type = false,
+  isGroup = false
+) => {
   return async (dispatch, _getState) => {
     try {
       console.log(conversation);
@@ -37,37 +44,31 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
       if (!conversation.status && type) {
         return dispatch(
           errorActions.setError({
-            error: {
-              text: "Can't call user because user is offline",
-            },
+            error: "Can't call user because user is offline",
           })
         );
       }
-      // const currentStream = await navigator.mediaDevices.getUserMedia({
-      //   video: true,
-      //   audio: true,
-      // });
-      // dispatch(videoActions.setStream({ stream: currentStream }));
+      const currentStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      dispatch(videoActions.setStream({ stream: currentStream }));
       if (type === true) {
-        const currentStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        console.log(currentStream);
+        // const currentStream = await navigator.mediaDevices.getUserMedia({
+        //   video: true,
+        //   audio: true,
+        // });
+        // console.log(currentStream);
         dispatch(videoActions.setStream({ stream: currentStream }));
-        console.log("ddddddddddddddddddddddddddddddddddddddd");
-        dispatch(connectionCallHandler(navigate, conversation));
+        dispatch(connectionCallHandler(navigate, conversation, isGroup));
       }
     } catch (err) {
       console.error(err);
       dispatch(
         errorActions.setError({
-          error: {
-            text: "Please activate microphone to make calls!!!",
-          },
+          error: "Please activate microphone to make calls!!!",
         })
       );
-      console.error(err);
     }
   };
 };
@@ -150,7 +151,7 @@ export const callUser = () => {
 export const rejectCall = (navigate) => {
   return async (dispatch, getState) => {
     try {
-      const { stream, userStream, connection } = getState().video;
+      const { stream, userStream } = getState().video;
       stream?.getTracks().forEach(function (track) {
         track.stop();
       });

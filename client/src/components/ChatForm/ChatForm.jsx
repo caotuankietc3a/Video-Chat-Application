@@ -20,6 +20,7 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(conversation);
 
   useEffect(() => {
     let timer = 0;
@@ -117,7 +118,9 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
 
   const clickVideoCall = async (e) => {
     e.preventDefault();
-    dispatch(videoStreamStart(navigate, conversation, true));
+    if (conversation.no_mems)
+      return dispatch(videoStreamStart(navigate, conversation, true, true));
+    return dispatch(videoStreamStart(navigate, conversation, true));
   };
 
   return (

@@ -64,42 +64,34 @@ const ChatRoom = (props) => {
   useEffect(() => {
     socket_video.on(
       "make-connection-call",
-      ({ conversationId, conversation, caller, callees, status }) => {
-        console.log(caller);
-        console.log(callees);
-        if (callees.length === 1) {
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: caller.fullname,
-                status,
-                profilePhoto: caller.profilePhoto,
-              },
-            })
-          );
-        } else {
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: conversation.name,
-                status,
-                profilePhoto: conversation.profilePhoto,
-              },
-            })
-          );
-          dispatch(
-            videoActions.setCall({
-              call: { isReceivedCall: true, caller, callees, signal: null },
-            })
-          );
-          setTimeout(() => {
-            navigate(`/home-chat/meetings/${conversationId}`);
-          }, 1000);
-        }
+      ({ conversationId, conversation, caller, callees, status, group }) => {
+        dispatch(
+          conversationActions.setConversation({
+            conversation: {
+              _id: conversation._id,
+              members: conversation.members,
+              name: group ? caller.fullname : conversation.name,
+              status,
+              profilePhoto: group
+                ? caller.profilePhoto
+                : conversation.profilePhoto,
+            },
+          })
+        );
+        dispatch(
+          videoActions.setCall({
+            call: {
+              isReceivedCall: true,
+              caller,
+              callees,
+              signal: null,
+              group: group,
+            },
+          })
+        );
+        setTimeout(() => {
+          navigate(`/home-chat/meetings/${conversationId}`);
+        }, 1000);
       }
     );
 
@@ -113,25 +105,25 @@ const ChatRoom = (props) => {
 
   useEffect(() => {
     socket_notify.on("log-out", () => {
-      dispatch(fetchFriends(true));
+      dispatch(fetchFriends());
     });
 
     socket_notify.on("log-in", () => {
-      dispatch(fetchFriends(true));
+      dispatch(fetchFriends());
     });
   }, [friend]);
 
-  useEffect(() => {
-    if (createGroup) dispatch(fetchFriends());
-  }, [createGroup]);
+  // useEffect(() => {
+  //   if (createGroup) dispatch(fetchFriends());
+  // }, [createGroup]);
 
   useEffect(() => {
     dispatch(fetchFriends());
   }, []);
   //
-  useEffect(() => {
-    if (forward || isClickedConversation) dispatch(fetchFriends(true));
-  }, [forward, isClickedConversation]);
+  // useEffect(() => {
+  //   if (forward || isClickedConversation) dispatch(fetchFriends(true));
+  // }, [forward, isClickedConversation]);
 
   return (
     <Container>

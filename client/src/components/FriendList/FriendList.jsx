@@ -62,8 +62,12 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
     reader.readAsDataURL(inputFileEl?.current.files[0]);
   };
 
-  const friendsHandler = (friends, searchText) => {
+  const friendsHandler = (friends, searchText, createGroup = false) => {
     return friends
+      ?.filter((friend) => {
+        if (createGroup && friend.isGroup) return false;
+        return true;
+      })
       ?.filter((friend) => {
         if (searchText === "") return true;
         if (friend.fullname.toLowerCase().includes(searchText.toLowerCase()))
@@ -167,7 +171,9 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
               <BsSearch />
             </div>
           </SearchBar>
-          <FriendCol>{friendsHandler(friends, inputText)}</FriendCol>
+          <FriendCol>
+            {friendsHandler(friends, inputText, createGroup)}
+          </FriendCol>
         </Body>
         {createGroup && (
           <Footer>

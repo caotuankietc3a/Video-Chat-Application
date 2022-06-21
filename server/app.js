@@ -24,6 +24,7 @@ const {
   forwardMessage,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
+const User_Socket = require("./models/user-socket");
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
@@ -75,13 +76,6 @@ io_chat.on("connection", (socket) => {
     }
   );
 
-  // socket.on("send-group-message", ({conversationId, message, }) => {
-  //   io_chat.to(conversationId).emit("receive-group-message", {
-  //     text: message,
-  //     userId: userId,
-  //   });
-  // });
-
   socket.on("leave-chat", ({ conversationId }) => {
     socket.leave(conversationId);
     console.log("A user disconnected chat-room!!!");
@@ -115,33 +109,68 @@ io_video.on("connection", (socket) => {
     console.log("Video Rooms: ", io_video.adapter.rooms);
   });
 
-  socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
-    const conversation = await Conversation.findById(conversationId).populate({
-      path: "members",
-    });
-    const callees = conversation.members.filter(
-      (user) => user._id.toString() !== caller._id.toString()
-    );
-    cb(callees);
-    const index = callees.findIndex((el) => el.status === true);
-
-    // sending to all clients except sender
-    socket.broadcast.to(conversationId).emit("make-connection-call", {
-      conversationId,
-      conversation,
-      caller,
-      callees,
-      status: index !== -1 ? true : false,
-    });
-  });
-
   socket.on(
-    "reject-call",
-    ({ conversationId, caller, callee, date, callAccepted }) => {
-      saveMeeting(caller, callee, date, callAccepted);
-      io_video.to(conversationId).emit("reject-call");
+    "make-connection-call",
+    async ({ conversationId, caller, isGroup }, cb) => {
+      const conversation = await Conversation.findById(conversationId).populate(
+        {
+          path: "members",
+        }
+      );
+      const callees = conversation.members.filter(
+        (user) => user._id.toString() !== caller._id.toString()
+      );
+      console.log(callees);
+
+      callees
+        .filter((callee) => callee.status)
+        .forEach((callee) => {
+          User_Socket.addUser({
+            userId: callee._id.toString(),
+            conversationId,
+          });
+        });
+      console.log(User_Socket.getUsersInRoom(conversationId));
+
+      cb(callees, conversation.name, conversation.profilePhoto);
+      const index = callees.findIndex((el) => el.status === true);
+
+      // sending to all clients except sender
+      socket.broadcast.to(conversationId).emit("make-connection-call", {
+        conversationId,
+        conversation,
+        caller,
+        callees,
+        group: isGroup
+          ? {
+              groupName: conversation.name,
+              groupImg: conversation.profilePhoto,
+            }
+          : null,
+        status: index !== -1 ? true : false,
+      });
     }
   );
+
+  // socket.on(
+  //   "reject-call",
+  //   ({ conversationId, caller, callees, date, callAccepted }) => {
+  //     saveMeeting(caller, callees, date, callAccepted);
+  //     io_video.to(conversationId).emit("reject-call");
+  //   }
+  // );
+
+  socket.on("reject-call", ({ conversationId, userId }) => {
+    console.log(userId);
+    User_Socket.removeUser({
+      conversationId: conversationId.toString(),
+      userId: userId.toString(),
+    });
+    console.log(User_Socket.getUsersInRoom(conversationId));
+    if (User_Socket.getNo_UsersInRoom(conversationId) === 0) {
+      io_video.to(conversationId.toString()).emit("reject-call");
+    }
+  });
 
   socket.on("call-user", ({ conversationId, signal }) => {
     socket.broadcast.to(conversationId).emit("call-user", { signal });
@@ -155,8 +184,9 @@ io_video.on("connection", (socket) => {
 
   socket.on(
     "join-meeting-room",
-    ({ conversationId, caller, callee, date, callAccepted }) => {
-      saveMeeting(caller, callee, date, callAccepted);
+    ({ conversationId, caller, callees, date, callAccepted }) => {
+      console.log(callees);
+      saveMeeting(caller, callees, date, callAccepted);
       io_video.to(conversationId).emit("join-meeting-room");
     }
   );

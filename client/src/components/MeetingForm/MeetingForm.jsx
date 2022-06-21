@@ -23,28 +23,37 @@ import {
 } from "../../store/actions/video-chat-function";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { errorActions } from "../../store/slices/error-slice";
 
 function MeetingForm({ conversation }) {
   console.log("MeetingForm running");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
-    call: { isReceivedCall, caller, callee },
+    call: { isReceivedCall, caller, callees, group },
     stream,
   } = useSelector((state) => state.video);
+  const { user } = useSelector((state) => state.user);
+  console.log(user);
   console.log(isReceivedCall);
   console.log(caller);
-  console.log(callee);
+  console.log(callees);
+  console.log(group);
   const { socket_video } = useSelector((state) => state.socket);
 
   useEffect(() => {
-    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     if (stream && !isReceivedCall) {
       dispatch(callUser());
     }
 
     socket_video.on("reject-call", () => {
       dispatch(rejectCall(navigate));
+
+      dispatch(
+        errorActions.setError({
+          error: "There is no user accepting the call!!!",
+        })
+      );
     });
 
     return () => {
@@ -68,19 +77,30 @@ function MeetingForm({ conversation }) {
   const rejectCallHandler = () => {
     socket_video.emit("reject-call", {
       conversationId: conversation._id,
-      callAccepted: false,
-      caller,
-      callee,
-      date: new Date(Date.now()),
+      userId: user._id,
     });
+
+    dispatch(rejectCall(navigate));
   };
+
+  // const rejectCallHandler = () => {
+  //   socket_video.emit("reject-call", {
+  //     conversationId: conversation._id,
+  //     callAccepted: false,
+  //     caller,
+  //     callees,
+  //     date: new Date(Date.now()),
+  //   });
+  //
+  //   dispatch(rejectCall(navigate));
+  // };
 
   const anwserCallHandler = () => {
     socket_video.emit("join-meeting-room", {
       conversationId: conversation._id,
       callAccepted: true,
       caller,
-      callee,
+      callees,
       date: new Date(Date.now()),
     });
     dispatch(answerCall(socket_video, true));
@@ -91,7 +111,7 @@ function MeetingForm({ conversation }) {
       conversationId: conversation._id,
       callAccepted: true,
       caller,
-      callee,
+      callees,
     });
     dispatch(answerCall(socket_video, false));
   };
@@ -106,12 +126,22 @@ function MeetingForm({ conversation }) {
           {isReceivedCall ? "Incoming Call" : "Outgoing Call"}
         </p>
         <p className="name">
-          {isReceivedCall ? callee.fullname : caller.fullname}
+          {group
+            ? group?.groupName
+            : isReceivedCall
+            ? callees[0]?.fullname
+            : caller?.fullname}
         </p>
         <MeetingPicture>
           <MeetingImgWrapper>
             <img
-              src={isReceivedCall ? callee.profilePhoto : caller.profilePhoto}
+              src={
+                group
+                  ? group?.groupImg
+                  : isReceivedCall
+                  ? callees[0]?.profilePhoto
+                  : caller?.profilePhoto
+              }
               alt=""
             />
           </MeetingImgWrapper>
