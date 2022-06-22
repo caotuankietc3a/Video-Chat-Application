@@ -201,6 +201,16 @@ const MeetingGroupRoom = () => {
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
+        <Container showTop={showTopControls}>
+          {peers.map(({ peer, stream }, index) => {
+            console.log(peer);
+            return (
+              <StyledVideo key={index}>
+                <VideoDisplay peer={peer} stream={stream} />
+              </StyledVideo>
+            );
+          })}
+        </Container>
         <MeetingBottomControls>
           <FunctionControls>
             <FiVideo />

@@ -203,7 +203,6 @@ io_video.on("connection", (socket) => {
 const io_group_video = io.of("/group-video-room");
 io_group_video.on("connection", (socket) => {
   socket.on("join-group-video", ({ conversationId }) => {
-    console.log("dddddddddddddddddddddddddddddddddddsssssssssssssssss");
     User_Socket.addUser({ conversationId, userId: socket.id });
     console.log(User_Socket.getAllUsersInRoom(conversationId));
     socket.emit("users-in-room", {
@@ -225,16 +224,13 @@ io_group_video.on("connection", (socket) => {
   });
 
   socket.on("leave-group-video", ({ conversationId, isReceivedCall, user }) => {
-    // console.log(conversationId);
-    // console.log(isReceivedCall);
-    console.log(user);
     // if (isReceivedCall) {
     const userInRoom = User_Socket.removeUser({
       conversationId,
       userId: socket.id,
     });
-    console.log(userInRoom);
-    console.log(User_Socket.getAllUsersInRoom(conversationId));
+    // console.log(userInRoom);
+    // console.log(User_Socket.getAllUsersInRoom(conversationId));
     socket.broadcast.emit("user-leaved", {
       peerId: userInRoom[0].userId,
       userName: user ? user.fullname : "TEST USER",
@@ -253,13 +249,6 @@ io_group_video.on("connection", (socket) => {
         conversationId: conversationId,
       });
       socket.broadcast.emit("user-leaved", { peerId: userInRoom[0].userId });
-      console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-      console.log(
-        User_Socket.getUsersInRoom(
-          conversationId.toString(),
-          socket.id.toString()
-        )
-      );
     });
   });
 });

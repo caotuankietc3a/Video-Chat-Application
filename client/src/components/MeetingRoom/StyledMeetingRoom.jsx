@@ -33,12 +33,15 @@ export const PannelControl = styled.div`
 
 export const MyVideo = styled.div`
   min-width: 140px;
+  width: 140px;
   position: relative;
   flex-grow: 0;
+  margin: 0 5px;
   & video {
     object-fit: cover;
     background: black;
-    width: 140px;
+    border-radius: 8px;
+    width: 100%;
     min-width: 140px;
     height: ${({ showTop }) => (showTop ? "95px" : "105px")};
     min-height: ${({ showTop }) => (showTop ? "95px" : "105px")};
@@ -56,10 +59,11 @@ export const UserVideo = styled.div`
   align-items: center;
   & video {
     height: 100%;
+    border-radius: 8px;
     width: ${({ isFullScreen }) => (isFullScreen ? "100%" : "90%")};
     object-fit: cover;
     z-index: -900;
-    background-color: #333;
+    background-color: #3c4043;
     overflow: scroll;
   }
 `;
@@ -86,8 +90,8 @@ export const MeetingContainer = styled.div`
 export const MeetingVideoWrapper = styled.div`
   width: 100%;
   height: 100%;
-  /* position: relative; */
-  /* background: #141414f0; */
+  position: relative;
+  background: #202124;
   display: flex;
   flex-wrap: wrap;
   z-index: 999;
@@ -129,16 +133,33 @@ export const FunctionControls = styled.div`
 `;
 
 export const Container = styled.div`
-  padding: 20px;
+  padding-top: ${({ showTop }) => (showTop ? "95px" : "0px")};
   display: flex;
-  /* height: 100vh; */
-  /* width: 90%; */
-  margin: auto;
+  margin: 20px 0;
   flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
-export const StyledVideo = styled.video`
-  height: auto;
-  width: auto;
-  z-index: 1000;
+export const StyledVideo = styled.div`
+  width: 719px;
+  height: 405px;
+  /* z-index: 1000; */
+  background-color: #3c4043;
+  border-radius: 8px;
+  border: 0;
+  margin: 20px;
+  /* position: absolute; */
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
 `;

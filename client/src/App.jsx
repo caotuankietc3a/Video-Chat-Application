@@ -37,10 +37,10 @@ function App() {
         <Route path="/home-chat/*" element={<ChatRoom />}></Route>
         {/* <Navigate to="/auth/login" /> */}
 
-        {/* <Route */}
-        {/*   path="/meeting/:conversationId" */}
-        {/*   element={<MeetingRoom />} */}
-        {/* ></Route> */}
+        <Route
+          path="/meeting/:conversationId"
+          element={<MeetingRoom />}
+        ></Route>
 
         <Route
           path="/meeting-group/:conversationId"
