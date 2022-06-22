@@ -127,6 +127,22 @@ io_video.on("connection", (socket) => {
     });
   });
 
+  socket.on(
+    "make-group-connection-call",
+    async ({ conversationId, callerId }) => {
+      const conversation = await Conversation.findById(conversationId).populate(
+        {
+          path: "members",
+        }
+      );
+      // sending to all clients except sender
+      socket.broadcast.to(conversationId).emit("make-group-connection-call", {
+        conversationId,
+        conversation,
+        callerId,
+      });
+    }
+  );
   // socket.on(
   //   "reject-call",
   //   ({ conversationId, caller, callee, date, callAccepted }) => {
@@ -146,17 +162,9 @@ io_video.on("connection", (socket) => {
         });
     }
 
-    // User_Socket.removeUser({
-    //   conversationId: conversationId.toString(),
-    //   userId: userId.toString(),
-    // });
-    // if (User_Socket.getNo_UsersInRoom(conversationId) === 0) {
     socket.broadcast
       .to(conversationId.toString())
       .emit("reject-call", { error: "Callee canceled the call!!!" });
-    // }
-    //
-    // console.log(User_Socket.getUsersInRoom(conversationId));
   });
 
   socket.on("call-user", ({ conversationId, signal }) => {
@@ -190,32 +198,14 @@ io_video.on("connection", (socket) => {
     // updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
+});
 
-  socket.on(
-    "make-group-connection-call",
-    async ({ conversationId, callerId }) => {
-      const conversation = await Conversation.findById(conversationId).populate(
-        {
-          path: "members",
-        }
-      );
-      // sending to all clients except sender
-      socket.broadcast.to(conversationId).emit("make-group-connection-call", {
-        conversationId,
-        conversation,
-        callerId,
-      });
-    }
-  );
-
+const io_group_video = io.of("/group-video-room");
+io_group_video.on("connection", (socket) => {
   socket.on("join-group-video", ({ conversationId }) => {
+    console.log("dddddddddddddddddddddddddddddddddddsssssssssssssssss");
     User_Socket.addUser({ conversationId, userId: socket.id });
-    console.log(
-      User_Socket.getUsersInRoom(
-        conversationId.toString(),
-        socket.id.toString()
-      )
-    );
+    console.log(User_Socket.getAllUsersInRoom(conversationId));
     socket.emit("users-in-room", {
       usersInRoom: User_Socket.getUsersInRoom(
         conversationId.toString(),
@@ -225,32 +215,45 @@ io_video.on("connection", (socket) => {
   });
 
   socket.on("sending-signal", ({ userToSignal, callerId, signal }) => {
-    io_video.to(userToSignal).emit("user-joined", { signal, callerId });
+    io_group_video.to(userToSignal).emit("user-joined", { signal, callerId });
   });
 
   socket.on("returning-signal", ({ callerId, signal }) => {
-    io_video
+    io_group_video
       .to(callerId)
       .emit("receiving-returned-signal", { signal, calleeId: socket.id });
   });
 
-  // socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
-  //   console.log(conversationId);
-  //   console.log(isReceivedCall);
-  //   if (isReceivedCall) {
-  //     User_Socket.removeUser({ conversationId, userId: socket.id });
-  //   } else {
-  //     User_Socket.removeUsersInRoom(conversationId);
-  //   }
-  // });
+  socket.on("leave-group-video", ({ conversationId, isReceivedCall, user }) => {
+    // console.log(conversationId);
+    // console.log(isReceivedCall);
+    console.log(user);
+    // if (isReceivedCall) {
+    const userInRoom = User_Socket.removeUser({
+      conversationId,
+      userId: socket.id,
+    });
+    console.log(userInRoom);
+    console.log(User_Socket.getAllUsersInRoom(conversationId));
+    socket.broadcast.emit("user-leaved", {
+      peerId: userInRoom[0].userId,
+      userName: user ? user.fullname : "TEST USER",
+    });
+    // } else {
+    //   User_Socket.removeUsersInRoom(conversationId);
+    //   const userInRoom = User_Socket.removeUser({ conversationId, userId: socket.id });
+    // }
+  });
 
   socket.on("disconnect", () => {
     const rooms = User_Socket.getRoomsOfUser({ userId: socket.id });
     rooms.forEach(({ conversationId }) => {
-      User_Socket.removeUser({
+      const userInRoom = User_Socket.removeUser({
         userId: socket.id,
         conversationId: conversationId,
       });
+      socket.broadcast.emit("user-leaved", { peerId: userInRoom[0].userId });
+      console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
       console.log(
         User_Socket.getUsersInRoom(
           conversationId.toString(),

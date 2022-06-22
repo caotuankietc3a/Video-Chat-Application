@@ -36,53 +36,49 @@ import {
   videoGroupStreamStart,
 } from "../../store/actions/video-group-function";
 import VideoDisplay from "./Peer/VideoDisplay";
+import { errorActions } from "../../store/slices/error-slice";
+import { closeNotification } from "../../store/actions/error-function";
+import Notification from "../Notification/Notification";
 
 const MeetingGroupRoom = () => {
   console.log("MeetingGroupRoom running");
   const myVideo = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [peers, setPeers] = useState([]);
   const peersRef = useRef([]);
   const { conversationId } = useParams();
   const [showTopControls, setShowTopControls] = useState(false);
-  const { socket_video } = useSelector((state) => state.socket);
-  // const { conversation } = useSelector((state) => state.conversation);
+  const { socket_group_video } = useSelector((state) => state.socket);
   const {
     call: { isReceivedCall },
   } = useSelector((state) => state.video);
+
+  const { user } = useSelector((state) => state.user);
+  const { notify } = useSelector((state) => state.error);
+  console.log(user);
   useEffect(() => {
     (async () => {
       try {
         const stream = await videoGroupStreamStart();
         myVideo.current.srcObject = stream;
-        // socket_video.emit("join-group-video", {
-        //   conversationId: conversation._id,
-        // });
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, []);
-  useEffect(() => {
-    (async () => {
-      try {
-        const stream = await videoGroupStreamStart();
-        myVideo.current.srcObject = stream;
-        // socket_video.emit("join-group-video", {
+        // socket_group_video.emit("join-group-video", {
         //   conversationId: conversation._id,
         // });
 
-        socket_video.emit("join-group-video", {
+        console.log("okokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+        socket_group_video.emit("join-group-video", {
           conversationId: conversationId,
         });
 
-        socket_video.on("users-in-room", ({ usersInRoom }) => {
+        socket_group_video.on("users-in-room", ({ usersInRoom }) => {
           const array_peer = [];
           usersInRoom.forEach(({ userId }) => {
             const peer = createPeer(
               userId,
               stream,
-              socket_video.id,
-              socket_video
+              socket_group_video.id,
+              socket_group_video
             );
             array_peer.push({ peer, peerId: userId, stream });
             peersRef.current.push({ peer, peerId: userId, stream });
@@ -90,8 +86,8 @@ const MeetingGroupRoom = () => {
           setPeers(array_peer);
         });
 
-        socket_video.on("user-joined", ({ callerId, signal }) => {
-          const peer = addPeer(signal, callerId, stream, socket_video);
+        socket_group_video.on("user-joined", ({ callerId, signal }) => {
+          const peer = addPeer(signal, callerId, stream, socket_group_video);
           console.log(peer);
           peersRef.current.push({ peerId: callerId, peer, stream });
           setPeers((prePeers) => [
@@ -100,20 +96,55 @@ const MeetingGroupRoom = () => {
           ]);
         });
 
-        socket_video.on("receiving-returned-signal", ({ signal, calleeId }) => {
-          const peerObject = peersRef.current.find(
-            ({ peerId }) => peerId === calleeId
-          );
-          peerObject.peer.signal(signal);
-        });
+        socket_group_video.on(
+          "receiving-returned-signal",
+          ({ signal, calleeId }) => {
+            const peerObject = peersRef.current.find(
+              ({ peerId }) => peerId === calleeId
+            );
+            peerObject.peer.signal(signal);
+          }
+        );
       } catch (err) {
         console.error(err);
       }
     })();
   }, []);
 
+  useEffect(() => {
+    socket_group_video.on("user-leaved", ({ peerId, userName }) => {
+      const index = peersRef.current.findIndex(
+        (peer) => peer.peerId === peerId
+      );
+      if (index !== -1) {
+        peersRef.current.splice(index, 1);
+        setPeers((prePeers) => {
+          prePeers.splice(index, 1);
+          return [...prePeers];
+        });
+        dispatch(
+          errorActions.setNotify({
+            notify: `${userName} leaved this meeting room!!!`,
+          })
+        );
+      }
+    });
+  }, []);
+
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
+  };
+
+  const phoneOffHandler = (stream) => {
+    socket_group_video.emit("leave-group-video", {
+      conversationId,
+      isReceivedCall,
+      user,
+    });
+    navigate("/home-chat");
+    stream?.getTracks().forEach(function (track) {
+      track.stop();
+    });
   };
 
   return (
@@ -122,6 +153,12 @@ const MeetingGroupRoom = () => {
         className={!showTopControls ? "" : "transparent"}
         showTop={showTopControls}
       >
+        <Notification
+          error={notify}
+          closeNotification={() => {
+            dispatch(closeNotification());
+          }}
+        />
         {showTopControls && (
           <PannelControl showTop={showTopControls}>
             <FiMenu />
@@ -174,7 +211,12 @@ const MeetingGroupRoom = () => {
           <FunctionControls>
             <CgScreen />
           </FunctionControls>
-          <FunctionControls className="phone_off">
+          <FunctionControls
+            className="phone_off"
+            onClick={() => {
+              phoneOffHandler(myVideo.current.srcObject);
+            }}
+          >
             <FiPhoneOff />
           </FunctionControls>
           <FunctionControls>

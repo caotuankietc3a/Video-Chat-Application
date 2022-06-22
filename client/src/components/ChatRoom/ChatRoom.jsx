@@ -19,6 +19,7 @@ import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
 import { errorActions } from "../../store/slices/error-slice";
+import { closeNotification } from "../../store/actions/error-function";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
@@ -31,17 +32,16 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
-  const { socket_chat, socket_video, socket_notify } = useSelector(
-    (state) => state.socket
-  );
+  const { socket_chat, socket_video, socket_group_video, socket_notify } =
+    useSelector((state) => state.socket);
 
-  const closeNotification = () => {
-    dispatch(
-      errorActions.setError({
-        error: null,
-      })
-    );
-  };
+  // const closeNotification = () => {
+  //   dispatch(
+  //     errorActions.setError({
+  //       error: null,
+  //     })
+  //   );
+  // };
 
   const isClickedHandler = () => {
     setIsClickedConversation(true);
@@ -259,7 +259,12 @@ const ChatRoom = (props) => {
             ></Route>
           </Routes>
 
-          <Notification error={error} closeNotification={closeNotification} />
+          <Notification
+            error={error}
+            closeNotification={() => {
+              dispatch(closeNotification());
+            }}
+          />
         </ChatBodyContainer>
       </MainLayOut>
     </Container>

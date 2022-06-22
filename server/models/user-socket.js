@@ -8,8 +8,9 @@ class User_Socket {
     const index = users.findIndex(
       (user) => user.userId === userId && user.conversationId === conversationId
     );
+    console.log(index);
     if (index !== -1) {
-      users.splice(index, 1);
+      return users.splice(index, 1);
     }
   }
 
@@ -34,6 +35,12 @@ class User_Socket {
   static getUsersInRoom(conversationId, id) {
     return users.filter((user) => {
       return user.conversationId === conversationId && user.userId !== id;
+    });
+  }
+
+  static getAllUsersInRoom(conversationId) {
+    return users.filter((user) => {
+      return user.conversationId === conversationId;
     });
   }
 }
