@@ -8,7 +8,7 @@ import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItem
 import { conversationActions } from "../../../store/slices/conversation-slice";
 
 const ChatContactLists = ({ searchContactItems, type }) => {
-  console.log("ChatContactLists running!!!");
+  // console.log("ChatContactLists running!!!");
   const [conversations, setConversations] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;

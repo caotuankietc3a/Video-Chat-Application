@@ -20,7 +20,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
 const FriendList = ({ isClosedHandler, friends, createGroup }) => {
-  console.log(friends);
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
   const { user } = useSelector((state) => state.user);

@@ -26,7 +26,6 @@ export const fetchUserLogin = (navigate, type = 0) => {
         }
       );
       const { user, isLogin } = await data.json();
-      console.log(user);
       if (!type) {
         if (isLogin) {
           setTimeout(() => {

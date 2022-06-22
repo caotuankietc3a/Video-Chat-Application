@@ -44,8 +44,7 @@ export const videoStreamStart = (navigate, conversation, type = false) => {
         audio: true,
       });
       dispatch(videoActions.setStream({ stream: currentStream }));
-      if (type === true) {
-        dispatch(videoActions.setStream({ stream: currentStream }));
+      if (type) {
         dispatch(connectionCallHandler(navigate, conversation));
       }
     } catch (err) {

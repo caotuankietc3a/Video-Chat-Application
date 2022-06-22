@@ -1,12 +1,7 @@
 const users = [];
 class User_Socket {
-  static addUser({ userId, conversationId }) {
-    const existUser = users.find(
-      (user) => user.userId === userId && user.conversationId === conversationId
-    );
-    if (!existUser) {
-      users.push({ userId, conversationId });
-    }
+  static addUser({ conversationId, userId }) {
+    users.push({ userId, conversationId });
   }
 
   static removeUser({ userId, conversationId }) {
@@ -27,10 +22,8 @@ class User_Socket {
     }
   }
 
-  static getUser({ userId, conversationId }) {
-    return users.find(
-      (user) => user.userId === userId && user.conversationId === conversationId
-    );
+  static getRoomsOfUser({ userId }) {
+    return users.filter((user) => user.userId === userId);
   }
 
   static getNo_UsersInRoom(conversationId) {
@@ -38,8 +31,10 @@ class User_Socket {
       .length;
   }
 
-  static getUsersInRoom(conversationId) {
-    return users.filter((user) => user.conversationId === conversationId);
+  static getUsersInRoom(conversationId, id) {
+    return users.filter((user) => {
+      return user.conversationId === conversationId && user.userId !== id;
+    });
   }
 }
 

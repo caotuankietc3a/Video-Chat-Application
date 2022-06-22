@@ -10,12 +10,10 @@ export const postNewConversation = (
   type = false
 ) => {
   return async (dispatch) => {
-    console.log(friendDetail);
     const conversation = await postData(
       { friend: friendDetail, userId: user._id },
       `${END_POINT_SERVER}/conversation/new-conversation`
     );
-    console.log(conversation);
     if (friendDetail.isGroup) {
       dispatch(
         conversationActions.setConversation({

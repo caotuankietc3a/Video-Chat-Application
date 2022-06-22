@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import {
   FiMenu,
@@ -25,149 +25,95 @@ import {
   UserVideo,
   FunctionControls,
   Peers,
+  StyledVideo,
+  Container,
 } from "./StyledMeetingRoom";
 import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
+import {
+  addPeer,
+  createPeer,
+  videoGroupStreamStart,
+} from "../../store/actions/video-group-function";
+import VideoDisplay from "./Peer/VideoDisplay";
 
-const MeetingGroupRoom = (props) => {
+const MeetingGroupRoom = () => {
   console.log("MeetingGroupRoom running");
-  const [showTopControls, setShowTopControls] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(true);
-  const [muted, setMuted] = useState(false);
-  const [toggleMuted, setToggleMuted] = useState(false);
-  const userVideo = useRef(null);
   const myVideo = useRef(null);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const [peers, setPeers] = useState([]);
+  const peersRef = useRef([]);
+  const { conversationId } = useParams();
+  const [showTopControls, setShowTopControls] = useState(false);
   const { socket_video } = useSelector((state) => state.socket);
-  const { conversation } = useSelector((state) => state.conversation);
-
+  // const { conversation } = useSelector((state) => state.conversation);
   const {
-    stream,
-    userStream,
-    showVideo,
-    showUserVideo,
-    call: { callee, caller },
+    call: { isReceivedCall },
   } = useSelector((state) => state.video);
-  const onClickShowTopControls = (e) => {
-    setShowTopControls(!showTopControls);
-  };
-  // console.log("showVideo: ", showVideo);
-  // console.log("showUserVideo: ", showUserVideo);
-  // console.log("showUserStream: ", userStream);
-  // console.log("showStream: ", stream);
-  // console.log("muted: ", muted);
-
   useEffect(() => {
-    if (stream) {
-      if (myVideo.current) myVideo.current.srcObject = stream;
-      // console.log("myVideo: ", myVideo);
-    }
-    if (userStream) {
-      if (userVideo.current) userVideo.current.srcObject = userStream;
-      // console.log("userVideo: ", userVideo);
-    }
-  }, [
-    stream,
-    showVideo,
-    userStream,
-    showUserVideo,
-    showTopControls,
-    toggleMuted,
-    muted,
-  ]);
-
+    (async () => {
+      try {
+        const stream = await videoGroupStreamStart();
+        myVideo.current.srcObject = stream;
+        // socket_video.emit("join-group-video", {
+        //   conversationId: conversation._id,
+        // });
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+  }, []);
   useEffect(() => {
-    socket_video.on("leave-meeting-room", () => {
-      dispatch(leaveMeetingRoom(navigate));
-    });
+    (async () => {
+      try {
+        const stream = await videoGroupStreamStart();
+        myVideo.current.srcObject = stream;
+        // socket_video.emit("join-group-video", {
+        //   conversationId: conversation._id,
+        // });
+
+        socket_video.emit("join-group-video", {
+          conversationId: conversationId,
+        });
+
+        socket_video.on("users-in-room", ({ usersInRoom }) => {
+          const array_peer = [];
+          usersInRoom.forEach(({ userId }) => {
+            const peer = createPeer(
+              userId,
+              stream,
+              socket_video.id,
+              socket_video
+            );
+            array_peer.push({ peer, peerId: userId, stream });
+            peersRef.current.push({ peer, peerId: userId, stream });
+          });
+          setPeers(array_peer);
+        });
+
+        socket_video.on("user-joined", ({ callerId, signal }) => {
+          const peer = addPeer(signal, callerId, stream, socket_video);
+          console.log(peer);
+          peersRef.current.push({ peerId: callerId, peer, stream });
+          setPeers((prePeers) => [
+            ...prePeers,
+            { peerId: callerId, peer, stream },
+          ]);
+        });
+
+        socket_video.on("receiving-returned-signal", ({ signal, calleeId }) => {
+          const peerObject = peersRef.current.find(
+            ({ peerId }) => peerId === calleeId
+          );
+          peerObject.peer.signal(signal);
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    })();
   }, []);
 
-  useEffect(() => {
-    socket_video.on("toggle-video", () => {
-      dispatch(
-        videoActions.setShowUserVideo({ showUserVideo: !showUserVideo })
-      );
-    });
-
-    socket_video.on("toggle-muted", () => {
-      setMuted(!muted);
-    });
-
-    return () => {
-      // depend on showUserVideo and muted
-      socket_video.off("toggle-video");
-      socket_video.off("toggle-muted");
-    };
-  }, [showUserVideo, muted]);
-
-  const phoneOffHandler = () => {
-    socket_video.emit("leave-meeting-room", {
-      conversationId: conversation._id,
-      callerId: caller._id,
-      calleeId: callee._id,
-    });
-  };
-
-  const toggleVideoHandler = () => {
-    socket_video.emit("toggle-video", {
-      conversationId: conversation._id,
-    });
-    dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
-  };
-  console.log(conversation.members);
-  console.log(showTopControls);
-
-  const returnPeerHandler = (
-    { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
-    conversation,
-    isShowTop = false
-  ) => {
-    return conversation.members.map((peer, i) => (
-      <Fragment key={i}>
-        {isShowTop ? (
-          <Peer
-            type={type}
-            padding={padding}
-            fontsize={fontsize}
-            heightImg={heightImg}
-            widthImg={widthImg}
-            userImg={peer.profilePhoto}
-            name={peer.fullname}
-            isTurnOnAudio={isTurnOnAudio}
-          />
-        ) : !showUserVideo ? (
-          <Fragment>
-            <Peer
-              type={type}
-              padding={padding}
-              fontsize={fontsize}
-              heightImg={heightImg}
-              widthImg={widthImg}
-              userImg={peer.profilePhoto}
-              name={peer.fullname}
-              isTurnOnAudio={isTurnOnAudio}
-            />
-            <video ref={userVideo} autoPlay={true} muted={muted}></video>
-          </Fragment>
-        ) : (
-          <video ref={userVideo} autoPlay={true} muted={muted}></video>
-        )}
-      </Fragment>
-    ));
-  };
-
-  const makeFullScreen = (e) => {
-    setIsFullScreen(!isFullScreen);
-  };
-
-  const makeMutedAudio = (e) => {
-    socket_video.emit("toggle-muted", { conversationId: conversation._id });
-    setToggleMuted(!toggleMuted);
-  };
-
-  const shareScreenHandler = async () => {
-    dispatch(shareScreen());
+  const onClickShowTopControls = (e) => {
+    setShowTopControls(!showTopControls);
   };
 
   return (
@@ -184,42 +130,30 @@ const MeetingGroupRoom = (props) => {
 
         {showTopControls && (
           <Peers>
-            {/* <Peer */}
-            {/*   type="main-peer" */}
-            {/*   padding="10px 0" */}
-            {/*   fontsize="11px" */}
-            {/*   heightImg="40px" */}
-            {/*   widthImg="40px" */}
-            {/*   userImg={user.profilePhoto} */}
-            {/*   name={user.fullname} */}
-            {/*   isTurnOnAudio={false} */}
-            {/* /> */}
+            <Peer
+              type="main-peer"
+              padding="10px 0"
+              fontsize="11px"
+              heightImg="40px"
+              widthImg="40px"
+              userImg={`/images/user-img.jpg`}
+              name={"TESTUSER"}
+              isTurnOnAudio={false}
+            />
 
-            {!showUserVideo ? (
-              returnPeerHandler(
-                {
-                  type: "peer",
-                  padding: "10px 0",
-                  fontsize: "11px",
-                  heightImg: "40px",
-                  widthImg: "40px",
-                  isTurnOnAudio: false,
-                },
-                conversation,
-                showTopControls
-              )
-            ) : (
-              <MyVideo showTop={showTopControls}>
-                <video ref={userVideo} autoPlay={true} muted={muted}></video>
-              </MyVideo>
-            )}
+            {peers.map(({ peer, stream }, index) => {
+              console.log(peer);
+              return (
+                <MyVideo showTop={true} key={index}>
+                  <VideoDisplay key={index} peer={peer} stream={stream} />;
+                </MyVideo>
+              );
+            })}
           </Peers>
         )}
 
         <MyVideo showTop={showTopControls}>
-          {showVideo && (
-            <video ref={myVideo} autoPlay={true} muted={true}></video>
-          )}
+          <video ref={myVideo} autoPlay={true} muted={true}></video>
         </MyVideo>
 
         {showTopControls && (
@@ -230,58 +164,24 @@ const MeetingGroupRoom = (props) => {
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
-        {showUserVideo ? (
-          showTopControls ? (
-            returnPeerHandler(
-              {
-                type: "main-screen-peer",
-                padding: "0 0",
-                fontsize: "18px",
-                heightImg: "120px",
-                widthImg: "120px",
-                isTurnOnAudio: false,
-              },
-              conversation,
-              showTopControls
-            )
-          ) : (
-            <UserVideo isFullScreen={isFullScreen}>
-              <video ref={userVideo} autoPlay={true} muted={muted}></video>
-            </UserVideo>
-          )
-        ) : (
-          returnPeerHandler(
-            {
-              type: "main-screen-peer",
-              padding: "0 0",
-              fontsize: "18px",
-              heightImg: "120px",
-              widthImg: "120px",
-              isTurnOnAudio: false,
-            },
-            conversation,
-            showTopControls
-          )
-        )}
-
         <MeetingBottomControls>
-          <FunctionControls onClick={toggleVideoHandler}>
-            {showVideo ? <FiVideo /> : <FiVideoOff />}
+          <FunctionControls>
+            <FiVideo />
           </FunctionControls>
-          <FunctionControls onClick={makeMutedAudio}>
-            {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
+          <FunctionControls>
+            <AiOutlineAudio />
           </FunctionControls>
-          <FunctionControls onClick={shareScreenHandler}>
+          <FunctionControls>
             <CgScreen />
           </FunctionControls>
-          <FunctionControls className="phone_off" onClick={phoneOffHandler}>
+          <FunctionControls className="phone_off">
             <FiPhoneOff />
           </FunctionControls>
           <FunctionControls>
             <FiUserPlus />
           </FunctionControls>
-          <FunctionControls onClick={makeFullScreen}>
-            {isFullScreen ? <RiFullscreenFill /> : <RiFullscreenExitFill />}
+          <FunctionControls>
+            <RiFullscreenFill />
           </FunctionControls>
           <FunctionControls onClick={onClickShowTopControls}>
             {!showTopControls ? <MdGridView /> : <VscSplitHorizontal />}
@@ -292,4 +192,4 @@ const MeetingGroupRoom = (props) => {
   );
 };
 
-export default MeetingRoom;
+export default MeetingGroupRoom;

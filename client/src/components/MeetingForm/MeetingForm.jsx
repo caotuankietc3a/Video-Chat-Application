@@ -33,7 +33,6 @@ function MeetingForm({ conversation }) {
     call: { isReceivedCall, caller, callee, group },
     stream,
   } = useSelector((state) => state.video);
-  // const { user } = useSelector((state) => state.user);
   // console.log(user);
   // console.log(isReceivedCall);
   // console.log(callee);
@@ -62,7 +61,7 @@ function MeetingForm({ conversation }) {
   }, [isReceivedCall]);
 
   useEffect(() => {
-    if (isReceivedCall) {
+    if (isReceivedCall && !group) {
       dispatch(videoStreamStart(navigate, conversation));
     }
   }, []);
@@ -74,12 +73,16 @@ function MeetingForm({ conversation }) {
   }, []);
 
   const rejectCallHandler = () => {
-    socket_video.emit("reject-call", {
-      conversationId: conversation._id,
-      isReceivedCall,
-    });
+    if (!group) {
+      socket_video.emit("reject-call", {
+        conversationId: conversation._id,
+        isReceivedCall,
+      });
 
-    dispatch(rejectCall(navigate));
+      dispatch(rejectCall(navigate));
+    } else {
+      navigate(`/home-chat`);
+    }
   };
 
   // const rejectCallHandler = () => {
@@ -95,24 +98,32 @@ function MeetingForm({ conversation }) {
   // };
 
   const anwserCallHandler = () => {
-    socket_video.emit("join-meeting-room", {
-      conversationId: conversation._id,
-      callAccepted: true,
-      caller,
-      callee,
-      date: new Date(Date.now()),
-    });
-    dispatch(answerCall(socket_video, true));
+    if (!group) {
+      socket_video.emit("join-meeting-room", {
+        conversationId: conversation._id,
+        callAccepted: true,
+        caller,
+        callee,
+        date: new Date(Date.now()),
+      });
+      dispatch(answerCall(socket_video, true));
+    } else {
+      navigate(`/meeting-group/${conversation._id}`);
+    }
   };
 
   const anwserCallWithoutVideoHandler = () => {
-    socket_video.emit("join-meeting-room", {
-      conversationId: conversation._id,
-      callAccepted: true,
-      caller,
-      callee,
-    });
-    dispatch(answerCall(socket_video, false));
+    if (!group) {
+      socket_video.emit("join-meeting-room", {
+        conversationId: conversation._id,
+        callAccepted: true,
+        caller,
+        callee,
+      });
+      dispatch(answerCall(socket_video, false));
+    } else {
+      navigate(`/meeting-group/${conversation._id}`);
+    }
   };
 
   return (

@@ -86,8 +86,10 @@ export const MeetingContainer = styled.div`
 export const MeetingVideoWrapper = styled.div`
   width: 100%;
   height: 100%;
-  position: relative;
-  background: #141414f0;
+  /* position: relative; */
+  /* background: #141414f0; */
+  display: flex;
+  flex-wrap: wrap;
   z-index: 999;
 `;
 
@@ -124,4 +126,19 @@ export const FunctionControls = styled.div`
       background: #d61314;
     }
   }
+`;
+
+export const Container = styled.div`
+  padding: 20px;
+  display: flex;
+  /* height: 100vh; */
+  /* width: 90%; */
+  margin: auto;
+  flex-wrap: wrap;
+`;
+
+export const StyledVideo = styled.video`
+  height: auto;
+  width: auto;
+  z-index: 1000;
 `;

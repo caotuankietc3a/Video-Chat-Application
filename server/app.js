@@ -25,7 +25,6 @@ const {
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
 const User_Socket = require("./models/user-socket");
-
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -173,7 +172,6 @@ io_video.on("connection", (socket) => {
   socket.on(
     "join-meeting-room",
     ({ conversationId, caller, callee, date, callAccepted }) => {
-      console.log(callee);
       // saveMeeting(caller, callee, date, callAccepted);
       io_video.to(conversationId).emit("join-meeting-room");
     }
@@ -193,7 +191,74 @@ io_video.on("connection", (socket) => {
     io_video.to(conversationId).emit("leave-meeting-room");
   });
 
-  socket.on("join-group-video", ({ conversationId }) => {});
+  socket.on(
+    "make-group-connection-call",
+    async ({ conversationId, callerId }) => {
+      const conversation = await Conversation.findById(conversationId).populate(
+        {
+          path: "members",
+        }
+      );
+      // sending to all clients except sender
+      socket.broadcast.to(conversationId).emit("make-group-connection-call", {
+        conversationId,
+        conversation,
+        callerId,
+      });
+    }
+  );
+
+  socket.on("join-group-video", ({ conversationId }) => {
+    User_Socket.addUser({ conversationId, userId: socket.id });
+    console.log(
+      User_Socket.getUsersInRoom(
+        conversationId.toString(),
+        socket.id.toString()
+      )
+    );
+    socket.emit("users-in-room", {
+      usersInRoom: User_Socket.getUsersInRoom(
+        conversationId.toString(),
+        socket.id.toString()
+      ),
+    });
+  });
+
+  socket.on("sending-signal", ({ userToSignal, callerId, signal }) => {
+    io_video.to(userToSignal).emit("user-joined", { signal, callerId });
+  });
+
+  socket.on("returning-signal", ({ callerId, signal }) => {
+    io_video
+      .to(callerId)
+      .emit("receiving-returned-signal", { signal, calleeId: socket.id });
+  });
+
+  // socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
+  //   console.log(conversationId);
+  //   console.log(isReceivedCall);
+  //   if (isReceivedCall) {
+  //     User_Socket.removeUser({ conversationId, userId: socket.id });
+  //   } else {
+  //     User_Socket.removeUsersInRoom(conversationId);
+  //   }
+  // });
+
+  socket.on("disconnect", () => {
+    const rooms = User_Socket.getRoomsOfUser({ userId: socket.id });
+    rooms.forEach(({ conversationId }) => {
+      User_Socket.removeUser({
+        userId: socket.id,
+        conversationId: conversationId,
+      });
+      console.log(
+        User_Socket.getUsersInRoom(
+          conversationId.toString(),
+          socket.id.toString()
+        )
+      );
+    });
+  });
 });
 
 const io_notify = io.of("/notify");

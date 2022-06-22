@@ -10,8 +10,9 @@ import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
 import { videoStreamStart } from "../../store/actions/video-chat-function";
+import { videoGroupStreamStart } from "../../store/actions/video-group-function";
 
-const ChatForm = ({ conversation, user, socket_chat }) => {
+const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
   const { reply } = useSelector((state) => state.reply);
@@ -20,7 +21,6 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation);
 
   useEffect(() => {
     let timer = 0;
@@ -119,9 +119,12 @@ const ChatForm = ({ conversation, user, socket_chat }) => {
   const clickVideoCall = async (e) => {
     e.preventDefault();
     if (conversation.no_mems) {
-      return;
+      socket_video.emit("make-group-connection-call", {
+        conversationId: conversation._id,
+        callerId: user._id,
+      });
+      return navigate(`/meeting-group/${conversation._id}`);
     }
-    //   return dispatch(videoStreamStart(navigate, conversation, true, true));
     dispatch(videoStreamStart(navigate, conversation, true));
   };
 

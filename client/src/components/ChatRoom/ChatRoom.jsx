@@ -64,17 +64,14 @@ const ChatRoom = (props) => {
   useEffect(() => {
     socket_video.on(
       "make-connection-call",
-      ({ conversationId, conversation, caller, callee, status, group }) => {
+      ({ conversationId, conversation, caller, callee }) => {
         dispatch(
           conversationActions.setConversation({
             conversation: {
               _id: conversation._id,
               members: conversation.members,
-              name: group ? caller.fullname : conversation.name,
-              status,
-              profilePhoto: group
-                ? caller.profilePhoto
-                : conversation.profilePhoto,
+              name: caller.fullname,
+              profilePhoto: caller.profilePhoto,
             },
           })
         );
@@ -85,13 +82,45 @@ const ChatRoom = (props) => {
               caller,
               callee,
               signal: null,
-              group: group,
             },
           })
         );
+
         setTimeout(() => {
           navigate(`/home-chat/meetings/${conversationId}`);
         }, 1000);
+      }
+    );
+
+    socket_video.on(
+      "make-group-connection-call",
+      ({ conversationId, conversation, callerId }) => {
+        dispatch(
+          conversationActions.setConversation({
+            conversation: {
+              _id: conversation._id,
+              members: conversation.members,
+              name: conversation.name,
+              profilePhoto: conversation.profilePhoto,
+            },
+          })
+        );
+        dispatch(
+          videoActions.setCall({
+            call: {
+              isReceivedCall: true,
+              callerId,
+              group: {
+                groupName: conversation.name,
+                groupImg: conversation.profilePhoto,
+              },
+            },
+          })
+        );
+
+        setTimeout(() => {
+          navigate(`/home-chat/meetings/${conversationId}`);
+        }, 0);
       }
     );
 
@@ -187,6 +216,7 @@ const ChatRoom = (props) => {
                   conversation={conversation}
                   user={user}
                   socket_chat={socket_chat}
+                  socket_video={socket_video}
                 />
               }
             ></Route>
