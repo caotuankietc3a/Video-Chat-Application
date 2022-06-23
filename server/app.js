@@ -202,8 +202,11 @@ io_video.on("connection", (socket) => {
 
 const io_group_video = io.of("/group-video-room");
 io_group_video.on("connection", (socket) => {
-  socket.on("join-group-video", ({ conversationId }) => {
-    User_Socket.addUser({ conversationId, userId: socket.id });
+  socket.on("join-group-video", ({ conversationId, userName, userImg }) => {
+    User_Socket.addUser({
+      conversationId,
+      userInfo: { userId: socket.id, userName, userImg },
+    });
     console.log(User_Socket.getAllUsersInRoom(conversationId));
     socket.emit("users-in-room", {
       usersInRoom: User_Socket.getUsersInRoom(
@@ -213,9 +216,23 @@ io_group_video.on("connection", (socket) => {
     });
   });
 
-  socket.on("sending-signal", ({ userToSignal, callerId, signal }) => {
-    io_group_video.to(userToSignal).emit("user-joined", { signal, callerId });
-  });
+  socket.on(
+    "sending-signal",
+    ({ userToSignal, callerId, signal, conversationId }) => {
+      const { userInfo } = User_Socket.findUser({
+        conversationId,
+        userId: callerId,
+      });
+      io_group_video.to(userToSignal).emit("user-joined", {
+        signal,
+        callerInfo: {
+          callerId: userInfo.userId,
+          callerName: userInfo.userName,
+          callerImg: userInfo.userImg,
+        },
+      });
+    }
+  );
 
   socket.on("returning-signal", ({ callerId, signal }) => {
     io_group_video
@@ -223,17 +240,16 @@ io_group_video.on("connection", (socket) => {
       .emit("receiving-returned-signal", { signal, calleeId: socket.id });
   });
 
-  socket.on("leave-group-video", ({ conversationId, isReceivedCall, user }) => {
+  socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
     // if (isReceivedCall) {
     const userInRoom = User_Socket.removeUser({
       conversationId,
       userId: socket.id,
     });
-    // console.log(userInRoom);
     // console.log(User_Socket.getAllUsersInRoom(conversationId));
     socket.broadcast.emit("user-leaved", {
-      peerId: userInRoom[0].userId,
-      userName: user ? user.fullname : "TEST USER",
+      peerId: userInRoom[0].userInfo.userId,
+      userInfo: userInRoom[0].userInfo,
     });
     // } else {
     //   User_Socket.removeUsersInRoom(conversationId);
@@ -248,7 +264,10 @@ io_group_video.on("connection", (socket) => {
         userId: socket.id,
         conversationId: conversationId,
       });
-      socket.broadcast.emit("user-leaved", { peerId: userInRoom[0].userId });
+      socket.broadcast.emit("user-leaved", {
+        peerId: userInRoom[0].userInfo.userId,
+        userInfo: userInRoom[0].userInfo,
+      });
     });
   });
 });

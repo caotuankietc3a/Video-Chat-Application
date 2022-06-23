@@ -1,12 +1,23 @@
 const users = [];
 class User_Socket {
-  static addUser({ conversationId, userId }) {
-    users.push({ userId, conversationId });
+  static addUser({ conversationId, userInfo }) {
+    users.push({ userInfo, conversationId });
+  }
+
+  static findUser({ conversationId, userId }) {
+    return users.find((user) => {
+      return (
+        user.userInfo.userId === userId &&
+        user.conversationId === conversationId
+      );
+    });
   }
 
   static removeUser({ userId, conversationId }) {
     const index = users.findIndex(
-      (user) => user.userId === userId && user.conversationId === conversationId
+      (user) =>
+        user.userInfo.userId === userId &&
+        user.conversationId === conversationId
     );
     console.log(index);
     if (index !== -1) {
@@ -24,7 +35,7 @@ class User_Socket {
   }
 
   static getRoomsOfUser({ userId }) {
-    return users.filter((user) => user.userId === userId);
+    return users.filter((user) => user.userInfo.userId === userId);
   }
 
   static getNo_UsersInRoom(conversationId) {
@@ -34,7 +45,9 @@ class User_Socket {
 
   static getUsersInRoom(conversationId, id) {
     return users.filter((user) => {
-      return user.conversationId === conversationId && user.userId !== id;
+      return (
+        user.conversationId === conversationId && user.userInfo.userId !== id
+      );
     });
   }
 

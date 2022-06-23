@@ -1,13 +1,21 @@
 import Peer from "simple-peer";
 import { errorActions } from "../slices/error-slice";
-export const createPeer = (userToSignal, stream, callerId, socket_video) => {
+export const createPeer = (
+  userToSignal,
+  stream,
+  conversationId,
+  callerId,
+  socket_video
+) => {
   const peer = new Peer({ initiator: true, trickle: false, stream });
-  console.log(callerId);
-  console.log(socket_video);
 
   peer.on("signal", (signal) => {
-    console.log("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
-    socket_video.emit("sending-signal", { userToSignal, callerId, signal });
+    socket_video.emit("sending-signal", {
+      userToSignal,
+      callerId,
+      conversationId,
+      signal,
+    });
   });
   return peer;
 };
@@ -28,15 +36,10 @@ export const addPeer = (inCommingSignal, callerId, stream, socket_video) => {
   return peer;
 };
 
-const videoConstraints = {
-  height: window.innerHeight / 2,
-  width: window.innerWidth / 2,
-};
-
 export const videoGroupStreamStart = async () => {
   try {
     const currentStream = await navigator.mediaDevices.getUserMedia({
-      video: videoConstraints,
+      video: true,
       audio: true,
     });
     return currentStream;

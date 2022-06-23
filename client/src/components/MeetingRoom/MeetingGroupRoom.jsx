@@ -66,41 +66,70 @@ const MeetingGroupRoom = () => {
         //   conversationId: conversation._id,
         // });
 
-        console.log("okokkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
         socket_group_video.emit("join-group-video", {
           conversationId: conversationId,
+          userName: user ? user.fullname : "TEST USER",
+          userImg: user ? user.profilePhoto : "/images/user-img.jpg",
         });
 
         socket_group_video.on("users-in-room", ({ usersInRoom }) => {
           const array_peer = [];
-          usersInRoom.forEach(({ userId }) => {
+          usersInRoom.forEach(({ userInfo: { userId, userName, userImg } }) => {
             const peer = createPeer(
               userId,
               stream,
+              conversationId,
               socket_group_video.id,
               socket_group_video
             );
-            array_peer.push({ peer, peerId: userId, stream });
-            peersRef.current.push({ peer, peerId: userId, stream });
+            const peerObject = {
+              peer,
+              peerInfo: {
+                peerId: userId,
+                peerName: userName,
+                peerImg: userImg,
+              },
+              stream,
+            };
+
+            array_peer.push(peerObject);
+            peersRef.current.push(peerObject);
           });
+          console.log(array_peer);
           setPeers(array_peer);
         });
 
-        socket_group_video.on("user-joined", ({ callerId, signal }) => {
-          const peer = addPeer(signal, callerId, stream, socket_group_video);
-          console.log(peer);
-          peersRef.current.push({ peerId: callerId, peer, stream });
-          setPeers((prePeers) => [
-            ...prePeers,
-            { peerId: callerId, peer, stream },
-          ]);
-        });
+        socket_group_video.on(
+          "user-joined",
+          ({ callerInfo: { callerId, callerName, callerImg }, signal }) => {
+            const peer = addPeer(signal, callerId, stream, socket_group_video);
+            const peerObject = {
+              peerInfo: {
+                peerId: callerId,
+                peerName: callerName,
+                peerImg: callerImg,
+              },
+              peer,
+              stream,
+            };
+            peersRef.current.push(peerObject);
+            setPeers((prePeers) => [...prePeers, peerObject]);
+            console.log(callerName);
+            console.log(callerId);
+
+            dispatch(
+              errorActions.setNotify({
+                notify: `${callerName} joined this meeting room!!!`,
+              })
+            );
+          }
+        );
 
         socket_group_video.on(
           "receiving-returned-signal",
           ({ signal, calleeId }) => {
             const peerObject = peersRef.current.find(
-              ({ peerId }) => peerId === calleeId
+              ({ peerInfo }) => peerInfo.peerId === calleeId
             );
             peerObject.peer.signal(signal);
           }
@@ -109,13 +138,18 @@ const MeetingGroupRoom = () => {
         console.error(err);
       }
     })();
+    return () => {
+      dispatch(errorActions.setErrorNotify());
+    };
   }, []);
 
   useEffect(() => {
-    socket_group_video.on("user-leaved", ({ peerId, userName }) => {
+    socket_group_video.on("user-leaved", ({ peerId, userInfo }) => {
+      console.log(userInfo);
       const index = peersRef.current.findIndex(
-        (peer) => peer.peerId === peerId
+        (peer) => peer.peerInfo.peerId === peerId
       );
+      console.log(index);
       if (index !== -1) {
         peersRef.current.splice(index, 1);
         setPeers((prePeers) => {
@@ -124,7 +158,7 @@ const MeetingGroupRoom = () => {
         });
         dispatch(
           errorActions.setNotify({
-            notify: `${userName} leaved this meeting room!!!`,
+            notify: `${userInfo?.userName} leaved this meeting room!!!`,
           })
         );
       }
@@ -139,7 +173,6 @@ const MeetingGroupRoom = () => {
     socket_group_video.emit("leave-group-video", {
       conversationId,
       isReceivedCall,
-      user,
     });
     navigate("/home-chat");
     stream?.getTracks().forEach(function (track) {
