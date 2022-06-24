@@ -83,13 +83,17 @@ export const videoGroupStreamStart = async () => {
   }
 };
 
-export const shareGroupScreen = (screenStream, stream, peer, cb) => {
+export const shareGroupScreen = (screenStream, stream, peers) => {
   const screenTrack = screenStream.getTracks()[0];
   const videoTrack = stream.getTracks().find((track) => track.kind === "video");
+
   screenTrack.onended = (e) => {
-    cb();
-    peer.replaceTrack(screenStream, videoTrack, stream);
+    peers.forEach(({ peer }) => {
+      peer.replaceTrack(screenTrack, videoTrack, stream);
+    });
   };
 
-  peer.replaceTrack(videoTrack, screenTrack, stream);
+  peers.forEach(({ peer }) => {
+    peer.replaceTrack(videoTrack, screenTrack, stream);
+  });
 };

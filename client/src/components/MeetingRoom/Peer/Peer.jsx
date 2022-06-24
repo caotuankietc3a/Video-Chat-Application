@@ -16,7 +16,7 @@ const Peer = ({
   width,
   height,
   name,
-  isTurnOnAudio,
+  displayText,
 }) => {
   return type !== "main-screen-peer" ? (
     <PeerInfo className={type}>
@@ -28,7 +28,7 @@ const Peer = ({
           <img src={userImg} alt="Unknown" />
         </VideoRemotePeerImg>
         <VideoRemotePeerStatus fontsize={fontsize} padding={padding}>
-          {isTurnOnAudio ? "Audio only" : "Spectator"}
+          {displayText}
         </VideoRemotePeerStatus>
       </VideoRemotePeer>
     </PeerInfo>
@@ -41,7 +41,7 @@ const Peer = ({
         <img src={userImg} alt="Unknown" />
       </VideoRemotePeerImg>
       <VideoRemotePeerStatus fontsize={fontsize} padding={padding}>
-        {isTurnOnAudio ? "Audio only" : "Spectator"}
+        {displayText}
       </VideoRemotePeerStatus>
     </VideoRemotePeer>
   );

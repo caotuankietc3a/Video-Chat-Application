@@ -74,6 +74,16 @@ class User_Socket {
     );
     users[index].userInfo.userMuted = !users[index].userInfo.userMuted;
   }
+
+  static updateUserShareScreen({ userId, conversationId }) {
+    const index = users.findIndex(
+      (user) =>
+        user.userInfo.userId === userId &&
+        user.conversationId === conversationId
+    );
+    users[index].userInfo.userShareScreen =
+      !users[index].userInfo.userShareScreen;
+  }
 }
 
 module.exports = User_Socket;

@@ -204,7 +204,14 @@ const io_group_video = io.of("/group-video-room");
 io_group_video.on("connection", (socket) => {
   socket.on(
     "join-group-video",
-    ({ conversationId, userName, userImg, userShowVideo, userMuted }) => {
+    ({
+      conversationId,
+      userName,
+      userImg,
+      userShowVideo,
+      userMuted,
+      userShareScreen,
+    }) => {
       User_Socket.addUser({
         conversationId,
         userInfo: {
@@ -213,6 +220,7 @@ io_group_video.on("connection", (socket) => {
           userImg,
           userShowVideo,
           userMuted,
+          userShareScreen,
         },
       });
       console.log(User_Socket.getAllUsersInRoom(conversationId));
@@ -242,6 +250,7 @@ io_group_video.on("connection", (socket) => {
           callerImg: userInfo.userImg,
           callerShowVideo: userInfo.userShowVideo,
           callerMuted: userInfo.userMuted,
+          callerShareScreen: userInfo.userShareScreen,
         },
       });
     }
@@ -267,7 +276,14 @@ io_group_video.on("connection", (socket) => {
       .emit("toggle-group-muted", { peerId: socket.id });
   });
 
-  socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
+  socket.on("group-share-screen", ({ conversationId }) => {
+    User_Socket.updateUserShareScreen({ conversationId, userId: socket.id });
+    socket.broadcast
+      .to(conversationId)
+      .emit("group-share-screen", { peerId: socket.id });
+  });
+
+  socket.on("leave-group-video", ({ conversationId }) => {
     const userInRoom = User_Socket.removeUser({
       conversationId,
       userId: socket.id,
