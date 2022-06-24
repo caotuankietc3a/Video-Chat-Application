@@ -260,21 +260,23 @@ io_group_video.on("connection", (socket) => {
       .emit("toggle-group-video", { peerId: socket.id });
   });
 
+  socket.on("toggle-group-muted", ({ conversationId }) => {
+    User_Socket.updateUserMuted({ conversationId, userId: socket.id });
+    socket.broadcast
+      .to(conversationId)
+      .emit("toggle-group-muted", { peerId: socket.id });
+  });
+
   socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
-    // if (isReceivedCall) {
     const userInRoom = User_Socket.removeUser({
       conversationId,
       userId: socket.id,
     });
-    // console.log(User_Socket.getAllUsersInRoom(conversationId));
+    console.log(userInRoom);
     socket.broadcast.emit("user-leaved", {
       peerId: userInRoom[0].userInfo.userId,
       userInfo: userInRoom[0].userInfo,
     });
-    // } else {
-    //   User_Socket.removeUsersInRoom(conversationId);
-    //   const userInRoom = User_Socket.removeUser({ conversationId, userId: socket.id });
-    // }
   });
 
   socket.on("disconnect", () => {

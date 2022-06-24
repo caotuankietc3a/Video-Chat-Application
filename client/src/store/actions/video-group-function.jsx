@@ -5,7 +5,9 @@ export const createPeer = (
   stream,
   conversationId,
   callerId,
-  socket_video
+  socket_video,
+  setPeers,
+  peersRef
 ) => {
   const peer = new Peer({ initiator: true, trickle: false, stream });
 
@@ -17,10 +19,30 @@ export const createPeer = (
       signal,
     });
   });
+
+  peer.on("stream", (stream) => {
+    const index = peersRef.current.findIndex(
+      ({ peerInfo }) => peerInfo.peerId === userToSignal
+    );
+    if (index !== -1) {
+      setPeers((prePeers) => {
+        prePeers[index].stream = stream;
+        return [...prePeers];
+      });
+      peersRef.current[index].stream = stream;
+    }
+  });
   return peer;
 };
 
-export const addPeer = (inCommingSignal, callerId, stream, socket_video) => {
+export const addPeer = (
+  inCommingSignal,
+  callerId,
+  stream,
+  socket_video,
+  setPeers,
+  peersRef
+) => {
   const peer = new Peer({
     initiator: false,
     trickle: false,
@@ -29,6 +51,19 @@ export const addPeer = (inCommingSignal, callerId, stream, socket_video) => {
 
   peer.on("signal", (signal) => {
     socket_video.emit("returning-signal", { callerId, signal });
+  });
+
+  peer.on("stream", (stream) => {
+    const index = peersRef.current.findIndex(
+      ({ peerInfo }) => peerInfo.peerId === callerId
+    );
+    if (index !== -1) {
+      setPeers((prePeers) => {
+        prePeers[index].stream = stream;
+        return [...prePeers];
+      });
+      peersRef.current.stream = stream;
+    }
   });
 
   peer.signal(inCommingSignal);
@@ -46,4 +81,15 @@ export const videoGroupStreamStart = async () => {
   } catch (err) {
     console.error(err);
   }
+};
+
+export const shareGroupScreen = (screenStream, stream, peer, cb) => {
+  const screenTrack = screenStream.getTracks()[0];
+  const videoTrack = stream.getTracks().find((track) => track.kind === "video");
+  screenTrack.onended = (e) => {
+    cb();
+    peer.replaceTrack(screenStream, videoTrack, stream);
+  };
+
+  peer.replaceTrack(videoTrack, screenTrack, stream);
 };

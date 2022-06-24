@@ -33,6 +33,7 @@ import Peer from "./Peer/Peer";
 import {
   addPeer,
   createPeer,
+  shareGroupScreen,
   videoGroupStreamStart,
 } from "../../store/actions/video-group-function";
 import VideoDisplay from "./Peer/VideoDisplay";
@@ -43,14 +44,17 @@ import Notification from "../Notification/Notification";
 const MeetingGroupRoom = () => {
   console.log("MeetingGroupRoom running");
   const myVideo = useRef(null);
+  const [stream, setStream] = useState(null);
+  const [screenStream, setScreenStream] = useState(null);
   const navigate = useNavigate();
+  const [toggleMuted, setToggleMuted] = useState(false);
   const dispatch = useDispatch();
   const [peers, setPeers] = useState([]);
   const peersRef = useRef([]);
   const { conversationId } = useParams();
   const [searchParams] = useSearchParams();
   const [showTopControls, setShowTopControls] = useState(false);
-  const [showVideo, setShowVideo] = useState(true);
+  const [showVideo, setShowVideo] = useState(false);
   const { socket_group_video } = useSelector((state) => state.socket);
   const {
     call: { isReceivedCall },
@@ -62,10 +66,11 @@ const MeetingGroupRoom = () => {
     (async () => {
       try {
         const stream = await videoGroupStreamStart();
+        setStream(stream);
         const isShowVideo = parseInt(searchParams.get("showVideo"));
         setShowVideo(isShowVideo ? true : false);
 
-        myVideo.current.srcObject = stream;
+        myVideo.current.srcObject = isShowVideo ? stream : null;
 
         socket_group_video.emit("join-group-video", {
           conversationId: conversationId,
@@ -86,7 +91,9 @@ const MeetingGroupRoom = () => {
                 stream,
                 conversationId,
                 socket_group_video.id,
-                socket_group_video
+                socket_group_video,
+                setPeers,
+                peersRef
               );
               const peerObject = {
                 peer,
@@ -97,7 +104,8 @@ const MeetingGroupRoom = () => {
                   peerShowVideo: userShowVideo,
                   peerMuted: userMuted,
                 },
-                stream,
+                // stream,
+                stream: null,
               };
 
               array_peer.push(peerObject);
@@ -119,7 +127,14 @@ const MeetingGroupRoom = () => {
             },
             signal,
           }) => {
-            const peer = addPeer(signal, callerId, stream, socket_group_video);
+            const peer = addPeer(
+              signal,
+              callerId,
+              stream,
+              socket_group_video,
+              setPeers,
+              peersRef
+            );
             const peerObject = {
               peerInfo: {
                 peerId: callerId,
@@ -129,7 +144,8 @@ const MeetingGroupRoom = () => {
                 peerMuted: callerMuted,
               },
               peer,
-              stream,
+              // stream,
+              stream: null,
             };
             peersRef.current.push(peerObject);
             setPeers((prePeers) => [...prePeers, peerObject]);
@@ -185,7 +201,26 @@ const MeetingGroupRoom = () => {
       peerObj.peerInfo.peerShowVideo = !peerObj.peerInfo.peerShowVideo;
       setPeers([...peersRef.current]);
     });
+
+    socket_group_video.on("toggle-group-muted", ({ peerId }) => {
+      const peerObj = peersRef.current.find(
+        (peer) => peer.peerInfo.peerId === peerId
+      );
+      peerObj.peerInfo.peerMuted = !peerObj.peerInfo.peerMuted;
+      setPeers([...peersRef.current]);
+    });
   }, []);
+
+  useEffect(() => {
+    if (screenStream) {
+      peersRef.current.forEach(({ peer }) => {
+        shareGroupScreen(screenStream, stream, peer, () => {
+          setScreenStream(null);
+          // setShareGroupScreen(null);
+        });
+      });
+    }
+  }, [screenStream, peersRef.current, peers]);
 
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
@@ -204,8 +239,27 @@ const MeetingGroupRoom = () => {
 
   const toggleGroupVideoHandler = () => {
     setShowVideo(!showVideo);
+    myVideo.current.srcObject = !showVideo ? stream : null;
     socket_group_video.emit("toggle-group-video", {
       conversationId,
+    });
+  };
+
+  const makeMutedAudio = (e) => {
+    socket_group_video.emit("toggle-group-muted", { conversationId });
+    setToggleMuted(!toggleMuted);
+  };
+
+  const shareGroupScreenHandler = async () => {
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({
+      cursor: true,
+    });
+
+    setScreenStream(screenStream);
+    peersRef.current.forEach(({ peer }) => {
+      shareGroupScreen(screenStream, stream, peer, () => {
+        setScreenStream(null);
+      });
     });
   };
 
@@ -223,7 +277,7 @@ const MeetingGroupRoom = () => {
     },
     peers
   ) => {
-    return peers.map(
+    return peers?.map(
       (
         {
           peer,
@@ -235,25 +289,45 @@ const MeetingGroupRoom = () => {
         <Fragment key={index}>
           {peerShowVideo ? (
             <StyledVideo>
-              <VideoDisplay peer={peer} stream={stream} />
+              <VideoDisplay peer={peer} stream={stream} muted={peerMuted} />
             </StyledVideo>
           ) : (
-            <Peer
-              type={type}
-              padding={padding}
-              fontsize={fontsize}
-              width={width}
-              margin={margin}
-              height={height}
-              heightImg={heightImg}
-              widthImg={widthImg}
-              userImg={peerImg}
-              name={peerName}
-              isTurnOnAudio={isTurnOnAudio}
-            />
+            <>
+              <Peer
+                type={type}
+                padding={padding}
+                fontsize={fontsize}
+                width={width}
+                margin={margin}
+                height={height}
+                heightImg={heightImg}
+                widthImg={widthImg}
+                userImg={peerImg}
+                name={peerName}
+                isTurnOnAudio={isTurnOnAudio}
+              />
+              <VideoDisplay
+                peer={peer}
+                stream={stream}
+                muted={peerMuted}
+                hidden={true}
+              />
+            </>
           )}
         </Fragment>
       )
+    );
+  };
+
+  const returnPeersOnTopControl = (peers, showTopControls) => {
+    return peers.map(
+      ({ peer, stream, peerInfo: { peerShowVideo, peerMuted } }, index) => {
+        return (
+          <MyVideo showTop={true} key={index}>
+            <VideoDisplay key={index} peer={peer} stream={stream} />
+          </MyVideo>
+        );
+      }
     );
   };
 
@@ -291,28 +365,11 @@ const MeetingGroupRoom = () => {
               name={"TESTUSER"}
               isTurnOnAudio={false}
             />
-
-            {peers.map(
-              (
-                { peer, stream, peerInfo: { peerShowVideo, peerMuted } },
-                index
-              ) => {
-                return (
-                  <MyVideo showTop={true} key={index}>
-                    <VideoDisplay key={index} peer={peer} stream={stream} />
-                  </MyVideo>
-                );
-              }
-            )}
           </Peers>
         )}
 
         <MyVideo showTop={showTopControls}>
-          <video ref={myVideo} autoPlay={true} muted={true}></video>
-
-          {/* {!showVideo && ( */}
-          {/*   <video ref={myVideo} autoPlay={false} muted={true}></video> */}
-          {/* )} */}
+          <video ref={myVideo} autoPlay={true} muted={true} playsInline></video>
         </MyVideo>
 
         {showTopControls && (
@@ -343,10 +400,10 @@ const MeetingGroupRoom = () => {
           <FunctionControls onClick={toggleGroupVideoHandler}>
             {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
-          <FunctionControls>
-            <AiOutlineAudio />
+          <FunctionControls onClick={makeMutedAudio}>
+            {!toggleMuted ? <AiOutlineAudio /> : <AiOutlineAudioMuted />}
           </FunctionControls>
-          <FunctionControls>
+          <FunctionControls onClick={shareGroupScreenHandler}>
             <CgScreen />
           </FunctionControls>
           <FunctionControls

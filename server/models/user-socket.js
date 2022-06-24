@@ -63,9 +63,16 @@ class User_Socket {
         user.userInfo.userId === userId &&
         user.conversationId === conversationId
     );
-    console.log("dddddddddddddddddd ", index);
     users[index].userInfo.userShowVideo = !users[index].userInfo.userShowVideo;
-    console.log(users[index]);
+  }
+
+  static updateUserMuted({ userId, conversationId }) {
+    const index = users.findIndex(
+      (user) =>
+        user.userInfo.userId === userId &&
+        user.conversationId === conversationId
+    );
+    users[index].userInfo.userMuted = !users[index].userInfo.userMuted;
   }
 }
 
