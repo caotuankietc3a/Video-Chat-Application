@@ -56,6 +56,17 @@ class User_Socket {
       return user.conversationId === conversationId;
     });
   }
+
+  static updateUserShowVideo({ userId, conversationId }) {
+    const index = users.findIndex(
+      (user) =>
+        user.userInfo.userId === userId &&
+        user.conversationId === conversationId
+    );
+    console.log("dddddddddddddddddd ", index);
+    users[index].userInfo.userShowVideo = !users[index].userInfo.userShowVideo;
+    console.log(users[index]);
+  }
 }
 
 module.exports = User_Socket;

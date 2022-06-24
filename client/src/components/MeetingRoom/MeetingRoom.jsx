@@ -46,7 +46,6 @@ const MeetingRoom = (props) => {
   const navigate = useNavigate();
   const { socket_video } = useSelector((state) => state.socket);
   const { conversation } = useSelector((state) => state.conversation);
-  const { user } = useSelector((state) => state.user);
 
   const {
     stream,
@@ -121,8 +120,6 @@ const MeetingRoom = (props) => {
     });
     dispatch(videoActions.setShowVideo({ showVideo: !showVideo }));
   };
-  console.log(conversation.members);
-  console.log(showTopControls);
 
   const returnPeerHandler = (
     { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },

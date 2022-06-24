@@ -5,17 +5,19 @@ import {
   VideoRemotePeerStatus,
   PeerInfo,
 } from "./StyledPeer";
-const Peer = (props) => {
-  const {
-    fontsize,
-    padding,
-    heightImg,
-    widthImg,
-    userImg,
-    type,
-    name,
-    isTurnOnAudio,
-  } = props;
+const Peer = ({
+  fontsize,
+  padding,
+  heightImg,
+  margin,
+  widthImg,
+  userImg,
+  type,
+  width,
+  height,
+  name,
+  isTurnOnAudio,
+}) => {
   return type !== "main-screen-peer" ? (
     <PeerInfo className={type}>
       <VideoRemotePeer>
@@ -31,7 +33,7 @@ const Peer = (props) => {
       </VideoRemotePeer>
     </PeerInfo>
   ) : (
-    <VideoRemotePeer>
+    <VideoRemotePeer height={height} width={width} margin={margin}>
       <VideoRemotePeerName fontsize={fontsize} padding={padding}>
         {name}
       </VideoRemotePeerName>

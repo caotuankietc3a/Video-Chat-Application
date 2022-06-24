@@ -58,9 +58,9 @@ export const UserVideo = styled.div`
   justify-content: center;
   align-items: center;
   & video {
-    height: 100%;
     border-radius: 8px;
     width: ${({ isFullScreen }) => (isFullScreen ? "100%" : "90%")};
+    height: ${({ isFullScreen }) => (isFullScreen ? "100%" : "90%")};
     object-fit: cover;
     z-index: -900;
     background-color: #3c4043;

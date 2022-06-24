@@ -147,8 +147,8 @@ const ChatRoom = (props) => {
   // }, [createGroup]);
 
   useEffect(() => {
-    dispatch(fetchFriends());
-  }, []);
+    if (user) dispatch(fetchFriends());
+  }, [user]);
   //
   // useEffect(() => {
   //   if (forward || isClickedConversation) dispatch(fetchFriends(true));

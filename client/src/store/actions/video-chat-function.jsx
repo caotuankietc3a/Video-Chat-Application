@@ -149,6 +149,7 @@ export const rejectCall = (navigate) => {
       // Becareful the order of navigate and dispatch
       navigate(`/home-chat`);
       dispatch(videoActions.setVideoState());
+      dispatch(errorActions.setErrorNotify());
       // window.location.reload();
 
       // Must check again. Cannot use peer.destroy().
@@ -166,7 +167,7 @@ export const rejectCall = (navigate) => {
 export const leaveMeetingRoom = (navigate) => {
   return (dispatch) => {
     dispatch(rejectCall(navigate));
-    window.location.reload();
+    // window.location.reload();
   };
 };
 

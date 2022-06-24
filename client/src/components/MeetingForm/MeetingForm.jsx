@@ -24,6 +24,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { errorActions } from "../../store/slices/error-slice";
+import { videoActions } from "../../store/slices/video-chat-slice";
 
 function MeetingForm({ conversation }) {
   console.log("MeetingForm running");
@@ -108,7 +109,7 @@ function MeetingForm({ conversation }) {
       });
       dispatch(answerCall(socket_video, true));
     } else {
-      navigate(`/meeting-group/${conversation._id}`);
+      navigate(`/meeting-group/${conversation._id}?showVideo=1`);
     }
   };
 
@@ -122,7 +123,7 @@ function MeetingForm({ conversation }) {
       });
       dispatch(answerCall(socket_video, false));
     } else {
-      navigate(`/meeting-group/${conversation._id}`);
+      navigate(`/meeting-group/${conversation._id}?showVideo=0`);
     }
   };
 

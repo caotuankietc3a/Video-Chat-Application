@@ -15,6 +15,22 @@ export const postData = async (data, typeUrl) => {
   return res.json();
 };
 
+export const postGroupData = async (
+  { groupImg, groupName, members },
+  typeUrl
+) => {
+  console.log(members);
+  const formData = new FormData();
+  formData.append("groupImg", groupImg);
+  formData.append("groupName", groupName);
+  formData.append("members", members);
+  const res = await fetch(typeUrl, {
+    method: "POST",
+    body: formData,
+  });
+  console.log(await res.json());
+};
+
 export const fetchUserLogin = (navigate, type = 0) => {
   return async (dispatch, getState) => {
     try {
@@ -63,6 +79,7 @@ export const fetchFriends = () => {
   return async (dispatch, getState) => {
     try {
       const { user } = getState().user;
+      console.log(user);
       if (user) {
         const resFriends = await fetch(
           `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,

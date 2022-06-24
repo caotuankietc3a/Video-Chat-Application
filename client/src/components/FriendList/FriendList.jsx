@@ -49,17 +49,18 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
       return [...preMems];
     });
   };
+  console.log(no_members);
 
   const groupNameHandle = (e) => {
     setGroupName(e.target.value);
   };
-  const groupImgHandle = (e) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      setGroupImg(reader.result);
-    };
-    reader.readAsDataURL(inputFileEl?.current.files[0]);
-  };
+  // const groupImgHandle = (e) => {
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     setGroupImg(reader.result);
+  //   };
+  //   reader.readAsDataURL(inputFileEl?.current.files[0]);
+  // };
 
   const friendsHandler = (friends, searchText, createGroup = false) => {
     return friends
@@ -139,7 +140,8 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
               <GroupName>
                 <div>
                   <label className="label">Choose profile picture</label>
-                  <div className="custom-file" onChange={groupImgHandle}>
+                  {/* <div className="custom-file" onChange={groupImgHandle}> */}
+                  <div className="custom-file">
                     <label htmlFor="upload-file" className="choose-file">
                       Choose file
                     </label>
@@ -188,7 +190,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
                     dispatch,
                     {
                       members: no_members,
-                      groupImg,
+                      groupImg: inputFileEl?.current.files[0],
                       groupName,
                     },
                     isClosedHandler

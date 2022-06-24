@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 const cors = require("cors");
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const Conversation = require("./models/conversation");
-const uri =
-  "mongodb+srv://kietcao:hokgadau123@cluster0.ps9wx.mongodb.net/chat-zoom?";
 
 const http = require("http");
 const server = http.createServer(app);
@@ -17,6 +16,7 @@ const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
+const imageRoutes = require("./routes/upload-file");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 const {
@@ -37,7 +37,7 @@ app.use(
 );
 
 const store = new MongoDBStore({
-  uri: uri,
+  uri: process.env.MONGOOSE_URL,
   collection: "session-store",
 });
 
@@ -202,19 +202,30 @@ io_video.on("connection", (socket) => {
 
 const io_group_video = io.of("/group-video-room");
 io_group_video.on("connection", (socket) => {
-  socket.on("join-group-video", ({ conversationId, userName, userImg }) => {
-    User_Socket.addUser({
-      conversationId,
-      userInfo: { userId: socket.id, userName, userImg },
-    });
-    console.log(User_Socket.getAllUsersInRoom(conversationId));
-    socket.emit("users-in-room", {
-      usersInRoom: User_Socket.getUsersInRoom(
-        conversationId.toString(),
-        socket.id.toString()
-      ),
-    });
-  });
+  socket.on(
+    "join-group-video",
+    ({ conversationId, userName, userImg, userShowVideo, userMuted }) => {
+      User_Socket.addUser({
+        conversationId,
+        userInfo: {
+          userId: socket.id,
+          userName,
+          userImg,
+          userShowVideo,
+          userMuted,
+        },
+      });
+      console.log(User_Socket.getAllUsersInRoom(conversationId));
+      socket.emit("users-in-room", {
+        usersInRoom: User_Socket.getUsersInRoom(
+          conversationId.toString(),
+          socket.id.toString()
+        ),
+      });
+      socket.join(conversationId);
+      console.log("Video Group Rooms: ", io_group_video.adapter.rooms);
+    }
+  );
 
   socket.on(
     "sending-signal",
@@ -229,6 +240,8 @@ io_group_video.on("connection", (socket) => {
           callerId: userInfo.userId,
           callerName: userInfo.userName,
           callerImg: userInfo.userImg,
+          callerShowVideo: userInfo.userShowVideo,
+          callerMuted: userInfo.userMuted,
         },
       });
     }
@@ -238,6 +251,13 @@ io_group_video.on("connection", (socket) => {
     io_group_video
       .to(callerId)
       .emit("receiving-returned-signal", { signal, calleeId: socket.id });
+  });
+
+  socket.on("toggle-group-video", ({ conversationId }) => {
+    User_Socket.updateUserShowVideo({ conversationId, userId: socket.id });
+    socket.broadcast
+      .to(conversationId)
+      .emit("toggle-group-video", { peerId: socket.id });
   });
 
   socket.on("leave-group-video", ({ conversationId, isReceivedCall }) => {
@@ -291,10 +311,11 @@ app.use("/auth", authRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
 app.use("/meeting", meetingRoutes);
+app.use("/images", imageRoutes);
 
 (async function () {
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(process.env.MONGOOSE_URL);
     server.listen(5000, () => {
       console.log("Server is on port 5000!!!");
     });

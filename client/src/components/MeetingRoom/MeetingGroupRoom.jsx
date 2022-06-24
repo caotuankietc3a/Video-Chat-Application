@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import {
   FiMenu,
@@ -48,7 +48,9 @@ const MeetingGroupRoom = () => {
   const [peers, setPeers] = useState([]);
   const peersRef = useRef([]);
   const { conversationId } = useParams();
+  const [searchParams] = useSearchParams();
   const [showTopControls, setShowTopControls] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
   const { socket_group_video } = useSelector((state) => state.socket);
   const {
     call: { isReceivedCall },
@@ -56,66 +58,81 @@ const MeetingGroupRoom = () => {
 
   const { user } = useSelector((state) => state.user);
   const { notify } = useSelector((state) => state.error);
-  console.log(user);
   useEffect(() => {
     (async () => {
       try {
         const stream = await videoGroupStreamStart();
+        const isShowVideo = parseInt(searchParams.get("showVideo"));
+        setShowVideo(isShowVideo ? true : false);
+
         myVideo.current.srcObject = stream;
-        // socket_group_video.emit("join-group-video", {
-        //   conversationId: conversation._id,
-        // });
 
         socket_group_video.emit("join-group-video", {
           conversationId: conversationId,
           userName: user ? user.fullname : "TEST USER",
           userImg: user ? user.profilePhoto : "/images/user-img.jpg",
+          userShowVideo: isShowVideo ? true : false,
+          userMuted: false,
         });
 
         socket_group_video.on("users-in-room", ({ usersInRoom }) => {
           const array_peer = [];
-          usersInRoom.forEach(({ userInfo: { userId, userName, userImg } }) => {
-            const peer = createPeer(
-              userId,
-              stream,
-              conversationId,
-              socket_group_video.id,
-              socket_group_video
-            );
-            const peerObject = {
-              peer,
-              peerInfo: {
-                peerId: userId,
-                peerName: userName,
-                peerImg: userImg,
-              },
-              stream,
-            };
+          usersInRoom.forEach(
+            ({
+              userInfo: { userId, userName, userImg, userShowVideo, userMuted },
+            }) => {
+              const peer = createPeer(
+                userId,
+                stream,
+                conversationId,
+                socket_group_video.id,
+                socket_group_video
+              );
+              const peerObject = {
+                peer,
+                peerInfo: {
+                  peerId: userId,
+                  peerName: userName,
+                  peerImg: userImg,
+                  peerShowVideo: userShowVideo,
+                  peerMuted: userMuted,
+                },
+                stream,
+              };
 
-            array_peer.push(peerObject);
-            peersRef.current.push(peerObject);
-          });
-          console.log(array_peer);
+              array_peer.push(peerObject);
+              peersRef.current.push(peerObject);
+            }
+          );
           setPeers(array_peer);
         });
 
         socket_group_video.on(
           "user-joined",
-          ({ callerInfo: { callerId, callerName, callerImg }, signal }) => {
+          ({
+            callerInfo: {
+              callerId,
+              callerName,
+              callerImg,
+              callerShowVideo,
+              callerMuted,
+            },
+            signal,
+          }) => {
             const peer = addPeer(signal, callerId, stream, socket_group_video);
             const peerObject = {
               peerInfo: {
                 peerId: callerId,
                 peerName: callerName,
                 peerImg: callerImg,
+                peerShowVideo: callerShowVideo,
+                peerMuted: callerMuted,
               },
               peer,
               stream,
             };
             peersRef.current.push(peerObject);
             setPeers((prePeers) => [...prePeers, peerObject]);
-            console.log(callerName);
-            console.log(callerId);
 
             dispatch(
               errorActions.setNotify({
@@ -145,11 +162,9 @@ const MeetingGroupRoom = () => {
 
   useEffect(() => {
     socket_group_video.on("user-leaved", ({ peerId, userInfo }) => {
-      console.log(userInfo);
       const index = peersRef.current.findIndex(
         (peer) => peer.peerInfo.peerId === peerId
       );
-      console.log(index);
       if (index !== -1) {
         peersRef.current.splice(index, 1);
         setPeers((prePeers) => {
@@ -162,6 +177,13 @@ const MeetingGroupRoom = () => {
           })
         );
       }
+    });
+    socket_group_video.on("toggle-group-video", ({ peerId }) => {
+      const peerObj = peersRef.current.find(
+        (peer) => peer.peerInfo.peerId === peerId
+      );
+      peerObj.peerInfo.peerShowVideo = !peerObj.peerInfo.peerShowVideo;
+      setPeers([...peersRef.current]);
     });
   }, []);
 
@@ -179,6 +201,65 @@ const MeetingGroupRoom = () => {
       track.stop();
     });
   };
+
+  const toggleGroupVideoHandler = () => {
+    setShowVideo(!showVideo);
+    socket_group_video.emit("toggle-group-video", {
+      conversationId,
+    });
+  };
+
+  const returnPeerHandler = (
+    {
+      type,
+      padding,
+      fontsize,
+      heightImg,
+      margin,
+      widthImg,
+      width,
+      height,
+      isTurnOnAudio = false,
+    },
+    peers
+  ) => {
+    return peers.map(
+      (
+        {
+          peer,
+          stream,
+          peerInfo: { peerShowVideo, peerMuted, peerName, peerImg },
+        },
+        index
+      ) => (
+        <Fragment key={index}>
+          {peerShowVideo ? (
+            <StyledVideo>
+              <VideoDisplay peer={peer} stream={stream} />
+            </StyledVideo>
+          ) : (
+            <Peer
+              type={type}
+              padding={padding}
+              fontsize={fontsize}
+              width={width}
+              margin={margin}
+              height={height}
+              heightImg={heightImg}
+              widthImg={widthImg}
+              userImg={peerImg}
+              name={peerName}
+              isTurnOnAudio={isTurnOnAudio}
+            />
+          )}
+        </Fragment>
+      )
+    );
+  };
+
+  // {/* <MyVideo> */}
+  // {/*   <VideoDisplay peer={peer} stream={stream} /> */}
+  // {/* </MyVideo> */}
 
   return (
     <MeetingContainer>
@@ -211,19 +292,27 @@ const MeetingGroupRoom = () => {
               isTurnOnAudio={false}
             />
 
-            {peers.map(({ peer, stream }, index) => {
-              console.log(peer);
-              return (
-                <MyVideo showTop={true} key={index}>
-                  <VideoDisplay key={index} peer={peer} stream={stream} />;
-                </MyVideo>
-              );
-            })}
+            {peers.map(
+              (
+                { peer, stream, peerInfo: { peerShowVideo, peerMuted } },
+                index
+              ) => {
+                return (
+                  <MyVideo showTop={true} key={index}>
+                    <VideoDisplay key={index} peer={peer} stream={stream} />
+                  </MyVideo>
+                );
+              }
+            )}
           </Peers>
         )}
 
         <MyVideo showTop={showTopControls}>
           <video ref={myVideo} autoPlay={true} muted={true}></video>
+
+          {/* {!showVideo && ( */}
+          {/*   <video ref={myVideo} autoPlay={false} muted={true}></video> */}
+          {/* )} */}
         </MyVideo>
 
         {showTopControls && (
@@ -235,18 +324,24 @@ const MeetingGroupRoom = () => {
 
       <MeetingVideoWrapper>
         <Container showTop={showTopControls}>
-          {peers.map(({ peer, stream }, index) => {
-            console.log(peer);
-            return (
-              <StyledVideo key={index}>
-                <VideoDisplay peer={peer} stream={stream} />
-              </StyledVideo>
-            );
-          })}
+          {returnPeerHandler(
+            {
+              type: "main-screen-peer",
+              height: "405px",
+              width: "719px",
+              margin: "20px",
+              padding: "0 0",
+              fontsize: "18px",
+              heightImg: "120px",
+              widthImg: "120px",
+              isTurnOnAudio: false,
+            },
+            peers
+          )}
         </Container>
         <MeetingBottomControls>
-          <FunctionControls>
-            <FiVideo />
+          <FunctionControls onClick={toggleGroupVideoHandler}>
+            {showVideo ? <FiVideo /> : <FiVideoOff />}
           </FunctionControls>
           <FunctionControls>
             <AiOutlineAudio />

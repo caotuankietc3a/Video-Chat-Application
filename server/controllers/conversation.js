@@ -3,12 +3,13 @@ const User = require("../models/user");
 const { Types } = require("mongoose");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
-    const { members, groupName, groupImg } = req.body;
+    const { members, groupName } = req.body;
+    const groupImg = req.file;
     const newConversation = new Conversation({
-      members: members.map((mem) => Types.ObjectId(mem)),
+      members: members.split(",").map((mem) => Types.ObjectId(mem)),
       messages: [],
       name: groupName,
-      profilePhoto: groupImg,
+      profilePhoto: groupImg.filename,
     });
     await newConversation.save();
     res.status(200).json(await newConversation.populate({ path: "members" }));

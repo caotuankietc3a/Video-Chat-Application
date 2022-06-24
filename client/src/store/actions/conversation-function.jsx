@@ -1,6 +1,6 @@
 import { conversationActions } from "../slices/conversation-slice";
 import { errorActions } from "../slices/error-slice";
-import { postData } from "./fetch-action";
+import { postData, postDataImg, postGroupData } from "./fetch-action";
 import { videoStreamStart } from "./video-chat-function";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postNewConversation = (
@@ -75,35 +75,37 @@ export const postNewGroupConversation = (
       errorActions.setError({ error: "Please enter a group name!!!" })
     );
   }
-  if (groupImg === "") {
+  if (groupImg === "" || !groupImg) {
     return dispatch(
       errorActions.setError({ error: "Please pick up a image file!!!" })
     );
   }
   if (members.length <= 2) {
     return dispatch(
-      errorActions.setError({ error: "Please choose more than 2 users!!!" })
+      errorActions.setError({
+        error: "Please choose more than 2 users to create a new group!!!",
+      })
     );
   }
 
   return async (dispatch) => {
-    const group_conversation = await postData(
+    const group_conversation = await postGroupData(
       { members, groupImg, groupName },
       `${END_POINT_SERVER}/conversation/new-group-conversation`
     );
-    dispatch(
-      conversationActions.setConversation({
-        conversation: {
-          _id: group_conversation._id,
-          members: group_conversation.members,
-          name: group_conversation.name,
-          profilePhoto: group_conversation.profilePhoto,
-          no_mems: group_conversation.members.length,
-          status: true,
-        },
-      })
-    );
-    isClosedHandler();
-    navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
+    // dispatch(
+    //   conversationActions.setConversation({
+    //     conversation: {
+    //       _id: group_conversation._id,
+    //       members: group_conversation.members,
+    //       name: group_conversation.name,
+    //       profilePhoto: group_conversation.profilePhoto,
+    //       no_mems: group_conversation.members.length,
+    //       status: true,
+    //     },
+    //   })
+    // );
+    // isClosedHandler();
+    // navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
   };
 };

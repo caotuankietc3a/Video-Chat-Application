@@ -20,9 +20,10 @@ export const VideoRemotePeer = styled.div`
   justify-content: center;
   border-radius: 8px;
   align-items: center;
+  margin: ${({ margin }) => margin};
   margin-right: 9px;
-  width: 100%;
-  height: 100%;
+  width: ${({ width }) => (width ? width : "100%")};
+  height: ${({ height }) => (height ? height : "100%")};
   background-color: #f7f7f7;
 `;
 
