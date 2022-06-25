@@ -205,6 +205,7 @@ const MeetingGroupRoom = () => {
         );
       }
     });
+
     socket_group_video.on("toggle-group-video", ({ peerId }) => {
       const peerObj = peersRef.current.find(
         (peer) => peer.peerInfo.peerId === peerId
@@ -225,6 +226,20 @@ const MeetingGroupRoom = () => {
       const peerObj = peersRef.current.find(
         (peer) => peer.peerInfo.peerId === peerId
       );
+
+      if (!peerObj.peerInfo.peerShareScreen) {
+        dispatch(
+          errorActions.setNotify({
+            notify: `${peerObj.peerInfo.peerName} is now sharing their screen!!!`,
+          })
+        );
+      } else {
+        dispatch(
+          errorActions.setNotify({
+            notify: `${peerObj.peerInfo.peerName} stopped sharing their screen!!!`,
+          })
+        );
+      }
       peerObj.peerInfo.peerShareScreen = !peerObj.peerInfo.peerShareScreen;
       setPeers([...peersRef.current]);
     });
@@ -232,7 +247,16 @@ const MeetingGroupRoom = () => {
 
   useEffect(() => {
     if (screenStream && peers) {
-      shareGroupScreen(screenStream, stream, peers);
+      shareGroupScreen(
+        screenStream,
+        stream,
+        peers,
+        socket_group_video,
+        conversationId,
+        () => {
+          setScreenStream(null);
+        }
+      );
     }
   }, [screenStream, peersRef.current, peers]);
 
@@ -271,7 +295,13 @@ const MeetingGroupRoom = () => {
     socket_group_video.emit("group-share-screen", {
       conversationId,
     });
-    shareGroupScreen(screenStream, stream, peers);
+    shareGroupScreen(
+      screenStream,
+      stream,
+      peers,
+      socket_group_video,
+      conversationId
+    );
     setScreenStream(screenStream);
   };
 
@@ -294,26 +324,33 @@ const MeetingGroupRoom = () => {
         },
         index
       ) => {
-        console.log(peerShowVideo);
-        console.log(peerMuted);
         return (
           <Fragment key={index}>
             {showTopControls ? (
-              <Peer
-                type={type}
-                padding={padding}
-                fontsize={fontsize}
-                width={width}
-                margin={margin}
-                height={height}
-                heightImg={heightImg}
-                widthImg={widthImg}
-                userImg={peerImg}
-                name={peerName}
-                displayText={
-                  !peerShowVideo && peerMuted ? "Spectator" : "Audio Only!"
-                }
-              />
+              <>
+                <Peer
+                  type={type}
+                  padding={padding}
+                  fontsize={fontsize}
+                  width={width}
+                  margin={margin}
+                  height={height}
+                  heightImg={heightImg}
+                  widthImg={widthImg}
+                  userImg={peerImg}
+                  name={peerName}
+                  displayText={
+                    peerShowVideo
+                      ? peerMuted
+                        ? "Video Only!"
+                        : "Both Video and Audio!"
+                      : !peerMuted
+                      ? "Audio Only!"
+                      : "Spectator"
+                  }
+                />
+                <VideoDisplay stream={stream} muted={peerMuted} hidden={true} />
+              </>
             ) : !peerShowVideo ? (
               <>
                 <Peer
@@ -366,7 +403,7 @@ const MeetingGroupRoom = () => {
                   key={index}
                   peer={peer}
                   stream={stream}
-                  muted={peerMuted}
+                  muted={true}
                   controls={false}
                 />
               </MyVideo>

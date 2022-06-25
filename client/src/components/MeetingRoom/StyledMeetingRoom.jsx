@@ -36,7 +36,8 @@ export const MyVideo = styled.div`
   width: 140px;
   position: relative;
   flex-grow: 0;
-  margin: 0 5px;
+  /* margin: 0 5px; */
+  margin-right: 5px;
   & video {
     object-fit: cover;
     background: black;
@@ -46,7 +47,7 @@ export const MyVideo = styled.div`
     height: ${({ showTop }) => (showTop ? "95px" : "105px")};
     min-height: ${({ showTop }) => (showTop ? "95px" : "105px")};
     cursor: pointer;
-    margin: 0 1px;
+    margin: 0px;
   }
 `;
 

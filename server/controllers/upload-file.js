@@ -13,14 +13,14 @@ conn.once("open", () => {
   // all set!
 });
 
-// exports.getImages = (req, res, next) => {
-//   gfs.files.find().toArray((error, files) => {
-//     if (!files || files.length === 0) {
-//       return res.status(404).json({ error: "Files no exists !!!" });
-//     }
-//     return res.json({ files: files });
-//   });
-// };
+exports.getImages = (req, res, next) => {
+  gfs.files.find().toArray((error, files) => {
+    if (!files || files.length === 0) {
+      return res.status(404).json({ error: "Files no exists !!!" });
+    }
+    return res.json({ files: files });
+  });
+};
 
 exports.getImageDetail = (req, res, next) => {
   const { filename } = req.params;

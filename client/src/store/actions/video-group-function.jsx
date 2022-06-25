@@ -83,11 +83,20 @@ export const videoGroupStreamStart = async () => {
   }
 };
 
-export const shareGroupScreen = (screenStream, stream, peers) => {
+export const shareGroupScreen = (
+  screenStream,
+  stream,
+  peers,
+  socket_group_video,
+  conversationId,
+  cb
+) => {
   const screenTrack = screenStream.getTracks()[0];
   const videoTrack = stream.getTracks().find((track) => track.kind === "video");
 
   screenTrack.onended = (e) => {
+    socket_group_video.emit("group-share-screen", { conversationId });
+    cb();
     peers.forEach(({ peer }) => {
       peer.replaceTrack(screenTrack, videoTrack, stream);
     });
