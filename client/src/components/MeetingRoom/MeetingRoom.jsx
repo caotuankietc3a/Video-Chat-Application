@@ -46,6 +46,7 @@ const MeetingRoom = (props) => {
   const navigate = useNavigate();
   const { socket_video } = useSelector((state) => state.socket);
   const { conversation } = useSelector((state) => state.conversation);
+  const { user } = useSelector((state) => state.user);
 
   const {
     stream,
@@ -122,23 +123,34 @@ const MeetingRoom = (props) => {
   };
 
   const returnPeerHandler = (
-    { type, padding, fontsize, heightImg, widthImg, isTurnOnAudio },
-    conversation,
+    { type, padding, fontsize, heightImg, widthImg },
+    members,
     isShowTop = false
   ) => {
-    return conversation.members.map((peer, i) => (
+    return members.map((peer, i) => (
       <Fragment key={i}>
         {isShowTop ? (
-          <Peer
-            type={type}
-            padding={padding}
-            fontsize={fontsize}
-            heightImg={heightImg}
-            widthImg={widthImg}
-            userImg={peer.profilePhoto}
-            name={peer.fullname}
-            isTurnOnAudio={isTurnOnAudio}
-          />
+          <>
+            <Peer
+              type={type}
+              padding={padding}
+              fontsize={fontsize}
+              heightImg={heightImg}
+              widthImg={widthImg}
+              userImg={peer.profilePhoto}
+              name={peer.fullname}
+              displayText={
+                showUserVideo
+                  ? muted
+                    ? "Video Only!"
+                    : "Both Video and Audio!"
+                  : !muted
+                  ? "Audio Only!"
+                  : "Spectator"
+              }
+            />
+            <video ref={userVideo} autoPlay={true} muted={muted}></video>
+          </>
         ) : !showUserVideo ? (
           <Fragment>
             <Peer
@@ -149,15 +161,46 @@ const MeetingRoom = (props) => {
               widthImg={widthImg}
               userImg={peer.profilePhoto}
               name={peer.fullname}
-              isTurnOnAudio={isTurnOnAudio}
+              displayText={
+                !showUserVideo && muted ? "Spectator" : "Audio Only!"
+              }
             />
             <video ref={userVideo} autoPlay={true} muted={muted}></video>
           </Fragment>
         ) : (
-          <video ref={userVideo} autoPlay={true} muted={muted}></video>
+          <UserVideo isFullScreen={isFullScreen}>
+            <video ref={userVideo} autoPlay={true} muted={muted}></video>
+          </UserVideo>
         )}
       </Fragment>
     ));
+  };
+
+  const returnPeersOnTopControl = (members) => {
+    return members.map((member, index) => {
+      return (
+        <Fragment key={index}>
+          {showUserVideo ? (
+            <MyVideo showTop={showTopControls}>
+              <video ref={userVideo} autoPlay={true} muted={true}></video>
+            </MyVideo>
+          ) : (
+            <Peer
+              type="peer"
+              padding="10px 0"
+              fontsize="11px"
+              heightImg="40px"
+              widthImg="40px"
+              userImg={member.profilePhoto}
+              name={member.fullname}
+              displayText={
+                !showUserVideo && muted ? "Spectator" : "Audio Only!"
+              }
+            />
+          )}
+        </Fragment>
+      );
+    });
   };
 
   const makeFullScreen = (e) => {
@@ -197,24 +240,10 @@ const MeetingRoom = (props) => {
             {/*   name={user.fullname} */}
             {/*   isTurnOnAudio={false} */}
             {/* /> */}
-
-            {!showUserVideo ? (
-              returnPeerHandler(
-                {
-                  type: "peer",
-                  padding: "10px 0",
-                  fontsize: "11px",
-                  heightImg: "40px",
-                  widthImg: "40px",
-                  isTurnOnAudio: false,
-                },
-                conversation,
-                showTopControls
+            {returnPeersOnTopControl(
+              conversation.members.filter(
+                (member) => member.fullname !== user.fullname
               )
-            ) : (
-              <MyVideo showTop={showTopControls}>
-                <video ref={userVideo} autoPlay={true} muted={muted}></video>
-              </MyVideo>
             )}
           </Peers>
         )}
@@ -233,38 +262,19 @@ const MeetingRoom = (props) => {
       </MeetingTopControls>
 
       <MeetingVideoWrapper>
-        {showUserVideo ? (
-          showTopControls ? (
-            returnPeerHandler(
-              {
-                type: "main-screen-peer",
-                padding: "0 0",
-                fontsize: "18px",
-                heightImg: "120px",
-                widthImg: "120px",
-                isTurnOnAudio: false,
-              },
-              conversation,
-              showTopControls
-            )
-          ) : (
-            <UserVideo isFullScreen={isFullScreen}>
-              <video ref={userVideo} autoPlay={true} muted={muted}></video>
-            </UserVideo>
-          )
-        ) : (
-          returnPeerHandler(
-            {
-              type: "main-screen-peer",
-              padding: "0 0",
-              fontsize: "18px",
-              heightImg: "120px",
-              widthImg: "120px",
-              isTurnOnAudio: false,
-            },
-            conversation,
-            showTopControls
-          )
+        {returnPeerHandler(
+          {
+            type: "main-screen-peer",
+            padding: "0 0",
+            fontsize: "18px",
+            heightImg: "120px",
+            widthImg: "120px",
+            isTurnOnAudio: false,
+          },
+          conversation.members.filter(
+            (member) => member.fullname !== user.fullname
+          ),
+          showTopControls
         )}
 
         <MeetingBottomControls>

@@ -95,6 +95,8 @@ export const MeetingVideoWrapper = styled.div`
   background: #202124;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   z-index: 999;
 `;
 
@@ -140,6 +142,7 @@ export const Container = styled.div`
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
+
   justify-content: center;
   align-items: center;
   overflow: scroll;

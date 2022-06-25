@@ -14,7 +14,6 @@ import { FaChevronDown } from "react-icons/fa";
 import { CgScreen } from "react-icons/cg";
 import { VscSplitHorizontal } from "react-icons/vsc";
 import { MdGridView } from "react-icons/md";
-import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import {
   MeetingContainer,
   MeetingVideoWrapper,
@@ -509,9 +508,6 @@ const MeetingGroupRoom = () => {
           </FunctionControls>
           <FunctionControls>
             <FiUserPlus />
-          </FunctionControls>
-          <FunctionControls>
-            <RiFullscreenFill />
           </FunctionControls>
           <FunctionControls onClick={onClickShowTopControls}>
             {!showTopControls ? <MdGridView /> : <VscSplitHorizontal />}
