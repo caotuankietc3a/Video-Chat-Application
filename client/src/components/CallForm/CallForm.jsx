@@ -19,7 +19,7 @@ const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsFetching(false);
-    }, 0);
+    }, 500);
     return () => {
       clearTimeout(timer);
     };

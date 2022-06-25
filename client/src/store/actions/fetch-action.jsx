@@ -19,7 +19,6 @@ export const postGroupData = async (
   { groupImg, groupName, members },
   typeUrl
 ) => {
-  console.log(members);
   const formData = new FormData();
   formData.append("groupImg", groupImg);
   formData.append("groupName", groupName);
@@ -31,17 +30,19 @@ export const postGroupData = async (
   console.log(await res.json());
 };
 
+export const fetchSession = async (type) => {
+  const data = await fetch(`${END_POINT_SERVER}/auth/session?type=${type}`, {
+    credentials: "include",
+  });
+  return await data.json();
+};
+
 export const fetchUserLogin = (navigate, type = 0) => {
   return async (dispatch, getState) => {
     try {
       const { socket_notify, socket_video } = getState().socket;
-      const data = await fetch(
-        `${END_POINT_SERVER}/auth/session?type=${type}`,
-        {
-          credentials: "include",
-        }
-      );
-      const { user, isLogin } = await data.json();
+
+      const { user, isLogin } = await fetchSession(type);
       if (!type) {
         if (isLogin) {
           setTimeout(() => {
@@ -50,7 +51,6 @@ export const fetchUserLogin = (navigate, type = 0) => {
           socket_video.emit("join-video", { userId: user._id });
           socket_notify.emit("log-in");
         }
-        socket_notify.emit("log-out");
         return dispatch(
           userLoginActions.setUserLogin({
             user: isLogin ? user : null,
@@ -108,6 +108,7 @@ export const fetchFriends = () => {
             _id: el._id,
           };
         });
+        console.log(group_conversations);
 
         return dispatch(
           friendActions.setFriends({
@@ -126,6 +127,7 @@ export const logoutHandler = (navigate) => {
     const { user } = getState().user;
     const { socket_video, socket_notify, socket_chat } = getState().socket;
     await postData({ user }, `${END_POINT_SERVER}/auth/logout`);
+    socket_notify.emit("log-out");
     socket_video.disconnect();
     socket_chat.disconnect();
     socket_notify.disconnect();

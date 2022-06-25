@@ -32,9 +32,19 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       setRendering(!rendering);
       dispatch(conversationActions.setStatus({ status: true }));
     });
+
+    socket_notify.on("post-new-group-conversation", () => {
+      setRendering(!rendering);
+    });
+
+    socket_notify.on("post-new-conversation", () => {
+      setRendering(!rendering);
+    });
+
     return () => {
       socket_notify.off("log-out");
       socket_notify.off("log-in");
+      socket_notify.off("post-new-group-conversation");
     };
   }, [rendering]);
 
@@ -50,6 +60,8 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
+        console.log("ddddddddddddddddddddddddddd");
+        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(
@@ -65,8 +77,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);
-        }, 0);
-        // setIsFetching(true);
+        }, 500);
       } catch (err) {
         console.error(err);
       }
@@ -85,6 +96,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
             }
           );
           const res = await data.json();
+          console.log(res);
           setCalls(res);
           // dispatch(callActions.setMeeting())
         }
@@ -109,7 +121,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         AddBgEl(el);
       });
     });
-  }, [contactList, window.location.href]);
+  }, [contactList, window.location.href, conversations, friends, calls]);
 
   const filterConversationsHandler = (conversations, searchContactItems) => {
     return conversations

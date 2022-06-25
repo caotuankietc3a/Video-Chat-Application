@@ -1,5 +1,4 @@
 const express = require("express");
-const { upload } = require("../middleware/upload-file");
 const router = express.Router();
 const {
   postNewGroupConversation,
@@ -10,11 +9,7 @@ const {
   postNewConversation,
 } = require("../controllers/conversation");
 
-router.post(
-  "/new-group-conversation",
-  upload.single("groupImg"),
-  postNewGroupConversation
-);
+router.post("/new-group-conversation", postNewGroupConversation);
 router.get("/:userId", getConversations);
 router.get("/detail/:conversationId", getConversationDetail);
 router.get("/messages/:conversationId", getMessages);

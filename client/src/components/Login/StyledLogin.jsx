@@ -25,7 +25,7 @@ export const LoginBox = styled.div`
   align-items: center;
   margin: 0 auto;
   height: ${(props) => {
-    if (props.type === "Login") return "560px";
+    if (props.type === "Login") return "520px";
     else if (props.type === "Register") return "690px";
     else return "430px";
   }};

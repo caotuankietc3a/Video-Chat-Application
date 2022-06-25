@@ -7,6 +7,7 @@ import {
   FriendName,
   SendBtn,
 } from "./StyledFriendShow.jsx";
+import BouncyLoading from "../../UI/BouncyLoading/BouncyLoading.jsx";
 
 const FriendShow = ({
   friend,
@@ -18,6 +19,7 @@ const FriendShow = ({
 }) => {
   const disabledBtnEl = useRef(null);
   const [undoEl, setUndoEl] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
     let timer = setTimeout(() => {
       if (
@@ -41,57 +43,73 @@ const FriendShow = ({
 
   return (
     <FriendColBody
-      onClick={type === "new-chat" ? moveToConversationDetail : null}
-      className={type === "new-chat" ? "new-chat" : null}
+      onClick={
+        type === "new-chat"
+          ? () => {
+              setIsFetching(true);
+              setTimeout(() => {
+                moveToConversationDetail();
+                setIsFetching(false);
+              }, 750);
+            }
+          : null
+      }
+      className={type === "new-chat" ? type : null}
     >
-      <AvatarUser status={friend.status}>
-        <img src={friend.profilePhoto} alt="User" />
-      </AvatarUser>
-      <FriendName>
-        <div className="sendBtn">
-          <h6>{friend.fullname}</h6>
-          {type === "forward-message" && (
-            <SendBtn onClick={undoHandler} className="forward-message">
+      {isFetching ? (
+        <BouncyLoading />
+      ) : (
+        <>
+          <AvatarUser status={friend.status}>
+            <img src={friend.profilePhoto} alt="User" />
+          </AvatarUser>
+          <FriendName>
+            <div className="sendBtn">
+              <h6>{friend.fullname}</h6>
+              {type === "forward-message" && (
+                <SendBtn onClick={undoHandler} className="forward-message">
+                  <div>
+                    {disabledBtnEl.current?.parentElement?.classList?.contains(
+                      "un-send"
+                    ) ? (
+                      <FiSend />
+                    ) : undoEl ? (
+                      <FaUndo />
+                    ) : (
+                      <FiSend />
+                    )}
+                  </div>
+                  <button type="button" ref={disabledBtnEl}>
+                    {disabledBtnEl.current?.parentElement?.classList?.contains(
+                      "un-send"
+                    )
+                      ? "Sent"
+                      : undoEl
+                      ? "Undo"
+                      : "Send"}
+                  </button>
+                </SendBtn>
+              )}
+              {type === "create-group" && (
+                <SendBtn className="create-group">
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      if (e.target.checked) pushArrayMembers(friend._id);
+                      else popArrayMembers(friend._id);
+                    }}
+                  ></input>
+                </SendBtn>
+              )}
+            </div>
+            {type === "new-chat" && (
               <div>
-                {disabledBtnEl.current?.parentElement?.classList?.contains(
-                  "un-send"
-                ) ? (
-                  <FiSend />
-                ) : undoEl ? (
-                  <FaUndo />
-                ) : (
-                  <FiSend />
-                )}
+                <p className="status">{friend.status ? "Online" : "Offline"}</p>
               </div>
-              <button type="button" ref={disabledBtnEl}>
-                {disabledBtnEl.current?.parentElement?.classList?.contains(
-                  "un-send"
-                )
-                  ? "Sent"
-                  : undoEl
-                  ? "Undo"
-                  : "Send"}
-              </button>
-            </SendBtn>
-          )}
-          {type === "create-group" && (
-            <SendBtn className="create-group">
-              <input
-                type="checkbox"
-                onChange={(e) => {
-                  if (e.target.checked) pushArrayMembers(friend._id);
-                  else popArrayMembers(friend._id);
-                }}
-              ></input>
-            </SendBtn>
-          )}
-        </div>
-        {type === "new-chat" && (
-          <div>
-            <p className="status">{friend.status ? "Online" : "Offline"}</p>
-          </div>
-        )}
-      </FriendName>
+            )}
+          </FriendName>
+        </>
+      )}
     </FriendColBody>
   );
 };

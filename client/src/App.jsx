@@ -4,18 +4,8 @@ import ChatRoom from "./components/ChatRoom/ChatRoom";
 import MeetingRoom from "./components/MeetingRoom/MeetingRoom";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MeetingGroupRoom from "./components/MeetingRoom/MeetingGroupRoom";
-import { useDispatch, useSelector } from "react-redux";
-import { socketActions } from "./store/slices/socket-slice";
-import { useEffect } from "react";
 
 function App() {
-  // const dispatch = useDispatch();
-  // const { socket_video } = useSelector((state) => state.socket);
-  // useEffect(() => {
-  //   dispatch(socketActions.setSocket_Video());
-  // }, []);
-  // console.log(socket_video);
-
   return (
     <BrowserRouter>
       <Routes>

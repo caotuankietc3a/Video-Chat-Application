@@ -9,7 +9,7 @@ import {
   GroupName,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { BsSearch } from "react-icons/bs";
 import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
@@ -19,6 +19,7 @@ import {
 } from "../../store/actions/conversation-function";
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
+import BouncyLoading from "../UI/BouncyLoading/BouncyLoading";
 const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
@@ -30,6 +31,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   const [no_members, setNo_Members] = useState([user._id]);
   const [groupName, setGroupName] = useState("");
   const [groupImg, setGroupImg] = useState("");
+  const [isFetching, setIsFetching] = useState(false);
 
   const pushArrayMembers = (mem) => {
     setNo_Members((preMems) => {
@@ -49,18 +51,18 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
       return [...preMems];
     });
   };
-  console.log(no_members);
 
   const groupNameHandle = (e) => {
     setGroupName(e.target.value);
   };
-  // const groupImgHandle = (e) => {
-  //   const reader = new FileReader();
-  //   reader.onload = () => {
-  //     setGroupImg(reader.result);
-  //   };
-  //   reader.readAsDataURL(inputFileEl?.current.files[0]);
-  // };
+
+  const groupImgHandle = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setGroupImg(reader.result);
+    };
+    reader.readAsDataURL(inputFileEl?.current.files[0]);
+  };
 
   const friendsHandler = (friends, searchText, createGroup = false) => {
     return friends
@@ -84,8 +86,11 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
               ? "create-group"
               : "new-chat"
           }
+          isFetching
           friend={friend}
-          moveToConversationDetail={() => moveToConversationDetail(friend)}
+          moveToConversationDetail={() => {
+            moveToConversationDetail(friend);
+          }}
           forwardToUserHandler={() => {
             forwardToUserHandler(friend);
           }}
@@ -106,6 +111,23 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
     });
     dispatch(
       forwardActions.setForward({ forward: { ...forward, forwardee: friend } })
+    );
+  };
+
+  const createNewGroupConversation = () => {
+    setIsFetching(true);
+    dispatch(
+      postNewGroupConversation(
+        navigate,
+        dispatch,
+        {
+          members: no_members,
+          groupImg: groupImg,
+          groupName: groupName.trim(),
+        },
+        isClosedHandler,
+        setIsFetching
+      )
     );
   };
 
@@ -140,8 +162,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
               <GroupName>
                 <div>
                   <label className="label">Choose profile picture</label>
-                  {/* <div className="custom-file" onChange={groupImgHandle}> */}
-                  <div className="custom-file">
+                  <div className="custom-file" onChange={groupImgHandle}>
                     <label htmlFor="upload-file" className="choose-file">
                       Choose file
                     </label>
@@ -181,25 +202,21 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
             <button className="cancel" onClick={isClosedHandler}>
               Cancel
             </button>
-            <button
-              className="create-group"
-              onClick={() => {
-                dispatch(
-                  postNewGroupConversation(
-                    navigate,
-                    dispatch,
-                    {
-                      members: no_members,
-                      groupImg: inputFileEl?.current.files[0],
-                      groupName,
-                    },
-                    isClosedHandler
-                  )
-                );
-              }}
-            >
-              Create Group
-            </button>
+            {!isFetching ? (
+              <button
+                className="create-group"
+                onClick={createNewGroupConversation}
+              >
+                Create group
+              </button>
+            ) : (
+              <BouncyLoading
+                height="18px"
+                width="106px"
+                translateY1="0px"
+                translateY2="-15px"
+              />
+            )}
           </Footer>
         )}
       </Content>

@@ -16,7 +16,6 @@ const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
-const imageRoutes = require("./routes/upload-file");
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 const {
@@ -30,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.REACT_URL,
     optionsSuccessStatus: 200,
     credentials: true,
   })
@@ -143,29 +142,30 @@ io_video.on("connection", (socket) => {
       });
     }
   );
-  // socket.on(
-  //   "reject-call",
-  //   ({ conversationId, caller, callee, date, callAccepted }) => {
-  //     saveMeeting(caller, callee, date, callAccepted);
-  //     io_video.to(conversationId).emit("reject-call");
-  //   }
-  // );
 
-  socket.on("reject-call", ({ conversationId, isReceivedCall }) => {
-    console.log(isReceivedCall);
-    if (!isReceivedCall) {
-      // User_Socket.removeUsersInRoom(conversationId);
-      return socket.broadcast
-        .to(conversationId.toString())
-        .emit("reject-call", {
+  socket.on(
+    "reject-call",
+    ({
+      conversationId,
+      caller,
+      callee,
+      date,
+      callAccepted,
+      isReceivedCall,
+    }) => {
+      console.log(isReceivedCall);
+      if (!isReceivedCall) {
+        socket.broadcast.to(conversationId.toString()).emit("reject-call", {
           error: "Caller canceled the call!!!",
         });
+      } else {
+        socket.broadcast
+          .to(conversationId.toString())
+          .emit("reject-call", { error: "Callee canceled the call!!!" });
+      }
+      saveMeeting(caller, callee, date, callAccepted);
     }
-
-    socket.broadcast
-      .to(conversationId.toString())
-      .emit("reject-call", { error: "Callee canceled the call!!!" });
-  });
+  );
 
   socket.on("call-user", ({ conversationId, signal }) => {
     socket.broadcast.to(conversationId).emit("call-user", { signal });
@@ -180,7 +180,7 @@ io_video.on("connection", (socket) => {
   socket.on(
     "join-meeting-room",
     ({ conversationId, caller, callee, date, callAccepted }) => {
-      // saveMeeting(caller, callee, date, callAccepted);
+      saveMeeting(caller, callee, date, callAccepted);
       io_video.to(conversationId).emit("join-meeting-room");
     }
   );
@@ -195,7 +195,7 @@ io_video.on("connection", (socket) => {
 
   socket.on("leave-meeting-room", ({ conversationId, callerId, calleeId }) => {
     console.log("A user disconnected video-room!!!");
-    // updateMeeting(callerId, calleeId);
+    updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
 });
@@ -315,13 +315,20 @@ io_notify.on("connection", (socket) => {
   console.log(io_notify.adapter.rooms);
   socket.on("log-out", () => {
     // to all clients in the current namespace except the sender
-    console.log("dfasdf ");
     socket.broadcast.emit("log-out");
   });
 
   socket.on("log-in", () => {
-    console.log("dfasdf asdassdfa");
     socket.broadcast.emit("log-in");
+  });
+
+  socket.on("post-new-conversation", () => {
+    socket.broadcast.emit("post-new-conversation");
+  });
+
+  socket.on("post-new-group-conversation", () => {
+    console.log("ddddddddddddddddaaaaaaaaaaaaaaaaa");
+    socket.broadcast.emit("post-new-group-conversation");
   });
 });
 
@@ -329,7 +336,6 @@ app.use("/auth", authRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
 app.use("/meeting", meetingRoutes);
-app.use("/images", imageRoutes);
 
 (async function () {
   try {

@@ -34,7 +34,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
       const data = await res.json();
       timer = setTimeout(() => {
         setIsFetching(false);
-      }, 0);
+      }, 500);
       setMessages((preMessages) => [...preMessages, ...data]);
     })();
 

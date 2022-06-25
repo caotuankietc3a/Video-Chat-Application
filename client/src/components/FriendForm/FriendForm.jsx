@@ -46,7 +46,7 @@ const FriendForm = (props) => {
   useEffect(() => {
     let timer = setTimeout(() => {
       setIsFetching(false);
-    }, 0);
+    }, 500);
 
     return () => {
       clearTimeout(timer);

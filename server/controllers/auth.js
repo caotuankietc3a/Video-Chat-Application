@@ -10,15 +10,14 @@ exports.postLogin = async (req, res, next) => {
     if (!errors.isEmpty()) {
       throw new Error(errors.array()[0].msg);
     }
-    const { email, isChecked } = req.body;
+    const { email } = req.body;
     const user = await User.findOneAndUpdate(
       { email: email },
       { status: true },
       { new: true }
-    );
-    if (isChecked) {
-      req.session.isLogin = true;
-    }
+    ).select("-password");
+
+    req.session.isLogin = true;
     req.session.userId = user._id;
     req.session.save();
     res.status(200).json(user);
@@ -61,7 +60,8 @@ exports.getSession = async (req, res, next) => {
         status,
       },
       { new: true }
-    );
+    ).select("-password");
+    console.log(user);
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });

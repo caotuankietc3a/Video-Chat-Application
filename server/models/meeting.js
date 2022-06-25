@@ -5,20 +5,11 @@ const meetingSchema = new Schema({
     ref: "User",
     required: true,
   },
-
   callee: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  // stream: {
-  //   type: Schema.Types.Mixed,
-  //   default: {},
-  // },
-  // signal: {
-  //   type: Schema.Types.Mixed,
-  //   default: {},
-  // },
   date: {
     type: Date,
     default: new Date(Date.now()),

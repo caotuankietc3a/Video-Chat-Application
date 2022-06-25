@@ -1,15 +1,16 @@
 const Conversation = require("../models/conversation");
-const User = require("../models/user");
-const { Types } = require("mongoose");
+const { cloudinary } = require("../util/cloudinary.js");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
-    const { members, groupName } = req.body;
-    const groupImg = req.file;
+    const { members, groupName, groupImg } = req.body;
+    const uploadedRes = await cloudinary.uploader.upload(groupImg, {
+      upload_preset: "images",
+    });
     const newConversation = new Conversation({
-      members: members.split(",").map((mem) => Types.ObjectId(mem)),
+      members,
       messages: [],
       name: groupName,
-      profilePhoto: groupImg.filename,
+      profilePhoto: uploadedRes.url,
     });
     await newConversation.save();
     res.status(200).json(await newConversation.populate({ path: "members" }));
@@ -37,6 +38,7 @@ exports.getConversations = async (req, res, next) => {
             { members: userId },
           ],
         }).populate({ path: "members messages.sender" });
+        console.log(conversations);
       }
     }
     res.status(200).json(conversations);

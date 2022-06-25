@@ -32,16 +32,9 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
-  const { socket_chat, socket_video, socket_group_video, socket_notify } =
-    useSelector((state) => state.socket);
-
-  // const closeNotification = () => {
-  //   dispatch(
-  //     errorActions.setError({
-  //       error: null,
-  //     })
-  //   );
-  // };
+  const { socket_chat, socket_video, socket_notify } = useSelector(
+    (state) => state.socket
+  );
 
   const isClickedHandler = () => {
     setIsClickedConversation(true);
@@ -120,7 +113,7 @@ const ChatRoom = (props) => {
 
         setTimeout(() => {
           navigate(`/home-chat/meetings/${conversationId}`);
-        }, 0);
+        }, 500);
       }
     );
 
@@ -137,22 +130,30 @@ const ChatRoom = (props) => {
       dispatch(fetchFriends());
     });
 
+    socket_notify.on("post-new-conversation", () => {
+      dispatch(fetchFriends());
+    });
+
+    socket_notify.on("post-new-group-conversation", () => {
+      dispatch(fetchFriends());
+    });
+
     socket_notify.on("log-in", () => {
       dispatch(fetchFriends());
     });
   }, [friend]);
 
-  // useEffect(() => {
-  //   if (createGroup) dispatch(fetchFriends());
-  // }, [createGroup]);
+  useEffect(() => {
+    if (createGroup) dispatch(fetchFriends());
+  }, [createGroup]);
 
   useEffect(() => {
     if (user) dispatch(fetchFriends());
   }, [user]);
-  //
-  // useEffect(() => {
-  //   if (forward || isClickedConversation) dispatch(fetchFriends(true));
-  // }, [forward, isClickedConversation]);
+
+  useEffect(() => {
+    if (forward || isClickedConversation) dispatch(fetchFriends(true));
+  }, [forward, isClickedConversation]);
 
   return (
     <Container>

@@ -10,7 +10,7 @@ import {
   RegisterAccount,
   InformationLogin,
   SocialList,
-  FormCheckRegister,
+  // FormCheckRegister,
 } from "./StyledLogin";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,8 +36,8 @@ const Login = (props) => {
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
   const [isClicked, setIsClicked] = useState(false);
-  const inputEl = useRef(null);
-  const { socket_video, socket_notify } = useSelector((state) => state.socket);
+  // const inputEl = useRef(null);
+  const { socket_notify } = useSelector((state) => state.socket);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
@@ -53,7 +53,7 @@ const Login = (props) => {
           password,
           confirmpassword,
           profilePhoto: "/images/user-img.jpg",
-          isChecked: type === "Login" ? inputEl?.current.checked : null,
+          // isChecked: type === "Login" ? inputEl?.current.checked : null,
         },
         END_POINT_SERVER
       );
@@ -73,7 +73,6 @@ const Login = (props) => {
       setTimeout(() => {
         if (type === "Register") navigate("/auth/login");
         else if (type === "Login") {
-          console.log("sdfasdfadfs  fasfa");
           socket_notify.emit("log-in");
           navigate("/home-chat");
         }
@@ -85,6 +84,7 @@ const Login = (props) => {
           user: data,
           isFetching: true,
           error: null,
+          isLogin: true,
         })
       );
     } catch (err) {
@@ -169,25 +169,25 @@ const Login = (props) => {
                     ></EmailPassInput>
                   </FormGroupLogin>
                 )}
-                {type === "Login" && (
-                  <FormGroupLogin type={"Login"}>
-                    {type === "Login" && (
-                      <FormCheckRegister>
-                        <input
-                          type="checkbox"
-                          name="keep_login"
-                          id="keep_login"
-                          ref={inputEl}
-                          onChange={(e) => {
-                            console.log(inputEl?.current.checked);
-                            inputEl.current.checked = e.target.checked;
-                          }}
-                        />
-                        <label>Keep me login</label>
-                      </FormCheckRegister>
-                    )}
-                  </FormGroupLogin>
-                )}
+                {/* {type === "Login" && ( */}
+                {/*   <FormGroupLogin type={"Login"}> */}
+                {/*     {type === "Login" && ( */}
+                {/*       <FormCheckRegister> */}
+                {/*         <input */}
+                {/*           type="checkbox" */}
+                {/*           name="keep_login" */}
+                {/*           id="keep_login" */}
+                {/*           ref={inputEl} */}
+                {/*           onChange={(e) => { */}
+                {/*             console.log(inputEl?.current.checked); */}
+                {/*             inputEl.current.checked = e.target.checked; */}
+                {/*           }} */}
+                {/*         /> */}
+                {/*         <label>Keep me login</label> */}
+                {/*       </FormCheckRegister> */}
+                {/*     )} */}
+                {/*   </FormGroupLogin> */}
+                {/* )} */}
                 <FormGroupLogin>
                   <ButtonLogin type="submit">
                     {isFetching ? <CircularProgress /> : <span>{type}</span>}
@@ -198,7 +198,7 @@ const Login = (props) => {
                       to="/auth/forgot-password"
                       className="forgot-password"
                     >
-                      Forgot password
+                      Forgot password?
                     </Link>
                   )}
                 </FormGroupLogin>

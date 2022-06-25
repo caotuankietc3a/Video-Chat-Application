@@ -78,6 +78,10 @@ function MeetingForm({ conversation }) {
       socket_video.emit("reject-call", {
         conversationId: conversation._id,
         isReceivedCall,
+        callAccepted: false,
+        caller,
+        callee,
+        date: new Date(Date.now()),
       });
 
       dispatch(rejectCall(navigate));
@@ -85,18 +89,6 @@ function MeetingForm({ conversation }) {
       navigate(`/home-chat`);
     }
   };
-
-  // const rejectCallHandler = () => {
-  //   socket_video.emit("reject-call", {
-  //     conversationId: conversation._id,
-  //     callAccepted: false,
-  //     caller,
-  //     callee,
-  //     date: new Date(Date.now()),
-  //   });
-  //
-  //   dispatch(rejectCall(navigate));
-  // };
 
   const anwserCallHandler = () => {
     if (!group) {
