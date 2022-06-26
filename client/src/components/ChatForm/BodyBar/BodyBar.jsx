@@ -24,6 +24,7 @@ const BodyBar = ({ messages, isGroup = false }) => {
         mesDivider.divider = true;
         mesDivider.data_label = formatDate(mes.date).split(",")[0];
       }
+      console.log(mes);
       return (
         <Message
           key={i}
@@ -35,6 +36,8 @@ const BodyBar = ({ messages, isGroup = false }) => {
           forward={mes.forward}
           sender={mes.sender}
           isGroup={isGroup}
+          images={mes.files.images}
+          attachments={mes.files.attachments}
         />
       );
     });

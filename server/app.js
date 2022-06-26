@@ -63,13 +63,14 @@ io_chat.on("connection", (socket) => {
 
   socket.on(
     "send-message",
-    async ({ userId, message, conversationId, reply }) => {
+    async ({ userId, message, conversationId, reply, files }) => {
       const sender = await User.findById(userId);
       io_chat.to(conversationId).emit("receive-message", {
         text: message,
         reply,
         userId: userId,
         sender,
+        files,
       });
     }
   );

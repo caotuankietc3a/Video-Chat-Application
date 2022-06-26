@@ -1,11 +1,10 @@
 const Conversation = require("../models/conversation");
-const { cloudinary } = require("../util/cloudinary.js");
+const File = require("../models/file");
+const { uploads } = require("../util/cloudinary.js");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
-    const uploadedRes = await cloudinary.uploader.upload(groupImg, {
-      upload_preset: "images",
-    });
+    const uploadedRes = await uploads("images-group", groupImg);
     const newConversation = new Conversation({
       members,
       messages: [],
@@ -28,7 +27,7 @@ exports.getConversations = async (req, res, next) => {
       if (!parseInt(isGroup)) {
         conversations = await Conversation.find({
           members: { $in: [userId] },
-        }).populate({ path: "members messages.sender" });
+        }).populate({ path: "members messages.sender messages.files" });
       } else {
         conversations = await Conversation.find({
           $and: [
@@ -62,7 +61,24 @@ exports.getConversationDetail = async (req, res, next) => {
 exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
-    const { newMessage, replyOb, forwardOb } = req.body;
+    const { newMessage, replyOb, forwardOb, dataImgs } = req.body;
+    let uploadedImgs = null;
+    let newFile = null;
+    if (dataImgs.length !== 0) {
+      const uploadedImgs = await Promise.all(
+        dataImgs.map((dataImg) => {
+          // return uploads("images", dataImg.data);
+          return uploads("images", dataImg);
+        })
+      );
+      newFile = new File({
+        images: uploadedImgs.map((uploadedImg) => uploadedImg.url),
+        attachments: [],
+      });
+      await newFile.save();
+    }
+    console.log(newFile);
+
     await Conversation.updateOne(
       { _id: conversationId },
       {
@@ -73,6 +89,7 @@ exports.postNewMessage = async (req, res, next) => {
             date: new Date(Date.now()),
             reply: replyOb ? replyOb : null,
             forward: forwardOb ? forwardOb : null,
+            files: newFile._id,
           },
         },
       }
@@ -87,8 +104,9 @@ exports.getMessages = async (req, res, next) => {
   try {
     const conversationId = req.params.conversationId;
     const conversation = await Conversation.findById(conversationId).populate({
-      path: "messages.sender",
+      path: "messages.sender messages.files",
     });
+    // .select("-messages.sender.password");
     res.status(200).json(conversation.messages);
   } catch (err) {
     console.error(err);

@@ -187,6 +187,7 @@ export const MessageWrapper = styled.div`
         width: 68px;
         height: 68px;
         border-radius: 10px;
+        object-fit: cover;
       }
     }
   }

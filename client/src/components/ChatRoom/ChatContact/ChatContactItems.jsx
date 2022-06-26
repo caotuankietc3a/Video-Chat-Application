@@ -34,6 +34,15 @@ const ChatContactItems = ({
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  const latestMessage = {
+    text: conversation.messages[conversation.messages.length - 1].text,
+    length: conversation.messages.length,
+    images:
+      conversation.messages[conversation.messages.length - 1].files.images,
+    attachments:
+      conversation.messages[conversation.messages.length - 1].files.attachments,
+  };
+  console.log(latestMessage);
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
@@ -162,12 +171,17 @@ const ChatContactItems = ({
                 type === "Chats" && (
                   <span className={isActive ? "active" : "inactive"}>
                     {isGroup &&
-                      conversation.messages.length - 1 !== -1 &&
-                      conversation.messages[conversation.messages.length - 1]
-                        .sender.fullname + ": "}
-                    {conversation.messages.length - 1 !== -1
-                      ? conversation.messages[conversation.messages.length - 1]
-                          .text
+                      latestMessage.length - 1 !== -1 &&
+                      conversation.messages[latestMessage.length - 1].sender
+                        .fullname + ": "}
+
+                    {latestMessage.length - 1 !== -1
+                      ? latestMessage.text === "" &&
+                        latestMessage.images.length !== 0
+                        ? "sended some images"
+                        : latestMessage.attachments.length !== 0
+                        ? "sended some files"
+                        : latestMessage.text
                       : "............"}
                   </span>
                 )

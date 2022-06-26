@@ -42,6 +42,8 @@ const Message = ({
   forward,
   sender,
   isGroup,
+  images,
+  attachments,
 }) => {
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
@@ -131,6 +133,7 @@ const Message = ({
             </Wrapper>
           </>
         )}
+
         {forward && (
           <>
             <Header type={type} isForwarded={forward ? true : false}>
@@ -146,38 +149,46 @@ const Message = ({
         )}
 
         <MessageWrapper type={type}>
-          {/* <div className="text"> */}
-          {/*   {isGroup && type === "left" && <h6>{sender.fullname}</h6>} */}
-          {/*   <span>{text}</span> */}
-          {/*   <div className="images-row"> */}
-          {/*     <div className="image-row"> */}
-          {/*       <div className="item"> */}
-          {/*         <img src="/images/user-img.jpg" alt="" /> */}
-          {/*       </div> */}
-          {/*     </div> */}
-          {/*     <div className="image-row"> */}
-          {/*       <div className="item"> */}
-          {/*         <img src="/images/user-img.jpg" alt="" /> */}
-          {/*       </div> */}
-          {/*     </div> */}
-          {/*     <div className="image-row"> */}
-          {/*       <div className="item"> */}
-          {/*         <img src="/images/user-img.jpg" alt="" /> */}
-          {/*       </div> */}
-          {/*     </div> */}
-          {/*   </div> */}
-          {/* </div> */}
-          <div className="attachments">
-            <div className="attachments-btn">
-              <HiOutlineDocumentDuplicate />
-            </div>
-            <div className="attachments-body">
-              <h6>
-                <a href=" #">global-warming-data-2020.xlsx wf</a>
-              </h6>
-              <div className="payload-file">79.2Kb</div>
-            </div>
+          <div className="text">
+            {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
+            {text !== "" && <span>{text}</span>}
+            {images.length !== 0 && (
+              <div className="images-row">
+                {images.map((img, i) => (
+                  <div className="image-row" key={i}>
+                    <div className="item">
+                      <img src={img} alt="Image" />
+                    </div>
+                  </div>
+                ))}
+
+                {/* <div className="image-row"> */}
+                {/*   <div className="item"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="image-row"> */}
+                {/*   <div className="item"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/* </div> */}
+              </div>
+            )}
           </div>
+          {attachments.length !== 0 &&
+            attachments.map((attachment) => (
+              <div className="attachments">
+                <div className="attachments-btn">
+                  <HiOutlineDocumentDuplicate />
+                </div>
+                <div className="attachments-body">
+                  <h6>
+                    <a href=" #">global-warming-data-2020.xlsx wf</a>
+                  </h6>
+                  <div className="payload-file">79.2Kb</div>
+                </div>
+              </div>
+            ))}
         </MessageWrapper>
         <MessageOptions type={type}>
           <AvatarUser>

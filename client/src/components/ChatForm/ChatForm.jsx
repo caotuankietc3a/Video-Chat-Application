@@ -4,7 +4,7 @@ import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
@@ -14,9 +14,11 @@ import { videoStreamStart } from "../../store/actions/video-chat-function";
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
+  // const params = useParams();
+  // console.log(params.split("/")[2]);
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
-  const [attachMents, setAttachMents] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [images, setImages] = useState([]);
   const imagesRef = useRef(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -33,6 +35,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         }
       );
       const data = await res.json();
+      console.log(data);
       timer = setTimeout(() => {
         setIsFetching(false);
       }, 500);
@@ -47,7 +50,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   useEffect(() => {
     socket_chat.emit("join-chat", { conversationId: conversation._id });
 
-    socket_chat.on("receive-message", ({ text, sender, reply }) => {
+    socket_chat.on("receive-message", ({ text, sender, reply, files }) => {
       setMessages((preMessages) => [
         ...preMessages,
         {
@@ -55,6 +58,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           sender,
           reply,
           date: new Date(Date.now()),
+          files,
         },
       ]);
       dispatch(messageActions.setReRender({ reRender: { text } }));
@@ -91,7 +95,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const onClickHandler = async (e, message) => {
     e.preventDefault();
     try {
-      if (message) {
+      if (message || images.length !== 0 || attachments.length !== 0) {
         const oldMes = message;
         let replyOb = reply ? reply : null;
         socket_chat.emit("send-message", {
@@ -99,10 +103,16 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           message: message,
           reply: replyOb,
           conversationId: conversation._id,
+          files: {
+            images: images,
+            attachments: attachments,
+          },
         });
+        setImages([]);
+        setAttachments([]);
         dispatch(replyActions.setReply({ reply: null }));
         await postData(
-          { newMessage: oldMes, replyOb },
+          { newMessage: oldMes, replyOb, dataImgs: images },
           `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
         );
       }
@@ -124,18 +134,18 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   };
 
   const multipleImagesHandler = () => {
-    const array = [];
     for (let i = 0; i < imagesRef.current?.files.length; i++) {
-      array.push({
-        data: URL.createObjectURL(imagesRef.current.files[i]),
-      });
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImages((preImgs) => [...preImgs, reader.result]);
+      };
+      reader.readAsDataURL(imagesRef?.current.files[i]);
     }
-    setImages((preImgs) => [...preImgs, ...array]);
   };
 
   const removeImageInBuffers = (img) => {
     setImages((preImages) => {
-      const index = preImages.findIndex((preImg) => preImg.data === img.data);
+      const index = preImages.findIndex((preImg) => preImg === img);
       index !== -1 && preImages.splice(index, 1);
       return [...preImages];
     });

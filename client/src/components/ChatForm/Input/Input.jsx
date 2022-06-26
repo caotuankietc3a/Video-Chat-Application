@@ -92,7 +92,7 @@ const Input = ({
               {images.map((img, index) => {
                 return (
                   <Image key={index}>
-                    <img src={img.data} alt="" />
+                    <img src={img} alt="" />
                     <ImageBtn>
                       <IoClose
                         onClick={() => {
