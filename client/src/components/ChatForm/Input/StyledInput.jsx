@@ -41,16 +41,19 @@ export const InputGroup = styled.div`
   align-items: center;
   padding: 0 5px;
   width: 100%;
-  input {
+  & div.enter-text {
     width: 100%;
     min-height: 35px;
-    padding: 6px 12px;
-    background-color: #2a2a2a;
-    border: 0;
-    font-size: 1.15rem;
-    color: white;
-    &:focus {
-      outline: none;
+    input {
+      width: 100%;
+      padding: 6px 12px;
+      background-color: #2a2a2a;
+      border: 0;
+      font-size: 1.15rem;
+      color: white;
+      &:focus {
+        outline: none;
+      }
     }
   }
   & div {
@@ -111,12 +114,14 @@ export const ReplyMessageInfo = styled.div`
   margin-right: 10px;
   width: 100%;
 `;
+
 export const ReplyMessageHeader = styled.div`
   margin: 5px 0;
   align-self: flex-start;
   color: #fff;
   font-size: 18px;
 `;
+
 export const ReplyMessageText = styled.div`
   align-self: flex-start;
   color: #b0b3b8;
@@ -146,4 +151,71 @@ export const ReplyMessageBtn = styled.div`
   & svg:hover {
     color: #b0b3b8;
   }
+`;
+
+export const ImagesContainer = styled(ReplyMessageContainer)`
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: 100px;
+`;
+export const ImagesContent = styled(ReplyMessageContent)`
+  justify-content: flex-start;
+`;
+export const ImagesInfo = styled(ReplyMessageInfo)`
+  flex-direction: row;
+  justify-content: flex-start;
+  width: auto;
+  height: 100%;
+`;
+export const Image = styled.div`
+  height: 68px;
+  width: 68px;
+  position: relative;
+  /* z-index: 1000; */
+  margin-right: 15px;
+  & img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+`;
+export const ImageBtn = styled.div`
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: #3e4042;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  & svg {
+    color: #b0b3b8;
+    border-radius: 50%;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+      background-color: #8a8d91;
+    }
+  }
+`;
+export const AnotherImagesBtn = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  cursor: pointer;
+  border-radius: 10px;
+  & svg {
+    color: #b0b3b8;
+    width: 24px;
+    height: 24px;
+  }
+  &:hover {
+    background-color: #8a8d91;
+    & svg {
+      color: #fff;
+    }
+  }
+  background-color: rgba(134, 142, 153, 0.25);
 `;

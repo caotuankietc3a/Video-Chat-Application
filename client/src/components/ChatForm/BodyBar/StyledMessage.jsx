@@ -97,7 +97,7 @@ export const MessageWrapper = styled.div`
   z-index: 1;
   justify-content: ${({ type }) =>
     type === "right" ? "flex-end" : "flex-start"};
-  div {
+  & > div {
     background-color: ${({ type }) =>
       type === "left" ? "#383f44" : "#665DFE"};
     color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF")};
@@ -119,6 +119,24 @@ export const MessageWrapper = styled.div`
     margin-bottom: 0.75rem;
     font-weight: 500;
     line-height: 1.2;
+  }
+  & > div .images-row {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    & .image-row {
+      cursor: pointer;
+      padding: 0 5px;
+      max-width: 100%;
+      & img {
+        width: 68px;
+        height: 68px;
+        border-radius: 10px;
+      }
+    }
   }
 `;
 

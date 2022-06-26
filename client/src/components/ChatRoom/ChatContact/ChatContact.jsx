@@ -14,24 +14,20 @@ import {
 import ChatContactLists from "./ChatContactLists";
 import { BsBell, BsSearch } from "react-icons/bs";
 import { BiDotsVerticalRounded } from "react-icons/bi";
+import { showMenuHandler } from "../../../store/actions/common-function";
 const ChatContact = ({ header, isClickedHandler, createGroupHandler }) => {
   const [searchContactItems, setSearchContactItems] = useState("");
   const [showMenu, setShowMenu] = useState(false);
 
   const menuShowHandler = (e) => {
-    setShowMenu(true);
+    e.stopPropagation();
+    setShowMenu(!showMenu);
   };
 
   useEffect(() => {
-    const checkIsClickOutside = (e) => {
-      if (showMenu) {
-        setShowMenu(false);
-      }
-    };
-    document.addEventListener("click", checkIsClickOutside);
-    return () => {
-      document.removeEventListener("click", checkIsClickOutside);
-    };
+    showMenuHandler(() => {
+      setShowMenu(false);
+    }, showMenu);
   }, [showMenu]);
 
   return (

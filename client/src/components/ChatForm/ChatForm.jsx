@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
@@ -16,7 +16,9 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const dispatch = useDispatch();
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
-  const [message, setMessage] = useState("");
+  const [attachMents, setAttachMents] = useState([]);
+  const [images, setImages] = useState([]);
+  const imagesRef = useRef(null);
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -98,7 +100,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           reply: replyOb,
           conversationId: conversation._id,
         });
-        setMessage("");
         dispatch(replyActions.setReply({ reply: null }));
         await postData(
           { newMessage: oldMes, replyOb },
@@ -122,6 +123,24 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     dispatch(videoStreamStart(navigate, conversation, true));
   };
 
+  const multipleImagesHandler = () => {
+    const array = [];
+    for (let i = 0; i < imagesRef.current?.files.length; i++) {
+      array.push({
+        data: URL.createObjectURL(imagesRef.current.files[i]),
+      });
+    }
+    setImages((preImgs) => [...preImgs, ...array]);
+  };
+
+  const removeImageInBuffers = (img) => {
+    setImages((preImages) => {
+      const index = preImages.findIndex((preImg) => preImg.data === img.data);
+      index !== -1 && preImages.splice(index, 1);
+      return [...preImages];
+    });
+  };
+
   return (
     <ChatFormContainer>
       <Header conversation={conversation} onClickVideoCall={clickVideoCall} />
@@ -133,7 +152,13 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           isGroup={conversation.no_mems ? true : false}
         />
       )}
-      <Input clickHandler={onClickHandler} />
+      <Input
+        clickHandler={onClickHandler}
+        imagesRef={imagesRef}
+        multipleImagesHandler={multipleImagesHandler}
+        images={images}
+        removeImageInBuffers={removeImageInBuffers}
+      />
     </ChatFormContainer>
   );
 };

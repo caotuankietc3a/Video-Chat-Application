@@ -29,6 +29,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
 import { forwardActions } from "../../../store/slices/forward-slice";
 import { messageActions } from "../../../store/slices/message-slice";
+import { showMenuHandler } from "../../../store/actions/common-function";
 
 const Message = ({
   type,
@@ -46,9 +47,10 @@ const Message = ({
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
-    setShowMenu(true);
+    setShowMenu(!showMenu);
   };
   const deleteMessageHandler = () => {
+    setShowMenu(false);
     socket_chat.emit("delete-message", {
       conversationId: conversation._id,
       text,
@@ -56,6 +58,7 @@ const Message = ({
     dispatch(messageActions.setReRender({ reRender: { text } }));
   };
   const replyMessageHandler = () => {
+    setShowMenu(false);
     dispatch(
       replyActions.setReply({
         reply: {
@@ -80,15 +83,13 @@ const Message = ({
         },
       })
     );
+
+    setShowMenu(false);
   };
   useEffect(() => {
-    const checkIsClickOutside = (e) => {
-      if (showMenu) setShowMenu(false);
-    };
-    document.addEventListener("click", checkIsClickOutside);
-    return () => {
-      document.removeEventListener("click", checkIsClickOutside);
-    };
+    showMenuHandler(() => {
+      setShowMenu(false);
+    }, showMenu);
   }, [showMenu]);
   return (
     <MessageContainer type={type}>
@@ -144,10 +145,25 @@ const Message = ({
 
         <MessageWrapper type={type}>
           <div>
-            {!forward && isGroup && type === "left" && (
-              <h6>{sender.fullname}</h6>
-            )}
+            {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
             <span>{text}</span>
+            <div className="images-row">
+              <div className="image-row">
+                <div className="item">
+                  <img src="/images/user-img.jpg" alt="" />
+                </div>
+              </div>
+              <div className="image-row">
+                <div className="item">
+                  <img src="/images/user-img.jpg" alt="" />
+                </div>
+              </div>
+              <div className="image-row">
+                <div className="item">
+                  <img src="/images/user-img.jpg" alt="" />
+                </div>
+              </div>
+            </div>
           </div>
         </MessageWrapper>
         <MessageOptions type={type}>
@@ -155,10 +171,18 @@ const Message = ({
             <img src="/images/user-img.jpg" alt="" />
           </AvatarUser>
           <span>{date}</span>
-          <MessageOptionsDropDown>
+          <MessageOptionsDropDown
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <BiDotsHorizontalRounded onClick={menuShowHandler} />
             {showMenu && (
-              <DropDownMenu>
+              <DropDownMenu
+                onClick={() => {
+                  setShowMenu(false);
+                }}
+              >
                 <CopyToClipboard text={text}>
                   <DropDownItem>
                     <IoCopyOutline />

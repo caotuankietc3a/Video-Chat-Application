@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, forwardRef } from "react";
 import { RiMailSendLine } from "react-icons/ri";
 import {
   ChatFooter,
@@ -9,24 +9,35 @@ import {
   ReplyMessageInfo,
   ReplyMessageText,
   ReplyMessageHeader,
+  ImagesContainer,
+  ImagesContent,
+  ImageBtn,
+  Image,
+  AnotherImagesBtn,
+  ImagesInfo,
 } from "./StyledInput";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import { MdOutlineInsertEmoticon } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { ImImages, ImAttachment } from "react-icons/im";
+import { MdOutlineAddPhotoAlternate } from "react-icons/md";
 
 import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
 import EmojiPicker from "../../UI/EmojiPicker/EmojiPicker";
 import { showMenuHandler } from "../../../store/actions/common-function";
 
-const Input = ({ clickHandler }) => {
+const Input = ({
+  clickHandler,
+  imagesRef,
+  multipleImagesHandler,
+  images,
+  removeImageInBuffers,
+}) => {
   const { reply } = useSelector((state) => state.reply);
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const inputEl = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
-  console.log(showMenu);
 
   const onChangeInputHandler = (e) => {
     inputEl.current.value = e.target.value;
@@ -41,13 +52,6 @@ const Input = ({ clickHandler }) => {
     showMenuHandler(() => {
       setShowMenu(false);
     }, showMenu);
-    // const checkIsClickOutside = (e) => {
-    //   if (showMenu) setShowMenu(false);
-    // };
-    // document.addEventListener("click", checkIsClickOutside);
-    // return () => {
-    //   document.removeEventListener("click", checkIsClickOutside);
-    // };
   }, [showMenu]);
 
   return (
@@ -81,12 +85,48 @@ const Input = ({ clickHandler }) => {
         </ReplyMessageContainer>
       )}
 
+      {images.length !== 0 && (
+        <ImagesContainer>
+          <ImagesContent>
+            <ImagesInfo>
+              {images.map((img, index) => {
+                return (
+                  <Image key={index}>
+                    <img src={img.data} alt="" />
+                    <ImageBtn>
+                      <IoClose
+                        onClick={() => {
+                          removeImageInBuffers(img);
+                        }}
+                      />
+                    </ImageBtn>
+                  </Image>
+                );
+              })}
+            </ImagesInfo>
+            <label htmlFor="images">
+              <AnotherImagesBtn>
+                <MdOutlineAddPhotoAlternate />
+              </AnotherImagesBtn>
+            </label>
+          </ImagesContent>
+        </ImagesContainer>
+      )}
+
       <InputGroup>
         <div className="images">
           <label htmlFor="images">
             <ImImages />
           </label>
-          <input type="file" style={{ display: "none" }} id="images" />
+          <input
+            ref={imagesRef}
+            type="file"
+            style={{ display: "none" }}
+            id="images"
+            onChange={multipleImagesHandler}
+            multiple
+            accept="image/*"
+          />
         </div>
 
         <div className="attachment">
@@ -95,12 +135,14 @@ const Input = ({ clickHandler }) => {
           </label>
           <input type="file" style={{ display: "none" }} id="attachmemt" />
         </div>
-        <input
-          type="text"
-          placeholder="Enter your message..."
-          onChange={onChangeInputHandler}
-          ref={inputEl}
-        ></input>
+        <div className="enter-text">
+          <input
+            type="text"
+            placeholder="Enter your message..."
+            onChange={onChangeInputHandler}
+            ref={inputEl}
+          ></input>
+        </div>
         <div
           onClick={(e) => {
             e.stopPropagation();
@@ -125,6 +167,7 @@ const Input = ({ clickHandler }) => {
         type="submit"
         onClick={(e) => {
           clickHandler(e, inputEl.current.value);
+          inputEl.current.value = "";
         }}
       >
         <RiMailSendLine />
@@ -132,5 +175,4 @@ const Input = ({ clickHandler }) => {
     </ChatFooter>
   );
 };
-
 export default Input;

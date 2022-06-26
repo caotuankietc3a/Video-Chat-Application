@@ -171,6 +171,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
                       id="upload-file"
                       hidden={true}
                       ref={inputFileEl}
+                      accept="image/*"
                     ></input>
                   </div>
                 </div>
