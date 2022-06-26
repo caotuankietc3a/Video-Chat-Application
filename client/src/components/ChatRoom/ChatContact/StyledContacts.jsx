@@ -62,6 +62,7 @@ export const AvatarUser = styled.div`
     width: 48px;
     height: 48px;
     border-radius: 50%;
+    object-fit: cover;
   }
   &:before {
     content: "";

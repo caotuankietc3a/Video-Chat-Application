@@ -209,3 +209,13 @@ export const arrayDisplay = [
     ],
   },
 ];
+
+export const showMenuHandler = (cb, showMenu) => {
+  const checkIsClickOutside = () => {
+    if (showMenu) cb();
+  };
+  document.addEventListener("click", checkIsClickOutside);
+  return () => {
+    document.removeEventListener("click", checkIsClickOutside);
+  };
+};

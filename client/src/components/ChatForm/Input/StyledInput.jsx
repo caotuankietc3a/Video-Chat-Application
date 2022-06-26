@@ -6,7 +6,7 @@ export const ChatFooter = styled.form`
   z-index: 10;
   width: calc(100% - 69px - 419px);
   height: 5rem;
-  padding: 0.75rem 2.25rem;
+  padding: 0.75rem 1.25rem;
   background-color: #323333;
   border-top: 1px solid #343a40;
   button {
@@ -43,20 +43,39 @@ export const InputGroup = styled.div`
   width: 100%;
   input {
     width: 100%;
+    min-height: 35px;
     padding: 6px 12px;
     background-color: #2a2a2a;
     border: 0;
-    font-size: 0.875rem;
+    font-size: 1.15rem;
     color: white;
     &:focus {
       outline: none;
     }
   }
-  div {
+  & div {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0.75rem;
+    position: relative;
+    & > div {
+      position: absolute;
+      bottom: 30px;
+      right: 0;
+    }
+    &:hover {
+      svg {
+        color: #5d646b;
+        cursor: pointer;
+      }
+    }
+  }
+  & div.images,
+  & div.attachment {
+    & svg {
+      font-size: 1.2rem;
+    }
   }
 `;
 

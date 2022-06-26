@@ -10,7 +10,6 @@ import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
 import { videoStreamStart } from "../../store/actions/video-chat-function";
-import { videoGroupStreamStart } from "../../store/actions/video-group-function";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
@@ -60,7 +59,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     });
 
     socket_chat.on("forward-message", ({ messageOb }) => {
-      console.log(messageOb);
       setMessages((preMessages) => {
         return [...preMessages, { ...messageOb }];
       });
@@ -88,7 +86,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     };
   }, [messages]);
 
-  const onClickHandler = async (e) => {
+  const onClickHandler = async (e, message) => {
     e.preventDefault();
     try {
       if (message) {
@@ -110,10 +108,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     } catch (err) {
       console.error(err);
     }
-  };
-
-  const onChangeHandler = (e) => {
-    setMessage(e.target.value);
   };
 
   const clickVideoCall = async (e) => {
@@ -139,11 +133,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           isGroup={conversation.no_mems ? true : false}
         />
       )}
-      <Input
-        clickHandler={onClickHandler}
-        message={message}
-        changeHandler={onChangeHandler}
-      />
+      <Input clickHandler={onClickHandler} />
     </ChatFormContainer>
   );
 };
