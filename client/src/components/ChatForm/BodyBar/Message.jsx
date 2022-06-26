@@ -14,12 +14,14 @@ import {
   DropDownItem,
 } from "./StyledMessage";
 import { BiDotsHorizontalRounded } from "react-icons/bi";
+
 import {
   IoCopyOutline,
   IoReturnUpForward,
   IoReturnUpBack,
 } from "react-icons/io5";
-import { AiOutlineStar } from "react-icons/ai";
+import { AiOutlineStar, AiOutlineFileText } from "react-icons/ai";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import {
   RiDeleteBinLine,
   RiReplyFill,
@@ -144,25 +146,36 @@ const Message = ({
         )}
 
         <MessageWrapper type={type}>
-          <div>
-            {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
-            <span>{text}</span>
-            <div className="images-row">
-              <div className="image-row">
-                <div className="item">
-                  <img src="/images/user-img.jpg" alt="" />
-                </div>
-              </div>
-              <div className="image-row">
-                <div className="item">
-                  <img src="/images/user-img.jpg" alt="" />
-                </div>
-              </div>
-              <div className="image-row">
-                <div className="item">
-                  <img src="/images/user-img.jpg" alt="" />
-                </div>
-              </div>
+          {/* <div className="text"> */}
+          {/*   {isGroup && type === "left" && <h6>{sender.fullname}</h6>} */}
+          {/*   <span>{text}</span> */}
+          {/*   <div className="images-row"> */}
+          {/*     <div className="image-row"> */}
+          {/*       <div className="item"> */}
+          {/*         <img src="/images/user-img.jpg" alt="" /> */}
+          {/*       </div> */}
+          {/*     </div> */}
+          {/*     <div className="image-row"> */}
+          {/*       <div className="item"> */}
+          {/*         <img src="/images/user-img.jpg" alt="" /> */}
+          {/*       </div> */}
+          {/*     </div> */}
+          {/*     <div className="image-row"> */}
+          {/*       <div className="item"> */}
+          {/*         <img src="/images/user-img.jpg" alt="" /> */}
+          {/*       </div> */}
+          {/*     </div> */}
+          {/*   </div> */}
+          {/* </div> */}
+          <div className="attachments">
+            <div className="attachments-btn">
+              <HiOutlineDocumentDuplicate />
+            </div>
+            <div className="attachments-body">
+              <h6>
+                <a href=" #">global-warming-data-2020.xlsx wf</a>
+              </h6>
+              <div className="payload-file">79.2Kb</div>
             </div>
           </div>
         </MessageWrapper>

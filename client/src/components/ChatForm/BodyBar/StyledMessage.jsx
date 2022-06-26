@@ -112,6 +112,58 @@ export const MessageWrapper = styled.div`
     overflow-wrap: break-word;
   }
 
+  & > div.attachments {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & div.attachments-btn {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 38px;
+      width: 38px;
+      min-width: 38px;
+      transition: background-color 0.2s ease-in-out;
+      background-color: ${({ type }) =>
+        type === "right" ? "#383f44" : "#665DFE"};
+      border-radius: 50%;
+      margin-right: 10px;
+      svg {
+        color: #fff;
+        font-size: 1.175rem;
+      }
+      &:active {
+        background-color: ${({ type }) =>
+          type === "right" ? "#2a2a2a" : "#362afe"};
+      }
+    }
+
+    & div.attachments-body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      overflow-wrap: none;
+      width: 13.5rem;
+      h6 {
+        margin-bottom: 4px;
+        width: 100%;
+        a {
+          text-decoration: none;
+          color: #fff;
+        }
+      }
+      div.payload-file {
+        width: 100%;
+        height: 10px;
+        color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF90")};
+        font-size: 0.675rem;
+      }
+    }
+  }
+
   & h6 {
     color: #f8f9fa;
     font-size: 0.875rem;
