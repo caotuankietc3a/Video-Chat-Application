@@ -2,14 +2,14 @@ const { Schema, model } = require("mongoose");
 const fileSchema = new Schema({
   images: [
     {
-      type: String,
-      default: "",
+      type: Schema.Types.Mixed,
+      default: {},
     },
   ],
   attachments: [
     {
-      type: String,
-      default: "",
+      type: Schema.Types.Mixed,
+      default: {},
     },
   ],
 });

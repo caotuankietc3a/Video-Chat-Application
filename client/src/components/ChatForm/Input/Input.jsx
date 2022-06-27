@@ -32,9 +32,12 @@ import { showMenuHandler } from "../../../store/actions/common-function";
 const Input = ({
   clickHandler,
   imagesRef,
+  attachmentsRef,
   multipleImagesHandler,
+  multipleAttachmentsHandler,
   images,
   removeImageInBuffers,
+  removeAttachmentInBuffers,
   attachments,
 }) => {
   const { reply } = useSelector((state) => state.reply);
@@ -88,21 +91,20 @@ const Input = ({
           </ReplyMessageContent>
         </ReplyMessageContainer>
       )}
-
       {images.length !== 0 && (
         <FilesContainer>
           <FilesContent>
             <FilesInfo>
-              {images.map((img, index) => {
+              {images.map(({ url, name }, index) => {
                 return (
                   <Files key={index}>
-                    <img src={img} alt="" />
-                    <FilesBtn>
-                      <IoClose
-                        onClick={() => {
-                          removeImageInBuffers(img);
-                        }}
-                      />
+                    <img src={url} alt="" />
+                    <FilesBtn
+                      onClick={() => {
+                        removeImageInBuffers(url, name);
+                      }}
+                    >
+                      <IoClose />
                     </FilesBtn>
                   </Files>
                 );
@@ -117,37 +119,38 @@ const Input = ({
         </FilesContainer>
       )}
 
-      {/* {attachments.length !== 0 && ( */}
-      <FilesContainer>
-        <FilesContent>
-          <FilesInfo>
-            {/* {images.map((img, index) => { */}
-            {/*   return ( */}
-            <Attachments>
-              <div className="attachments-content">
-                <div className="attachments-btn">
-                  <AiFillFileText />
-                </div>
-                <div className="attachments-info">
-                  dsfasdfasfdddddddddddsddddddddddddddddddd
-                  dddddddddddddddddddddddd
-                </div>
-              </div>
-              <FilesBtn>
-                <IoClose />
-              </FilesBtn>
-            </Attachments>
-            {/*   ); */}
-            {/* })} */}
-          </FilesInfo>
-          <label htmlFor="attachment">
-            <AnotherFilesBtn>
-              <BsFiles />
-            </AnotherFilesBtn>
-          </label>
-        </FilesContent>
-      </FilesContainer>
-      {/* )} */}
+      {attachments.length !== 0 && (
+        <FilesContainer>
+          <FilesContent>
+            <FilesInfo>
+              {attachments.map(({ name, size }, index) => {
+                return (
+                  <Attachments key={index}>
+                    <div className="attachments-content">
+                      <div className="attachments-btn">
+                        <AiFillFileText />
+                      </div>
+                      <div className="attachments-info">{name}</div>
+                    </div>
+                    <FilesBtn
+                      onClick={() => {
+                        removeAttachmentInBuffers(size, name);
+                      }}
+                    >
+                      <IoClose />
+                    </FilesBtn>
+                  </Attachments>
+                );
+              })}
+            </FilesInfo>
+            <label htmlFor="attachment">
+              <AnotherFilesBtn>
+                <BsFiles />
+              </AnotherFilesBtn>
+            </label>
+          </FilesContent>
+        </FilesContainer>
+      )}
 
       <InputGroup>
         <div className="images">
@@ -174,7 +177,8 @@ const Input = ({
             style={{ display: "none" }}
             id="attachment"
             multiple
-            accept="image/*"
+            onChange={multipleAttachmentsHandler}
+            ref={attachmentsRef}
           />
         </div>
         <div className="enter-text">

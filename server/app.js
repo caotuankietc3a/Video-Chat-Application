@@ -289,7 +289,6 @@ io_group_video.on("connection", (socket) => {
       conversationId,
       userId: socket.id,
     });
-    console.log(userInRoom);
     socket.broadcast.emit("user-leaved", {
       peerId: userInRoom[0].userInfo.userId,
       userInfo: userInRoom[0].userInfo,
@@ -328,7 +327,6 @@ io_notify.on("connection", (socket) => {
   });
 
   socket.on("post-new-group-conversation", () => {
-    console.log("ddddddddddddddddaaaaaaaaaaaaaaaaa");
     socket.broadcast.emit("post-new-group-conversation");
   });
 });

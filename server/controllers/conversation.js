@@ -4,7 +4,10 @@ const { uploads } = require("../util/cloudinary.js");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
-    const uploadedRes = await uploads("images-group", groupImg);
+    const uploadedRes = await uploads(
+      { fileName: groupName, folderName: "images-group" },
+      groupImg
+    );
     const newConversation = new Conversation({
       members,
       messages: [],
@@ -60,18 +63,51 @@ exports.getConversationDetail = async (req, res, next) => {
 exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
-    const { newMessage, replyOb, forwardOb, dataImgs } = req.body;
+    const { newMessage, replyOb, forwardOb, dataImgs, dataAttachments } =
+      req.body;
     let newFile = null;
     if (dataImgs.length !== 0) {
       const uploadedImgs = await Promise.all(
         dataImgs.map((dataImg) => {
-          // return uploads("images", dataImg.data);
-          return uploads("images", dataImg);
+          return uploads(
+            { fileName: dataImg.name, folderName: "images" },
+            dataImg.url
+          );
         })
       );
+      let images = [];
+      for (let i = 0; i < dataImgs.length; i++) {
+        images.push({
+          url: uploadedImgs[i].url,
+          name: dataImgs[i].name,
+        });
+      }
       newFile = new File({
-        images: uploadedImgs.map((uploadedImg) => uploadedImg.url),
+        images: images,
         attachments: [],
+      });
+      await newFile.save();
+    } else if (dataAttachments.length !== 0) {
+      const uploadedAttachments = await Promise.all(
+        dataAttachments.map((dataAttachment) => {
+          return uploads(
+            { fileName: dataAttachment.name, folderName: "attachments" },
+            dataAttachment.data
+          );
+        })
+      );
+      let attachments = [];
+      for (let i = 0; i < dataAttachments.length; i++) {
+        attachments.push({
+          url: uploadedAttachments[i].url,
+          name: dataAttachments[i].name,
+          size: dataAttachments[i].size,
+        });
+      }
+
+      newFile = new File({
+        images: [],
+        attachments: attachments,
       });
       await newFile.save();
     }

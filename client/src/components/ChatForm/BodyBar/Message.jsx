@@ -45,6 +45,7 @@ const Message = ({
   images,
   attachments,
 }) => {
+  console.log(attachments);
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
   const { socket_chat } = useSelector((state) => state.socket);
@@ -154,30 +155,30 @@ const Message = ({
             {text !== "" && <span>{text}</span>}
             {images.length !== 0 && (
               <div className="images-row">
-                {images.map((img, i) => (
+                {images.map(({ url, name }, i) => (
                   <div className="image-row" key={i}>
                     <div className="item">
-                      <img src={img} alt="Image" />
+                      <img src={url} alt="Image" />
                     </div>
                   </div>
                 ))}
               </div>
             )}
+            {attachments.length !== 0 &&
+              attachments.map(({ name, size, url }, i) => (
+                <div className="attachments" key={i}>
+                  <div className="attachments-btn">
+                    <HiOutlineDocumentDuplicate />
+                  </div>
+                  <div className="attachments-body">
+                    <h6>
+                      <a href={url}>{name}</a>
+                    </h6>
+                    <div className="payload-file">{`${size} Kb`}</div>
+                  </div>
+                </div>
+              ))}
           </div>
-          {attachments.length !== 0 &&
-            attachments.map((attachment) => (
-              <div className="attachments">
-                <div className="attachments-btn">
-                  <HiOutlineDocumentDuplicate />
-                </div>
-                <div className="attachments-body">
-                  <h6>
-                    <a href=" #">global-warming-data-2020.xlsx wf</a>
-                  </h6>
-                  <div className="payload-file">79.2Kb</div>
-                </div>
-              </div>
-            ))}
         </MessageWrapper>
         <MessageOptions type={type}>
           <AvatarUser>

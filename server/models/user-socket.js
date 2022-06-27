@@ -19,7 +19,6 @@ class User_Socket {
         user.userInfo.userId === userId &&
         user.conversationId === conversationId
     );
-    console.log(index);
     if (index !== -1) {
       return users.splice(index, 1);
     }

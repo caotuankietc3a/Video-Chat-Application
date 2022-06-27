@@ -110,56 +110,63 @@ export const MessageWrapper = styled.div`
     display: inline-block;
     font-size: 0.875rem;
     overflow-wrap: break-word;
-  }
-
-  & > div.attachments {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    & div.attachments-btn {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 38px;
-      width: 38px;
-      min-width: 38px;
-      transition: background-color 0.2s ease-in-out;
-      background-color: ${({ type }) =>
-        type === "right" ? "#383f44" : "#665DFE"};
-      border-radius: 50%;
-      margin-right: 10px;
-      svg {
-        color: #fff;
-        font-size: 1.175rem;
-      }
-      &:active {
-        background-color: ${({ type }) =>
-          type === "right" ? "#2a2a2a" : "#362afe"};
-      }
+    h6 {
+      margin-bottom: 0.5rem;
     }
 
-    & div.attachments-body {
+    & > div.attachments {
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      overflow-wrap: none;
-      width: 13.5rem;
-      h6 {
-        margin-bottom: 4px;
-        width: 100%;
-        a {
-          text-decoration: none;
+      margin: 5px 0;
+
+      & div.attachments-btn {
+        /* cursor: pointer; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+        width: 38px;
+        min-width: 38px;
+        transition: background-color 0.2s ease-in-out;
+        background-color: ${({ type }) =>
+          type === "right" ? "#383f44" : "#665DFE"};
+        border-radius: 50%;
+        margin-right: 10px;
+        svg {
           color: #fff;
+          font-size: 1.175rem;
+        }
+        &:hover {
+          background-color: ${({ type }) =>
+            type === "right" ? "#2a2a2a" : "#362afe"};
         }
       }
-      div.payload-file {
-        width: 100%;
-        height: 10px;
-        color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF90")};
-        font-size: 0.675rem;
+
+      & div.attachments-body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        overflow-wrap: none;
+        width: 13.5rem;
+        h6 {
+          margin-bottom: 4px;
+          width: 100%;
+          a {
+            text-decoration: none;
+            color: #fff;
+          }
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+        div.payload-file {
+          width: 100%;
+          height: 10px;
+          color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF90")};
+          font-size: 0.675rem;
+        }
       }
     }
   }
@@ -172,6 +179,7 @@ export const MessageWrapper = styled.div`
     font-weight: 500;
     line-height: 1.2;
   }
+
   & > div .images-row {
     margin-top: 5px;
     display: flex;

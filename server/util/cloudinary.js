@@ -9,12 +9,14 @@ cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET,
 });
 
-const uploads = (folderName, data) => {
+const uploads = ({ fileName, folderName }, data) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       data,
       {
         upload_preset: folderName,
+        resource_type: "auto",
+        public_id: fileName,
       },
       (error, result) => {
         if (error) reject(error);

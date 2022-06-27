@@ -3,11 +3,9 @@ const User = require("../models/user.js");
 exports.getMeetings = async (req, res, _next) => {
   try {
     const { userId } = req.query;
-    console.log(userId);
     const meetings = await Meeting.find({
       $or: [{ caller: userId }, { callee: userId }],
     }).populate({ path: "caller callee" });
-    console.log(meetings);
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
@@ -53,7 +51,6 @@ exports.getMeetingDetail = async (req, res, next) => {
 };
 
 exports.saveMeeting = async (caller, callee, date, callAccepted) => {
-  console.log("dddddddddddddddddddddddddddddddddddddsssssssssss");
   try {
     const newMeeting = new Meeting({
       caller,

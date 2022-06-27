@@ -61,7 +61,6 @@ exports.getSession = async (req, res, next) => {
       },
       { new: true }
     ).select("-password");
-    console.log(user);
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });
