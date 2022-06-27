@@ -4,7 +4,7 @@ import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ChatFormContainer } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
@@ -15,7 +15,6 @@ import { errorActions } from "../../store/slices/error-slice";
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
-  const { conversationId } = useParams();
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
   const [attachments, setAttachments] = useState([]);
@@ -30,7 +29,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     let timer = 0;
     (async () => {
       const res = await fetch(
-        `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
+        `${END_POINT_SERVER}/conversation/messages/${conversation._id}`,
         {
           credentials: "include",
         }
@@ -49,7 +48,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   }, []);
 
   useEffect(() => {
-    socket_chat.emit("join-chat", { conversationId: conversationId });
+    socket_chat.emit("join-chat", { conversationId: conversation._id });
 
     socket_chat.on("receive-message", ({ text, sender, reply, files }) => {
       setMessages((preMessages) => [
@@ -72,7 +71,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     });
 
     return function cleanup() {
-      socket_chat.emit("leave-chat", { conversationId: conversationId });
+      socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
     };
   }, []);
@@ -103,7 +102,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           userId: user._id,
           message: message,
           reply: replyOb,
-          conversationId: conversationId,
+          conversationId: conversation._id,
           files: {
             images: images,
             attachments: attachments,
@@ -119,7 +118,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
             dataImgs: images,
             dataAttachments: attachments,
           },
-          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversationId}&userId=${user._id}`
+          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
         );
       }
     } catch (err) {
@@ -131,10 +130,10 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     e.preventDefault();
     if (conversation.no_mems) {
       socket_video.emit("make-group-connection-call", {
-        conversationId: conversationId,
+        conversationId: conversation._id,
         callerId: user._id,
       });
-      return navigate(`/meeting-group/${conversationId}`);
+      return navigate(`/meeting-group/${conversation._id}`);
     }
     dispatch(videoStreamStart(navigate, conversation, true));
   };

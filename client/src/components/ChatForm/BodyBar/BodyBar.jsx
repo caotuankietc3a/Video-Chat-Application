@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { formatDate } from "../../../store/actions/common-function";
 
 const BodyBar = ({ messages, isGroup = false }) => {
+  console.log(messages);
   const userState = useSelector((state) => state.user);
   const bodyMessagesDisplay = (messages, formatDate) => {
     return messages.map((mes, i) => {

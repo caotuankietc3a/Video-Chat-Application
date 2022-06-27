@@ -211,8 +211,7 @@ const ChatRoom = (props) => {
         <ChatBodyContainer>
           <Routes>
             <Route
-              // path={`/conversation/detail/${conversation?._id}`}
-              path={`/conversation/detail/:conversationId`}
+              path={`/conversation/detail/${conversation?._id}`}
               element={
                 <ChatForm
                   conversation={conversation}

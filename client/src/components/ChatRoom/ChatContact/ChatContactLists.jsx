@@ -60,6 +60,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
+        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(

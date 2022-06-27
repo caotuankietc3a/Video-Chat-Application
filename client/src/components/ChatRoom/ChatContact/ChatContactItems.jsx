@@ -34,14 +34,24 @@ const ChatContactItems = ({
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  const latestMessage = {
-    text: conversation.messages[conversation.messages.length - 1].text,
-    length: conversation.messages.length,
-    images:
-      conversation.messages[conversation.messages.length - 1].files.images,
-    attachments:
-      conversation.messages[conversation.messages.length - 1].files.attachments,
-  };
+  console.log(conversation);
+
+  let length;
+  let latestMessage;
+
+  if (type === "Chats") {
+    length = conversation.messages.length;
+    if (length - 1 !== -1) {
+      latestMessage = {
+        text: conversation.messages[conversation.messages.length - 1].text,
+        images:
+          conversation.messages[conversation.messages.length - 1].files.images,
+        attachments:
+          conversation.messages[conversation.messages.length - 1].files
+            .attachments,
+      };
+    }
+  }
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
@@ -170,11 +180,10 @@ const ChatContactItems = ({
                 type === "Chats" && (
                   <span className={isActive ? "active" : "inactive"}>
                     {isGroup &&
-                      latestMessage.length - 1 !== -1 &&
-                      conversation.messages[latestMessage.length - 1].sender
-                        .fullname + ": "}
+                      length - 1 !== -1 &&
+                      conversation.messages[length - 1].sender.fullname + ": "}
 
-                    {latestMessage.length - 1 !== -1
+                    {length - 1 !== -1
                       ? latestMessage.text === "" &&
                         latestMessage.images.length !== 0
                         ? "sended some images"
