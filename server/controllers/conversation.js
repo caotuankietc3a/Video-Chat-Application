@@ -37,7 +37,6 @@ exports.getConversations = async (req, res, next) => {
             { members: userId },
           ],
         }).populate({ path: "members messages.sender" });
-        console.log(conversations);
       }
     }
     res.status(200).json(conversations);
@@ -62,7 +61,6 @@ exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
     const { newMessage, replyOb, forwardOb, dataImgs } = req.body;
-    let uploadedImgs = null;
     let newFile = null;
     if (dataImgs.length !== 0) {
       const uploadedImgs = await Promise.all(
@@ -77,7 +75,6 @@ exports.postNewMessage = async (req, res, next) => {
       });
       await newFile.save();
     }
-    console.log(newFile);
 
     await Conversation.updateOne(
       { _id: conversationId },

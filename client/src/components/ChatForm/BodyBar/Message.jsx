@@ -161,17 +161,6 @@ const Message = ({
                     </div>
                   </div>
                 ))}
-
-                {/* <div className="image-row"> */}
-                {/*   <div className="item"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="image-row"> */}
-                {/*   <div className="item"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/* </div> */}
               </div>
             )}
           </div>

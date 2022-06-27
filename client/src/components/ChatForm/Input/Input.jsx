@@ -9,17 +9,20 @@ import {
   ReplyMessageInfo,
   ReplyMessageText,
   ReplyMessageHeader,
-  ImagesContainer,
-  ImagesContent,
-  ImageBtn,
-  Image,
-  AnotherImagesBtn,
-  ImagesInfo,
+  FilesContainer,
+  FilesContent,
+  FilesBtn,
+  Files,
+  Attachments,
+  AnotherFilesBtn,
+  FilesInfo,
 } from "./StyledInput";
 import { MdOutlineInsertEmoticon } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import { ImImages, ImAttachment } from "react-icons/im";
 import { MdOutlineAddPhotoAlternate } from "react-icons/md";
+import { AiFillFileText } from "react-icons/ai";
+import { BsFiles } from "react-icons/bs";
 
 import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
@@ -32,6 +35,7 @@ const Input = ({
   multipleImagesHandler,
   images,
   removeImageInBuffers,
+  attachments,
 }) => {
   const { reply } = useSelector((state) => state.reply);
   const { user } = useSelector((state) => state.user);
@@ -86,32 +90,64 @@ const Input = ({
       )}
 
       {images.length !== 0 && (
-        <ImagesContainer>
-          <ImagesContent>
-            <ImagesInfo>
+        <FilesContainer>
+          <FilesContent>
+            <FilesInfo>
               {images.map((img, index) => {
                 return (
-                  <Image key={index}>
+                  <Files key={index}>
                     <img src={img} alt="" />
-                    <ImageBtn>
+                    <FilesBtn>
                       <IoClose
                         onClick={() => {
                           removeImageInBuffers(img);
                         }}
                       />
-                    </ImageBtn>
-                  </Image>
+                    </FilesBtn>
+                  </Files>
                 );
               })}
-            </ImagesInfo>
+            </FilesInfo>
             <label htmlFor="images">
-              <AnotherImagesBtn>
+              <AnotherFilesBtn>
                 <MdOutlineAddPhotoAlternate />
-              </AnotherImagesBtn>
+              </AnotherFilesBtn>
             </label>
-          </ImagesContent>
-        </ImagesContainer>
+          </FilesContent>
+        </FilesContainer>
       )}
+
+      {/* {attachments.length !== 0 && ( */}
+      <FilesContainer>
+        <FilesContent>
+          <FilesInfo>
+            {/* {images.map((img, index) => { */}
+            {/*   return ( */}
+            <Attachments>
+              <div className="attachments-content">
+                <div className="attachments-btn">
+                  <AiFillFileText />
+                </div>
+                <div className="attachments-info">
+                  dsfasdfasfdddddddddddsddddddddddddddddddd
+                  dddddddddddddddddddddddd
+                </div>
+              </div>
+              <FilesBtn>
+                <IoClose />
+              </FilesBtn>
+            </Attachments>
+            {/*   ); */}
+            {/* })} */}
+          </FilesInfo>
+          <label htmlFor="attachment">
+            <AnotherFilesBtn>
+              <BsFiles />
+            </AnotherFilesBtn>
+          </label>
+        </FilesContent>
+      </FilesContainer>
+      {/* )} */}
 
       <InputGroup>
         <div className="images">
@@ -130,10 +166,16 @@ const Input = ({
         </div>
 
         <div className="attachment">
-          <label htmlFor="attachmemt">
+          <label htmlFor="attachment">
             <ImAttachment />
           </label>
-          <input type="file" style={{ display: "none" }} id="attachmemt" />
+          <input
+            type="file"
+            style={{ display: "none" }}
+            id="attachment"
+            multiple
+            accept="image/*"
+          />
         </div>
         <div className="enter-text">
           <input

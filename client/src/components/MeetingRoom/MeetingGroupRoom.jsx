@@ -51,6 +51,7 @@ const MeetingGroupRoom = () => {
   const [peers, setPeers] = useState([]);
   const peersRef = useRef([]);
   const { conversationId } = useParams();
+  const params = useParams();
   const [searchParams] = useSearchParams();
   const [showTopControls, setShowTopControls] = useState(false);
   const [showVideo, setShowVideo] = useState(false);

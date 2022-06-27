@@ -153,24 +153,29 @@ export const ReplyMessageBtn = styled.div`
   }
 `;
 
-export const ImagesContainer = styled(ReplyMessageContainer)`
+export const FilesContainer = styled(ReplyMessageContainer)`
   padding-top: 0;
   padding-bottom: 0;
   min-height: 100px;
 `;
-export const ImagesContent = styled(ReplyMessageContent)`
+
+export const FilesContent = styled(ReplyMessageContent)`
   justify-content: flex-start;
 `;
-export const ImagesInfo = styled(ReplyMessageInfo)`
+
+export const FilesInfo = styled(ReplyMessageInfo)`
   flex-direction: row;
   justify-content: flex-start;
   width: auto;
   height: 100%;
 `;
-export const Image = styled.div`
+
+export const Files = styled.div`
   height: 68px;
   width: 68px;
   position: relative;
+  background-color: red;
+  border-radius: 10px;
   /* z-index: 1000; */
   margin-right: 15px;
   & img {
@@ -180,7 +185,57 @@ export const Image = styled.div`
     border-radius: 10px;
   }
 `;
-export const ImageBtn = styled.div`
+
+export const Attachments = styled.div`
+  position: relative;
+  height: 68px;
+  width: 208px;
+  border-radius: 10px;
+  background-color: #383f44;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & div.attachments-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    & div.attachments-btn {
+      background-color: #242526;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-right: 7px;
+      margin-left: 10px;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+      svg {
+        font-size: 1.205rem;
+      }
+    }
+    & div.attachments-info {
+      width: 90%;
+      position: relative;
+      line-height: 1em;
+      max-height: 3em;
+      justify-self: flex-start;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      word-wrap: break-word;
+      padding-right: auto;
+      margin-right: 5px;
+      font-weight: 300;
+      font-size: 0.9rem;
+      color: #b0b3b8;
+    }
+  }
+`;
+
+export const FilesBtn = styled.div`
   position: absolute;
   top: -10px;
   right: -10px;
@@ -198,7 +253,7 @@ export const ImageBtn = styled.div`
     }
   }
 `;
-export const AnotherImagesBtn = styled.div`
+export const AnotherFilesBtn = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;

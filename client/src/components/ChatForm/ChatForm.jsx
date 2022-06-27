@@ -14,8 +14,7 @@ import { videoStreamStart } from "../../store/actions/video-chat-function";
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
-  // const params = useParams();
-  // console.log(params.split("/")[2]);
+  const { conversationId } = useParams();
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
   const [attachments, setAttachments] = useState([]);
@@ -29,7 +28,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     let timer = 0;
     (async () => {
       const res = await fetch(
-        `${END_POINT_SERVER}/conversation/messages/${conversation._id}`,
+        `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
         {
           credentials: "include",
         }
@@ -48,7 +47,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   }, []);
 
   useEffect(() => {
-    socket_chat.emit("join-chat", { conversationId: conversation._id });
+    socket_chat.emit("join-chat", { conversationId: conversationId });
 
     socket_chat.on("receive-message", ({ text, sender, reply, files }) => {
       setMessages((preMessages) => [
@@ -71,7 +70,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     });
 
     return function cleanup() {
-      socket_chat.emit("leave-chat", { conversationId: conversation._id });
+      socket_chat.emit("leave-chat", { conversationId: conversationId });
       // socket.off();
     };
   }, []);
@@ -102,7 +101,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           userId: user._id,
           message: message,
           reply: replyOb,
-          conversationId: conversation._id,
+          conversationId: conversationId,
           files: {
             images: images,
             attachments: attachments,
@@ -113,7 +112,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         dispatch(replyActions.setReply({ reply: null }));
         await postData(
           { newMessage: oldMes, replyOb, dataImgs: images },
-          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
+          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversationId}&userId=${user._id}`
         );
       }
     } catch (err) {
@@ -125,10 +124,10 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     e.preventDefault();
     if (conversation.no_mems) {
       socket_video.emit("make-group-connection-call", {
-        conversationId: conversation._id,
+        conversationId: conversationId,
         callerId: user._id,
       });
-      return navigate(`/meeting-group/${conversation._id}`);
+      return navigate(`/meeting-group/${conversationId}`);
     }
     dispatch(videoStreamStart(navigate, conversation, true));
   };
@@ -168,6 +167,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         multipleImagesHandler={multipleImagesHandler}
         images={images}
         removeImageInBuffers={removeImageInBuffers}
+        attachments={attachments}
       />
     </ChatFormContainer>
   );

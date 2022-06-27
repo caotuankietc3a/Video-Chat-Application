@@ -42,7 +42,6 @@ const ChatContactItems = ({
     attachments:
       conversation.messages[conversation.messages.length - 1].files.attachments,
   };
-  console.log(latestMessage);
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
