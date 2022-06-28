@@ -1,4 +1,5 @@
 const Conversation = require("../models/conversation");
+const Reply = require("../models/reply");
 const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
 const { uploads, deletes, uploadsFiles } = require("../util/cloudinary.js");
@@ -31,7 +32,9 @@ exports.getConversations = async (req, res, next) => {
       if (!parseInt(isGroup)) {
         conversations = await Conversation.find({
           members: { $in: [userId] },
-        }).populate({ path: "members messages.sender messages.files" });
+        }).populate({
+          path: "members messages.sender messages.files messages.reply",
+        });
       } else {
         conversations = await Conversation.find({
           $and: [
@@ -40,7 +43,9 @@ exports.getConversations = async (req, res, next) => {
             },
             { members: userId },
           ],
-        }).populate({ path: "members messages.sender messages.files" });
+        }).populate({
+          path: "members messages.sender messages.files messages.reply",
+        });
       }
     }
     res.status(200).json(conversations);
@@ -53,7 +58,7 @@ exports.getConversationDetail = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId).populate({
-      path: "members messages.sender messages.files",
+      path: "members messages.sender messages.files messages.reply",
     });
     res.status(200).json(conversation);
   } catch (err) {
@@ -75,13 +80,25 @@ exports.postNewMessage = async (req, res, next) => {
       const { fileId } = await uploadsFiles(dataAttachments, id, "attachments");
       file_id = fileId;
     } else {
-      console.log("dddddddddddddddaaaaaaaaaaaaaaaaaaaaaa");
       const newFile = await new File({
         images: [],
         attachments: [],
       }).save();
       file_id = newFile._id;
     }
+
+    let newReply;
+    if (replyOb) {
+      newReply = await Reply({
+        messageId: replyOb.messageId,
+        replyer: replyOb.replyer,
+        replyee: replyOb.replyee,
+        text: replyOb.text,
+        haveImages: replyOb.haveImages,
+        haveAttachments: replyOb.haveAttachments,
+      }).save();
+    }
+
     await Conversation.updateOne(
       { _id: conversationId },
       {
@@ -91,7 +108,7 @@ exports.postNewMessage = async (req, res, next) => {
             text: newMessage,
             sender: userId,
             date: new Date(Date.now()),
-            reply: replyOb ? replyOb : null,
+            reply: replyOb ? newReply._id : null,
             forward: forwardOb ? forwardOb : null,
             // files: newFile._id,
             files: file_id,
@@ -109,7 +126,7 @@ exports.getMessages = async (req, res, next) => {
   try {
     const conversationId = req.params.conversationId;
     const conversation = await Conversation.findById(conversationId).populate({
-      path: "messages.sender messages.files",
+      path: "messages.sender messages.files messages.reply",
     });
     // .select("-messages.sender.password");
     res.status(200).json(conversation.messages);
@@ -226,7 +243,6 @@ exports.forwardMessage = async (forwardOb) => {
       );
       file_id = fileId;
     }
-    console.log(forwardOb.forwardee.idGroup);
     if (!forwardOb.forwardee.isGroup) {
       await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
       conversation = await Conversation.findOneAndUpdate(

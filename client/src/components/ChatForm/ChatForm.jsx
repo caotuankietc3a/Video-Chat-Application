@@ -89,9 +89,15 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   const onClickHandler = async (e, message) => {
     e.preventDefault();
+    console.log(reply);
     try {
-      console.log(message);
-      if (message || images.length !== 0 || attachments.length !== 0) {
+      if (
+        message ||
+        images.length !== 0 ||
+        attachments.length !== 0 ||
+        reply.images.length !== 0 ||
+        reply.attachments.length !== 0
+      ) {
         const oldMes = message;
         let replyOb = reply ? reply : null;
         const id = uuidv4();

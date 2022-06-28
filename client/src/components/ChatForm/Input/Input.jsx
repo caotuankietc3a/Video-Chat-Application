@@ -78,7 +78,15 @@ const Input = ({
                 </span>
               </ReplyMessageHeader>
               <ReplyMessageText>
-                <span className="text">{reply.text}</span>
+                <span className="text">
+                  {reply.text !== ""
+                    ? reply.text
+                    : reply.haveImages
+                    ? "Images"
+                    : reply.haveAttachments
+                    ? "Attachments"
+                    : "......."}
+                </span>
               </ReplyMessageText>
             </ReplyMessageInfo>
             <ReplyMessageBtn

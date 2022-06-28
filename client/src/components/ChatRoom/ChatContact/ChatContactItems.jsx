@@ -40,10 +40,7 @@ const ChatContactItems = ({
 
   if (type === "Chats") {
     length = conversation.messages.length;
-    console.log(length);
-    console.log(conversation.messages);
     if (length - 1 !== -1) {
-      console.log("ddddddddddddddddsssssssssssssssss");
       latestMessage = {
         text: conversation.messages[length - 1].text,
         images: conversation.messages[length - 1].files.images,

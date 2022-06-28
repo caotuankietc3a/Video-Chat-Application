@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { AvatarUser } from "../../ChatRoom/ChatContact/StyledContacts";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
@@ -62,11 +62,13 @@ const Message = ({
     });
     dispatch(messageActions.setReRender({ reRender: { id } }));
   };
+
   const replyMessageHandler = () => {
     setShowMenu(false);
     dispatch(
       replyActions.setReply({
         reply: {
+          messageId: id,
           text,
           replyee: isGroup
             ? sender.fullname
@@ -74,6 +76,8 @@ const Message = ({
             ? user.fullname
             : conversation.name,
           replyer: user.fullname,
+          haveImages: images.length === 0 ? false : true,
+          haveAttachments: attachments.length === 0 ? false : true,
         },
       })
     );
@@ -93,17 +97,19 @@ const Message = ({
 
     setShowMenu(false);
   };
+
   useEffect(() => {
     showMenuHandler(() => {
       setShowMenu(false);
     }, showMenu);
   }, [showMenu]);
+
   return (
     <MessageContainer type={type}>
       {divider && <MessageDivider data-label={data_label}></MessageDivider>}
       <MessageContent type={type}>
         {reply && (
-          <>
+          <Fragment>
             <Header type={type}>
               <div>
                 <RiReplyFill />
@@ -130,11 +136,21 @@ const Message = ({
               </div>
             </Header>
             <Wrapper type={type}>
-              <div className="reply-wrapper">
-                <span>{reply.text}</span>
-              </div>
+              <a href={`#${reply.messageId}`}>
+                <div className="reply-wrapper">
+                  <span>
+                    {reply.text !== ""
+                      ? reply.text
+                      : reply.haveImages
+                      ? "Images"
+                      : reply.haveAttachments
+                      ? "Attachments"
+                      : "......."}
+                  </span>
+                </div>
+              </a>
             </Wrapper>
-          </>
+          </Fragment>
         )}
 
         {forward && (
@@ -150,7 +166,7 @@ const Message = ({
           </>
         )}
 
-        <MessageWrapper type={type}>
+        <MessageWrapper type={type} id={id}>
           <div className="text">
             {isGroup && type === "left" && <h6>{sender.fullname}</h6>}
             {text !== "" && <span>{text}</span>}
@@ -181,6 +197,7 @@ const Message = ({
               ))}
           </div>
         </MessageWrapper>
+
         <MessageOptions type={type}>
           <AvatarUser>
             <img src="/images/user-img.jpg" alt="" />

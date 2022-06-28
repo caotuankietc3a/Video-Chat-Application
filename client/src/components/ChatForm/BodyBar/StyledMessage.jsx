@@ -68,18 +68,23 @@ export const Wrapper = styled.div`
     type === "right" ? "flex-end" : "flex-start"};
   margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};
   margin-right: ${({ type }) => (type === "right" ? "1.25rem" : "0")};
+  & a {
+    text-decoration: none;
+  }
+
   & span {
     color: #adb5db;
     height: 100%;
     font-size: 0.875rem;
     padding: 1px;
   }
-  & .reply-wrapper {
+
+  & div.reply-wrapper {
     position: relative;
     bottom: -10px;
     right: -5px;
     height: auto;
-    max-width: 45%;
+    max-width: 40vw;
     background: #4e4f5030;
     padding: 1rem 2.25rem;
     margin-left: ${({ type }) => (type === "left" ? "1.25rem" : "0")};

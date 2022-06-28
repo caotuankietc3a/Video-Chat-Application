@@ -40,8 +40,8 @@ const conversationSchema = new Schema({
         default: new Date(Date.now()),
       },
       reply: {
-        type: Schema.Types.Mixed,
-        default: null,
+        type: Schema.Types.ObjectId,
+        ref: "Reply",
       },
       forward: {
         type: Schema.Types.Boolean,

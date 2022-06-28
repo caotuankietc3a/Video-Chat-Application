@@ -88,9 +88,7 @@ io_chat.on("connection", (socket) => {
   });
 
   socket.on("forward-message", async ({ forward }) => {
-    console.log("ttttttttttttttttttt");
     const conversation = await forwardMessage(forward);
-    console.log(conversation.messages[conversation.messages.length - 1]);
     io_chat.to(conversation._id.toString()).emit("forward-message", {
       messageOb: conversation.messages[conversation.messages.length - 1],
       conversation,
