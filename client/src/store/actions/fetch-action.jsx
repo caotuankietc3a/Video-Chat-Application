@@ -79,7 +79,6 @@ export const fetchFriends = () => {
   return async (dispatch, getState) => {
     try {
       const { user } = getState().user;
-      console.log(user);
       if (user) {
         const resFriends = await fetch(
           `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,

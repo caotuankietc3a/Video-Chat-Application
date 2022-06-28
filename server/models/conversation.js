@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 const conversationSchema = new Schema({
   name: {
     type: String,
@@ -17,6 +18,10 @@ const conversationSchema = new Schema({
   ],
   messages: [
     {
+      _id: {
+        type: String,
+        default: uuidv4(),
+      },
       sender: {
         type: Schema.Types.ObjectId,
         ref: "User",

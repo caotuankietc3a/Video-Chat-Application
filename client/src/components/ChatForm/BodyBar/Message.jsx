@@ -44,8 +44,8 @@ const Message = ({
   isGroup,
   images,
   attachments,
+  id,
 }) => {
-  console.log(attachments);
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
   const { socket_chat } = useSelector((state) => state.socket);
@@ -54,13 +54,13 @@ const Message = ({
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
   };
-  const deleteMessageHandler = () => {
+  const deleteMessageHandler = (id) => {
     setShowMenu(false);
     socket_chat.emit("delete-message", {
       conversationId: conversation._id,
-      text,
+      id,
     });
-    dispatch(messageActions.setReRender({ reRender: { text } }));
+    dispatch(messageActions.setReRender({ reRender: { id } }));
   };
   const replyMessageHandler = () => {
     setShowMenu(false);
@@ -217,7 +217,11 @@ const Message = ({
                   <AiOutlineStar />
                   <span>Favorite</span>
                 </DropDownItem>
-                <DropDownItem onClick={deleteMessageHandler}>
+                <DropDownItem
+                  onClick={() => {
+                    deleteMessageHandler(id);
+                  }}
+                >
                   <RiDeleteBinLine />
                   <span>Delete</span>
                 </DropDownItem>

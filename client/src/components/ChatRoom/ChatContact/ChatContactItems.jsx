@@ -34,7 +34,6 @@ const ChatContactItems = ({
 }) => {
   const dispatch = useDispatch();
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation);
 
   let length;
   let latestMessage;
@@ -42,6 +41,7 @@ const ChatContactItems = ({
   if (type === "Chats") {
     length = conversation.messages.length;
     if (length - 1 !== -1) {
+      console.log(conversation.messages[length - 1].files);
       latestMessage = {
         text: conversation.messages[conversation.messages.length - 1].text,
         images:

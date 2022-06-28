@@ -63,7 +63,7 @@ io_chat.on("connection", (socket) => {
 
   socket.on(
     "send-message",
-    async ({ userId, message, conversationId, reply, files }) => {
+    async ({ userId, message, conversationId, reply, files, id }) => {
       const sender = await User.findById(userId);
       io_chat.to(conversationId).emit("receive-message", {
         text: message,
@@ -71,6 +71,7 @@ io_chat.on("connection", (socket) => {
         userId: userId,
         sender,
         files,
+        id,
       });
     }
   );
@@ -81,9 +82,9 @@ io_chat.on("connection", (socket) => {
     console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
-  socket.on("delete-message", ({ conversationId, text }) => {
-    deleteMessage(conversationId, text);
-    io_chat.to(conversationId).emit("delete-message", { text });
+  socket.on("delete-message", ({ conversationId, id }) => {
+    deleteMessage(conversationId, id);
+    io_chat.to(conversationId).emit("delete-message", { id });
   });
 
   socket.on("forward-message", async ({ forward }) => {

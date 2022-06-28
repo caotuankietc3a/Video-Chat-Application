@@ -1,11 +1,12 @@
 const Conversation = require("../models/conversation");
+const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
-const { uploads } = require("../util/cloudinary.js");
+const { uploads, deletes } = require("../util/cloudinary.js");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
     const uploadedRes = await uploads(
-      { fileName: groupName, folderName: "images-group" },
+      { fileName: groupName.split(".")[0], folderName: "images-group" },
       groupImg
     );
     const newConversation = new Conversation({
@@ -63,14 +64,17 @@ exports.getConversationDetail = async (req, res, next) => {
 exports.postNewMessage = async (req, res, next) => {
   try {
     const { conversationId, userId } = req.query;
-    const { newMessage, replyOb, forwardOb, dataImgs, dataAttachments } =
+    const { id, newMessage, replyOb, forwardOb, dataImgs, dataAttachments } =
       req.body;
     let newFile = null;
     if (dataImgs.length !== 0) {
       const uploadedImgs = await Promise.all(
         dataImgs.map((dataImg) => {
           return uploads(
-            { fileName: dataImg.name, folderName: "images" },
+            {
+              fileName: id + "-" + dataImg.name.split(".")[0],
+              folderName: "images",
+            },
             dataImg.url
           );
         })
@@ -80,6 +84,7 @@ exports.postNewMessage = async (req, res, next) => {
         images.push({
           url: uploadedImgs[i].url,
           name: dataImgs[i].name,
+          cloudinary_id: uploadedImgs[i].public_id,
         });
       }
       newFile = new File({
@@ -90,24 +95,37 @@ exports.postNewMessage = async (req, res, next) => {
     } else if (dataAttachments.length !== 0) {
       const uploadedAttachments = await Promise.all(
         dataAttachments.map((dataAttachment) => {
+          console.log(dataAttachment.name);
           return uploads(
-            { fileName: dataAttachment.name, folderName: "attachments" },
-            dataAttachment.data
+            {
+              fileName: id + "-" + dataAttachment.name,
+              folderName: "attachments",
+            },
+            dataAttachment.url
           );
         })
       );
       let attachments = [];
       for (let i = 0; i < dataAttachments.length; i++) {
+        console.log(uploadedAttachments[i]);
         attachments.push({
           url: uploadedAttachments[i].url,
           name: dataAttachments[i].name,
           size: dataAttachments[i].size,
+          cloudinary_id: uploadedAttachments[i].public_id,
         });
       }
 
       newFile = new File({
         images: [],
         attachments: attachments,
+      });
+      await newFile.save();
+      console.log("dsfffffffffffffffffffffffffaaaaaaa");
+    } else {
+      newFile = new File({
+        images: [],
+        attachments: [],
       });
       await newFile.save();
     }
@@ -117,6 +135,7 @@ exports.postNewMessage = async (req, res, next) => {
       {
         $push: {
           messages: {
+            _id: id,
             text: newMessage,
             sender: userId,
             date: new Date(Date.now()),
@@ -189,11 +208,47 @@ exports.postNewConversation = async (req, res, _next) => {
   }
 };
 
-exports.deleteMessage = async (conversationId, text) => {
+exports.deleteMessage = async (conversationId, id) => {
   try {
-    await Conversation.findByIdAndUpdate(conversationId, {
-      $pull: { messages: { text: text } },
+    const conversation = await Conversation.findById(conversationId).select({
+      messages: { $elemMatch: { _id: id } },
     });
+    await Conversation.updateOne(
+      { _id: conversationId },
+      {
+        $pull: { messages: { _id: id } },
+      }
+    );
+    const file = await File.findByIdAndRemove(conversation.messages[0].files);
+    if (file.images.length !== 0) {
+      file.images.forEach(async (img) => {
+        try {
+          console.log(
+            await deletes({
+              public_id: img.cloudinary_id,
+              resource_type: "image",
+            })
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    if (file.attachments.length !== 0) {
+      file.attachments.forEach(async (attachment) => {
+        try {
+          console.log(
+            await deletes({
+              public_id: attachment.cloudinary_id,
+              resource_type: "raw",
+            })
+          );
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
   } catch (err) {
     console.error(err);
   }

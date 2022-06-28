@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
@@ -50,7 +51,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   useEffect(() => {
     socket_chat.emit("join-chat", { conversationId: conversation._id });
 
-    socket_chat.on("receive-message", ({ text, sender, reply, files }) => {
+    socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
       setMessages((preMessages) => [
         ...preMessages,
         {
@@ -59,6 +60,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           reply,
           date: new Date(Date.now()),
           files,
+          _id: id,
         },
       ]);
       dispatch(messageActions.setReRender({ reRender: { text } }));
@@ -70,6 +72,15 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
       });
     });
 
+    socket_chat.on("delete-message", ({ id }) => {
+      setMessages((preMessages) => {
+        const index = preMessages.findIndex((mes) => mes._id === id);
+        index !== -1 && preMessages.splice(index, 1);
+        return [...preMessages];
+      });
+      dispatch(messageActions.setReRender({ reRender: { id } }));
+    });
+
     return function cleanup() {
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
       // socket.off();
@@ -77,28 +88,21 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   }, []);
 
   useEffect(() => {
-    socket_chat.on("delete-message", ({ text }) => {
-      setMessages((preMessages) => {
-        const index = preMessages.findIndex((mes) => mes.text === text);
-        // App will delete two times and does not know why
-        index !== -1 && preMessages.splice(index, 1);
-        return [...preMessages];
-      });
-      dispatch(messageActions.setReRender({ reRender: { text } }));
-    });
-
-    return function cleanup() {
-      socket_chat.off("delete-message");
-    };
-  }, [messages]);
+    // return function cleanup() {
+    //   socket_chat.off("delete-message");
+    // };
+  }, []);
 
   const onClickHandler = async (e, message) => {
     e.preventDefault();
     try {
+      console.log(message);
       if (message || images.length !== 0 || attachments.length !== 0) {
         const oldMes = message;
         let replyOb = reply ? reply : null;
+        const id = uuidv4();
         socket_chat.emit("send-message", {
+          id,
           userId: user._id,
           message: message,
           reply: replyOb,
@@ -117,6 +121,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
             replyOb,
             dataImgs: images,
             dataAttachments: attachments,
+            id,
           },
           `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
         );

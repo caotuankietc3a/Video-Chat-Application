@@ -26,4 +26,19 @@ const uploads = ({ fileName, folderName }, data) => {
   });
 };
 
-module.exports = { cloudinary, uploads };
+const deletes = ({ public_id, resource_type }) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(
+      public_id,
+      {
+        resource_type: resource_type,
+      },
+      (error, result) => {
+        if (error) reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
+
+module.exports = { cloudinary, uploads, deletes };

@@ -179,6 +179,7 @@ const Input = ({
             multiple
             onChange={multipleAttachmentsHandler}
             ref={attachmentsRef}
+            accept=".xlsx,.xls,.doc, .docx, .ppt, .pptx,.txt, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
           />
         </div>
         <div className="enter-text">
