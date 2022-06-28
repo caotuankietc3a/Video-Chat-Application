@@ -36,7 +36,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         }
       );
       const data = await res.json();
-      console.log(data);
       timer = setTimeout(() => {
         setIsFetching(false);
       }, 500);
@@ -83,15 +82,10 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
     return function cleanup() {
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
-      // socket.off();
     };
   }, []);
 
-  useEffect(() => {
-    // return function cleanup() {
-    //   socket_chat.off("delete-message");
-    // };
-  }, []);
+  useEffect(() => {}, []);
 
   const onClickHandler = async (e, message) => {
     e.preventDefault();

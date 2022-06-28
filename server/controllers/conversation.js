@@ -1,7 +1,7 @@
 const Conversation = require("../models/conversation");
 const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
-const { uploads, deletes } = require("../util/cloudinary.js");
+const { uploads, deletes, uploadsFiles } = require("../util/cloudinary.js");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
@@ -40,7 +40,7 @@ exports.getConversations = async (req, res, next) => {
             },
             { members: userId },
           ],
-        }).populate({ path: "members messages.sender" });
+        }).populate({ path: "members messages.sender messages.files" });
       }
     }
     res.status(200).json(conversations);
@@ -53,7 +53,7 @@ exports.getConversationDetail = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId).populate({
-      path: "members messages.sender",
+      path: "members messages.sender messages.files",
     });
     res.status(200).json(conversation);
   } catch (err) {
@@ -66,70 +66,22 @@ exports.postNewMessage = async (req, res, next) => {
     const { conversationId, userId } = req.query;
     const { id, newMessage, replyOb, forwardOb, dataImgs, dataAttachments } =
       req.body;
-    let newFile = null;
+    let file_id = null;
+
     if (dataImgs.length !== 0) {
-      const uploadedImgs = await Promise.all(
-        dataImgs.map((dataImg) => {
-          return uploads(
-            {
-              fileName: id + "-" + dataImg.name.split(".")[0],
-              folderName: "images",
-            },
-            dataImg.url
-          );
-        })
-      );
-      let images = [];
-      for (let i = 0; i < dataImgs.length; i++) {
-        images.push({
-          url: uploadedImgs[i].url,
-          name: dataImgs[i].name,
-          cloudinary_id: uploadedImgs[i].public_id,
-        });
-      }
-      newFile = new File({
-        images: images,
-        attachments: [],
-      });
-      await newFile.save();
+      const { fileId } = await uploadsFiles(dataImgs, id, "images");
+      file_id = fileId;
     } else if (dataAttachments.length !== 0) {
-      const uploadedAttachments = await Promise.all(
-        dataAttachments.map((dataAttachment) => {
-          console.log(dataAttachment.name);
-          return uploads(
-            {
-              fileName: id + "-" + dataAttachment.name,
-              folderName: "attachments",
-            },
-            dataAttachment.url
-          );
-        })
-      );
-      let attachments = [];
-      for (let i = 0; i < dataAttachments.length; i++) {
-        console.log(uploadedAttachments[i]);
-        attachments.push({
-          url: uploadedAttachments[i].url,
-          name: dataAttachments[i].name,
-          size: dataAttachments[i].size,
-          cloudinary_id: uploadedAttachments[i].public_id,
-        });
-      }
-
-      newFile = new File({
-        images: [],
-        attachments: attachments,
-      });
-      await newFile.save();
-      console.log("dsfffffffffffffffffffffffffaaaaaaa");
+      const { fileId } = await uploadsFiles(dataAttachments, id, "attachments");
+      file_id = fileId;
     } else {
-      newFile = new File({
+      console.log("dddddddddddddddaaaaaaaaaaaaaaaaaaaaaa");
+      const newFile = await new File({
         images: [],
         attachments: [],
-      });
-      await newFile.save();
+      }).save();
+      file_id = newFile._id;
     }
-
     await Conversation.updateOne(
       { _id: conversationId },
       {
@@ -141,7 +93,8 @@ exports.postNewMessage = async (req, res, next) => {
             date: new Date(Date.now()),
             reply: replyOb ? replyOb : null,
             forward: forwardOb ? forwardOb : null,
-            files: newFile._id,
+            // files: newFile._id,
+            files: file_id,
           },
         },
       }
@@ -257,6 +210,23 @@ exports.deleteMessage = async (conversationId, id) => {
 exports.forwardMessage = async (forwardOb) => {
   try {
     let conversation = null;
+    let file_id = null;
+    if (forwardOb.images.length !== 0) {
+      const { fileId } = await uploadsFiles(
+        forwardOb.images,
+        forwardOb.id,
+        "images"
+      );
+      file_id = fileId;
+    } else if (forwardOb.attachments.length !== 0) {
+      const { fileId } = await uploadsFiles(
+        forwardOb.attachments,
+        forwardOb.id,
+        "attachments"
+      );
+      file_id = fileId;
+    }
+    console.log(forwardOb.forwardee.idGroup);
     if (!forwardOb.forwardee.isGroup) {
       await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
       conversation = await Conversation.findOneAndUpdate(
@@ -273,12 +243,13 @@ exports.forwardMessage = async (forwardOb) => {
               text: forwardOb.text,
               sender: forwardOb.forwarder._id,
               date: new Date(Date.now()),
-              forward: forwardOb,
+              forward: true,
+              files: file_id,
             },
           },
         },
         { new: true }
-      ).populate({ path: "messages.sender" });
+      ).populate({ path: "messages.sender messages.files" });
     } else {
       conversation = await Conversation.findByIdAndUpdate(
         forwardOb.forwardee._id,
@@ -288,14 +259,14 @@ exports.forwardMessage = async (forwardOb) => {
               text: forwardOb.text,
               sender: forwardOb.forwarder._id,
               date: new Date(Date.now()),
-              forward: forwardOb,
+              forward: true,
+              files: file_id,
             },
           },
         },
         { new: true }
-      ).populate({ path: "messages.sender" });
+      ).populate({ path: "messages.sender messages.files" });
     }
-
     return conversation;
   } catch (err) {
     console.error(err);

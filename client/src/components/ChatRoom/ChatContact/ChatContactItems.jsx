@@ -40,15 +40,14 @@ const ChatContactItems = ({
 
   if (type === "Chats") {
     length = conversation.messages.length;
+    console.log(length);
+    console.log(conversation.messages);
     if (length - 1 !== -1) {
-      console.log(conversation.messages[length - 1].files);
+      console.log("ddddddddddddddddsssssssssssssssss");
       latestMessage = {
-        text: conversation.messages[conversation.messages.length - 1].text,
-        images:
-          conversation.messages[conversation.messages.length - 1].files.images,
-        attachments:
-          conversation.messages[conversation.messages.length - 1].files
-            .attachments,
+        text: conversation.messages[length - 1].text,
+        images: conversation.messages[length - 1].files.images,
+        attachments: conversation.messages[length - 1].files.attachments,
       };
     }
   }
@@ -186,9 +185,13 @@ const ChatContactItems = ({
                     {length - 1 !== -1
                       ? latestMessage.text === "" &&
                         latestMessage.images.length !== 0
-                        ? "sended some images"
+                        ? isGroup
+                          ? "sended some images"
+                          : "Some images"
                         : latestMessage.attachments.length !== 0
-                        ? "sended some files"
+                        ? isGroup
+                          ? "sended some files"
+                          : "Some files"
                         : latestMessage.text
                       : "............"}
                   </span>

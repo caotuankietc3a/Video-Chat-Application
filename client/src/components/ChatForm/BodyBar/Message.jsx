@@ -85,6 +85,8 @@ const Message = ({
         forward: {
           text,
           forwarder: user,
+          images,
+          attachments,
         },
       })
     );
@@ -137,13 +139,12 @@ const Message = ({
 
         {forward && (
           <>
-            <Header type={type} isForwarded={forward ? true : false}>
+            <Header type={type} isForwarded={forward}>
               <div>
                 <RiShareForwardFill />
               </div>
               <div className="text">
-                {type === "right" ? "You" : forward.forwarder.fullname}{" "}
-                forwarded a message
+                {type === "right" ? "You" : sender.fullname} forwarded a message
               </div>
             </Header>
           </>

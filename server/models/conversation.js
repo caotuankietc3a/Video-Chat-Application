@@ -44,8 +44,8 @@ const conversationSchema = new Schema({
         default: null,
       },
       forward: {
-        type: Schema.Types.Mixed,
-        default: null,
+        type: Schema.Types.Boolean,
+        default: false,
       },
     },
   ],

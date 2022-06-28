@@ -1,4 +1,5 @@
 require("dotenv").config();
+const File = require("../models/file");
 const cloudinary = require("cloudinary").v2;
 const { CLOUDINARY_API_SECRET, CLOUDINARY_API_KEY, CLOUDINARY_NAME } =
   process.env;
@@ -41,4 +42,39 @@ const deletes = ({ public_id, resource_type }) => {
   });
 };
 
-module.exports = { cloudinary, uploads, deletes };
+const uploadsFiles = async (datas, id, folderName = "images") => {
+  let newFile = null;
+  const uploadedFiles = await Promise.all(
+    datas.map((data) => {
+      const fileName =
+        folderName === "images"
+          ? id + "-" + data.name.split(".")[0]
+          : id + "-" + data.name;
+      return uploads(
+        {
+          fileName: fileName,
+          folderName: folderName,
+        },
+        data.url
+      );
+    })
+  );
+  let files = [];
+  for (let i = 0; i < datas.length; i++) {
+    files.push({
+      url: uploadedFiles[i].url,
+      name: datas[i].name,
+      cloudinary_id: uploadedFiles[i].public_id,
+      size: folderName === "attachments" ? datas[i].size : null,
+    });
+  }
+
+  newFile = new File({
+    images: folderName === "images" ? files : [],
+    attachments: folderName === "attachments" ? files : [],
+  });
+  await newFile.save();
+  return { fileId: newFile._id };
+};
+
+module.exports = { cloudinary, uploads, deletes, uploadsFiles };

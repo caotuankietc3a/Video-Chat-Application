@@ -25,7 +25,6 @@ const BodyBar = ({ messages, isGroup = false }) => {
         mesDivider.divider = true;
         mesDivider.data_label = formatDate(mes.date).split(",")[0];
       }
-      console.log(mes._id);
       return (
         <Message
           key={i}

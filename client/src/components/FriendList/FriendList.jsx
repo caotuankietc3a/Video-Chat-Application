@@ -20,6 +20,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
 import BouncyLoading from "../UI/BouncyLoading/BouncyLoading";
+const { v4: uuidv4 } = require("uuid");
 const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
@@ -106,11 +107,14 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   };
 
   const forwardToUserHandler = (friend) => {
+    const id = uuidv4();
     socket_chat.emit("forward-message", {
-      forward: forward ? { ...forward, forwardee: friend } : null,
+      forward: forward ? { ...forward, id, forwardee: friend } : null,
     });
     dispatch(
-      forwardActions.setForward({ forward: { ...forward, forwardee: friend } })
+      forwardActions.setForward({
+        forward: { ...forward, forwardee: friend, id },
+      })
     );
   };
 
