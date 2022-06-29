@@ -183,12 +183,12 @@ const ChatContactItems = ({
                       ? latestMessage.text === "" &&
                         latestMessage.images.length !== 0
                         ? isGroup
-                          ? "sended some images"
-                          : "Some images"
+                          ? "sended some images!"
+                          : "Some images are sended!"
                         : latestMessage.attachments.length !== 0
                         ? isGroup
-                          ? "sended some files"
-                          : "Some files"
+                          ? "sended some files!"
+                          : "Some files are sended!"
                         : latestMessage.text
                       : "............"}
                   </span>

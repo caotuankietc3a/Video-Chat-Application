@@ -22,11 +22,14 @@ import {
 } from "react-icons/io5";
 import { AiOutlineStar, AiOutlineFileText } from "react-icons/ai";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
+import { ImImages } from "react-icons/im";
 import {
   RiDeleteBinLine,
   RiReplyFill,
   RiShareForwardFill,
+  RiAttachment2,
 } from "react-icons/ri";
+
 import { useSelector, useDispatch } from "react-redux";
 import { replyActions } from "../../../store/slices/reply-slice";
 import { forwardActions } from "../../../store/slices/forward-slice";
@@ -142,11 +145,15 @@ const Message = ({
                     {reply.text !== ""
                       ? reply.text
                       : reply.haveImages
-                      ? "Images"
+                      ? "Images "
                       : reply.haveAttachments
-                      ? "Attachments"
+                      ? "Attachments "
                       : "......."}
                   </span>
+                  {reply.text === "" && reply.haveAttachments && (
+                    <RiAttachment2 />
+                  )}
+                  {reply.text === "" && reply.haveImages && <ImImages />}
                 </div>
               </a>
             </Wrapper>

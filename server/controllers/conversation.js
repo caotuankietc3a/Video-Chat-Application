@@ -183,12 +183,22 @@ exports.deleteMessage = async (conversationId, id) => {
     const conversation = await Conversation.findById(conversationId).select({
       messages: { $elemMatch: { _id: id } },
     });
+    console.log(conversation);
+    //
     await Conversation.updateOne(
       { _id: conversationId },
       {
         $pull: { messages: { _id: id } },
       }
     );
+    const deletedReply = await Reply.deleteOne({
+      _id: conversation.messages[0].reply,
+    });
+    console.log(conversation.messages[0].reply);
+    const replies = await Reply.deleteMany({ messageId: id });
+    console.log(deletedReply);
+    console.log(replies);
+
     const file = await File.findByIdAndRemove(conversation.messages[0].files);
     if (file.images.length !== 0) {
       file.images.forEach(async (img) => {

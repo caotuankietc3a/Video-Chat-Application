@@ -12,6 +12,7 @@ import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
 import { videoStreamStart } from "../../store/actions/video-chat-function";
 import { errorActions } from "../../store/slices/error-slice";
+import { prettyDOM } from "@testing-library/react";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
@@ -25,6 +26,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(messages);
 
   useEffect(() => {
     let timer = 0;
@@ -74,7 +76,17 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     socket_chat.on("delete-message", ({ id }) => {
       setMessages((preMessages) => {
         const index = preMessages.findIndex((mes) => mes._id === id);
-        index !== -1 && preMessages.splice(index, 1);
+        if (index !== -1) {
+          for (let i = 0; i < preMessages.length; i++) {
+            if (
+              preMessages[i].reply &&
+              preMessages[i].reply.messageId === preMessages[index]._id
+            ) {
+              preMessages[i].reply = null;
+            }
+          }
+          preMessages.splice(index, 1);
+        }
         return [...preMessages];
       });
       dispatch(messageActions.setReRender({ reRender: { id } }));
@@ -89,7 +101,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
 
   const onClickHandler = async (e, message) => {
     e.preventDefault();
-    console.log(reply);
     try {
       if (
         message ||

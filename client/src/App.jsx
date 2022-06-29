@@ -4,8 +4,10 @@ import ChatRoom from "./components/ChatRoom/ChatRoom";
 import MeetingRoom from "./components/MeetingRoom/MeetingRoom";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MeetingGroupRoom from "./components/MeetingRoom/MeetingGroupRoom";
+import { useSelector } from "react-redux";
 
 function App() {
+  const { user } = useSelector((state) => state.user);
   return (
     <BrowserRouter>
       <Routes>
@@ -25,7 +27,6 @@ function App() {
           }
         ></Route>
         <Route path="/home-chat/*" element={<ChatRoom />}></Route>
-        {/* <Navigate to="/auth/login" /> */}
 
         <Route
           path="/meeting/:conversationId"
@@ -34,7 +35,7 @@ function App() {
 
         <Route
           path="/meeting-group/:conversationId"
-          element={<MeetingGroupRoom />}
+          element={user ? <MeetingGroupRoom /> : <Navigate to="/auth/login" />}
         ></Route>
       </Routes>
     </BrowserRouter>
