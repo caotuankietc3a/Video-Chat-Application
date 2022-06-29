@@ -61,7 +61,7 @@ const FriendShow = ({
       ) : (
         <>
           <AvatarUser status={friend.status}>
-            <img src={friend.profilePhoto} alt="User" />
+            <img src={friend.profilePhoto.url} alt="User" />
           </AvatarUser>
           <FriendName>
             <div className="sendBtn">

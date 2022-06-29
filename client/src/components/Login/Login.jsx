@@ -52,7 +52,9 @@ const Login = (props) => {
           email,
           password,
           confirmpassword,
-          profilePhoto: "/images/user-img.jpg",
+          profilePhoto: {
+            url: "/images/user-img.jpg",
+          },
           // isChecked: type === "Login" ? inputEl?.current.checked : null,
         },
         END_POINT_SERVER

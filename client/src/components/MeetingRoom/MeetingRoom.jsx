@@ -137,7 +137,7 @@ const MeetingRoom = (props) => {
               fontsize={fontsize}
               heightImg={heightImg}
               widthImg={widthImg}
-              userImg={peer.profilePhoto}
+              userImg={peer.profilePhoto.url}
               name={peer.fullname}
               displayText={
                 showUserVideo
@@ -159,7 +159,7 @@ const MeetingRoom = (props) => {
               fontsize={fontsize}
               heightImg={heightImg}
               widthImg={widthImg}
-              userImg={peer.profilePhoto}
+              userImg={peer.profilePhoto.url}
               name={peer.fullname}
               displayText={
                 !showUserVideo && muted ? "Spectator" : "Audio Only!"
@@ -191,7 +191,7 @@ const MeetingRoom = (props) => {
               fontsize="11px"
               heightImg="40px"
               widthImg="40px"
-              userImg={member.profilePhoto}
+              userImg={member.profilePhoto.url}
               name={member.fullname}
               displayText={
                 !showUserVideo && muted ? "Spectator" : "Audio Only!"

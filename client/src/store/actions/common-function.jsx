@@ -103,21 +103,23 @@ export const arrayDisplay = [
     },
     rows: [
       {
-        label: "First name",
+        label: "Full name",
         type: "text",
         placeholder: "Type your first name",
       },
       {
-        label: "Last name",
-        type: "text",
-        placeholder: "Type your last name",
+        label: "Your profile",
+        type: "file",
+        accept: "image/*",
       },
       {
         label: "Mobile number",
         type: "tel",
+        pattern: "[0-9]{10}",
+        title: "Ten digits code: (ex: 9876543210)",
         placeholder: "Type your mobile phone",
       },
-      { label: "Birth date", type: "date", placeholder: "mm/dd/yyyy" },
+      { label: "Birth date", type: "date" },
       {
         label: "Email Address",
         type: "email",

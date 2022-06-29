@@ -75,7 +75,7 @@ const MeetingGroupRoom = () => {
         socket_group_video.emit("join-group-video", {
           conversationId: conversationId,
           userName: user ? user.fullname : "TEST USER",
-          userImg: user ? user.profilePhoto : "/images/user-img.jpg",
+          userImg: user ? user.profilePhoto.url : "/images/user-img.jpg",
           userShowVideo: isShowVideo ? true : false,
           userMuted: false,
           userShareScreen: false,

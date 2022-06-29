@@ -191,24 +191,19 @@ exports.deleteMessage = async (conversationId, id) => {
         $pull: { messages: { _id: id } },
       }
     );
-    const deletedReply = await Reply.deleteOne({
+    await Reply.deleteOne({
       _id: conversation.messages[0].reply,
     });
-    console.log(conversation.messages[0].reply);
-    const replies = await Reply.deleteMany({ messageId: id });
-    console.log(deletedReply);
-    console.log(replies);
+    await Reply.deleteMany({ messageId: id });
 
     const file = await File.findByIdAndRemove(conversation.messages[0].files);
     if (file.images.length !== 0) {
       file.images.forEach(async (img) => {
         try {
-          console.log(
-            await deletes({
-              public_id: img.cloudinary_id,
-              resource_type: "image",
-            })
-          );
+          await deletes({
+            public_id: img.cloudinary_id,
+            resource_type: "image",
+          });
         } catch (err) {
           console.log(err);
         }
@@ -218,12 +213,10 @@ exports.deleteMessage = async (conversationId, id) => {
     if (file.attachments.length !== 0) {
       file.attachments.forEach(async (attachment) => {
         try {
-          console.log(
-            await deletes({
-              public_id: attachment.cloudinary_id,
-              resource_type: "raw",
-            })
-          );
+          await deletes({
+            public_id: attachment.cloudinary_id,
+            resource_type: "raw",
+          });
         } catch (err) {
           console.error(err);
         }

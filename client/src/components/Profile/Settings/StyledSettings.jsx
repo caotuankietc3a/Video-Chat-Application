@@ -21,7 +21,7 @@ export const SettingsContentWrapper = styled.div`
   }
 `;
 
-export const SettingsContent = styled.div`
+export const SettingsContent = styled.form`
   width: 100%;
   display: flex;
   align-items: center;

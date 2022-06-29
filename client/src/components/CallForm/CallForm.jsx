@@ -32,7 +32,7 @@ const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
         <CallFormContent>
           <CallFormBody>
             <CallFormAvatar>
-              <img src={profilePhoto} alt="" />
+              <img src={profilePhoto.url} alt="" />
             </CallFormAvatar>
             <CallFormDetail>
               <h5>{fullname}</h5>

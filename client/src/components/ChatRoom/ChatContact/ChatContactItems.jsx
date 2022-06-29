@@ -56,6 +56,7 @@ const ChatContactItems = ({
       : "friend";
   const userState = useSelector((state) => state.user);
   const [isActive, setIsActive] = useState(false);
+  console.log(meeting);
   const clickHandler = async () => {
     try {
       if (type === "Chats") {
@@ -74,7 +75,7 @@ const ChatContactItems = ({
                 _id: conversation._id,
                 members: conversation.members,
                 name: member.fullname,
-                profilePhoto: member.profilePhoto,
+                profilePhoto: member.profilePhoto.url,
                 status: member.status,
               },
             })
@@ -122,9 +123,9 @@ const ChatContactItems = ({
           <img
             src={
               type === "Friends"
-                ? friend.profilePhoto
+                ? friend.profilePhoto.url
                 : type === "Calls"
-                ? meeting.callee.profilePhoto
+                ? meeting.caller.profilePhoto.url
                 : conversation.profilePhoto
             }
             alt="User"

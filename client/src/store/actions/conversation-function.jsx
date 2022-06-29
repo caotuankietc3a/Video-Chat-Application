@@ -1,7 +1,6 @@
 import { conversationActions } from "../slices/conversation-slice";
 import { errorActions } from "../slices/error-slice";
-import { postData, postDataImg, postGroupData } from "./fetch-action";
-import { videoStreamStart } from "./video-chat-function";
+import { postData } from "./fetch-action";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postNewConversation = (user, friendDetail, navigate) => {
   return async (dispatch, getState) => {
@@ -35,7 +34,7 @@ export const postNewConversation = (user, friendDetail, navigate) => {
             members: conversation.members,
             name: member.fullname,
             status: member.status,
-            profilePhoto: member.profilePhoto,
+            profilePhoto: member.profilePhoto.url,
           },
         })
       );

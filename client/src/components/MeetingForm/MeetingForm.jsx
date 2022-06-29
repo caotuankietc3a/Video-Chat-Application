@@ -142,8 +142,8 @@ function MeetingForm({ conversation }) {
                 group
                   ? group?.groupImg
                   : isReceivedCall
-                  ? callee?.profilePhoto
-                  : caller?.profilePhoto
+                  ? callee?.profilePhoto.url
+                  : caller?.profilePhoto.url
               }
               alt=""
             />

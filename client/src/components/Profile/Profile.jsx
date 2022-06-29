@@ -41,7 +41,7 @@ const Profile = () => {
       <ProfileContent>
         <ProfileBody>
           <ProfileAvatar>
-            <img src={user?.profilePhoto} alt="User" />
+            <img src={user?.profilePhoto.url} alt="User" />
           </ProfileAvatar>
           <ProfileDetail>
             <h5>{user?.fullname}</h5>

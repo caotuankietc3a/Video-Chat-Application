@@ -61,7 +61,7 @@ const FriendForm = (props) => {
         <FriendFormContent>
           <FriendFormBody>
             <FriendFormAvatar>
-              <img src={profilePhoto} alt="" />
+              <img src={profilePhoto.url} alt="" />
             </FriendFormAvatar>
             <FriendFormDetail>
               <h5>{fullname}</h5>

@@ -7,5 +7,6 @@ router.post("/login", checkEmailPassword("login"), auth.postLogin);
 router.post("/register", checkEmailPassword("register"), auth.postRegister);
 router.get("/session", auth.getSession);
 router.post("/logout", auth.postLogout);
+router.post("/update-profile/:userId", auth.postUpdateProfile);
 
 module.exports = router;

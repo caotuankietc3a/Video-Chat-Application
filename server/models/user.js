@@ -16,8 +16,18 @@ const userSchema = new Schema({
     min: 5,
   },
   profilePhoto: {
-    type: String,
-    default: "/images/user-img.jpg",
+    url: {
+      type: String,
+      default: "/images/user-img.jpg",
+    },
+    name: {
+      type: String,
+      default: "",
+    },
+    cloudinary_id: {
+      type: String,
+      default: "",
+    },
   },
   birthdate: {
     type: String,

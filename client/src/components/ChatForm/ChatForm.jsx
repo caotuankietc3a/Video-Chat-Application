@@ -12,7 +12,6 @@ import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
 import { videoStreamStart } from "../../store/actions/video-chat-function";
 import { errorActions } from "../../store/slices/error-slice";
-import { prettyDOM } from "@testing-library/react";
 
 const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   console.log("ChatForm running");
@@ -26,7 +25,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(messages);
 
   useEffect(() => {
     let timer = 0;
@@ -179,7 +177,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   };
 
   const multipleAttachmentsHandler = () => {
-    console.log(attachmentsRef.current?.files);
     for (let i = 0; i < attachmentsRef.current?.files.length; i++) {
       const file = attachmentsRef.current?.files[i];
       if (file.type === "text/x-c++src") {

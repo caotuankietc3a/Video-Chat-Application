@@ -18,7 +18,7 @@ const User = ({ user, isClickedHandler }) => {
       ) : (
         <UserContent>
           <div className="avar-img">
-            <img src={user?.profilePhoto} alt="User" />
+            <img src={user?.profilePhoto.url} alt="User" />
           </div>
           <h5>Welcome, {user?.fullname}</h5>
           <p>Please select a chat to start messaging.</p>

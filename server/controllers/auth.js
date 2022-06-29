@@ -3,6 +3,7 @@ const User = require("../models/user");
 
 // get Errors result from check().isEmail()...
 const { validationResult } = require("express-validator");
+const { uploads, deletes } = require("../util/cloudinary");
 
 exports.postLogin = async (req, res, next) => {
   try {
@@ -76,9 +77,50 @@ exports.postLogout = async (req, res, next) => {
       { new: true }
     );
     req.session.destroy();
-    req.session.update();
     next();
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });
   }
+};
+
+exports.postUpdateProfile = async (req, res, next) => {
+  const { userId } = req.params;
+  const oldUser = await User.findById(userId);
+
+  await deletes({
+    public_id: oldUser.profilePhoto.cloudinary_id,
+    resource_type: "image",
+  });
+
+  const {
+    fullname,
+    anotherEmail,
+    website,
+    birthdate,
+    phone,
+    address,
+    profilePhoto,
+  } = req.body;
+
+  const uploadedProfile = await uploads(
+    { filename: profilePhoto.name, folderName: "images-profile" },
+    profilePhoto.url
+  );
+
+  await User.findByIdAndUpdate(
+    userId,
+    {
+      fullname: fullname.trim(),
+      website: website.trim(),
+      birthdate: birthdate.trim(),
+      phone: phone,
+      address: address.trim(),
+      profilePhoto: {
+        url: uploadedProfile.url,
+        name: profilePhoto.name,
+        cloudinary_id: uploadedProfile.public_id,
+      },
+    },
+    { new: true }
+  );
 };
