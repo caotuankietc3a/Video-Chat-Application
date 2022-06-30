@@ -13,6 +13,9 @@ const userLoginSlice = createSlice({
       state.isFetching = action.payload.isFetching;
       state.error = action.payload.error;
     },
+    setUser(state, action) {
+      state.user = action.payload.user;
+    },
     setUserLogout(state, action) {
       state.user = null;
       state.isFetching = false;

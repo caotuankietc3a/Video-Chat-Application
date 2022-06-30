@@ -183,8 +183,6 @@ exports.deleteMessage = async (conversationId, id) => {
     const conversation = await Conversation.findById(conversationId).select({
       messages: { $elemMatch: { _id: id } },
     });
-    console.log(conversation);
-    //
     await Conversation.updateOne(
       { _id: conversationId },
       {

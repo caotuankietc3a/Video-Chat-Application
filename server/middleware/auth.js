@@ -56,3 +56,37 @@ exports.checkEmailPassword = (method) => {
     }
   }
 };
+
+exports.checkUpdatePassword = () => {
+  return [
+    body("oldPassword")
+      .trim()
+      .custom(async (val, { req }) => {
+        const { userId } = req.params;
+        console.log(userId);
+        const user = await User.findById(userId);
+        if (!user) {
+          return Promise.reject("User didn't exist !!!");
+        }
+        const matchPassword = await bcryptjs.compare(val, user.password);
+        if (!matchPassword) {
+          return Promise.reject("Current password is not valid!!!");
+        }
+        return true;
+      }),
+    body(
+      "newPassword",
+      "The password must be 5+ chars long and contain a number"
+    )
+      .isLength({ min: 5 })
+      .isAlphanumeric()
+      .trim(),
+    body("repeatPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.newPassword)
+          throw new Error("Password confirmation does not match password!!!");
+        return true;
+      }),
+  ];
+};

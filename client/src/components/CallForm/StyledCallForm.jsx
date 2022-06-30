@@ -46,6 +46,7 @@ export const CallFormAvatar = styled.div`
     width: 5rem;
     height: 5rem;
     border-radius: 50%;
+    object-fit: cover;
   }
 `;
 

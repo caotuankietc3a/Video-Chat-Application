@@ -33,13 +33,22 @@ const ChatContactItems = ({
   isGroup = false,
 }) => {
   const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  const [isActive, setIsActive] = useState(false);
 
   let length;
   let latestMessage;
+  let profilePhoto;
 
   if (type === "Chats") {
     length = conversation.messages.length;
+    const member = conversation.members.find(
+      (mem) => mem._id !== userState.user._id
+    );
+    profilePhoto = isGroup
+      ? conversation.profilePhoto
+      : member.profilePhoto.url;
     if (length - 1 !== -1) {
       latestMessage = {
         text: conversation.messages[length - 1].text,
@@ -54,9 +63,6 @@ const ChatContactItems = ({
         ? "call"
         : "conversation"
       : "friend";
-  const userState = useSelector((state) => state.user);
-  const [isActive, setIsActive] = useState(false);
-  console.log(meeting);
   const clickHandler = async () => {
     try {
       if (type === "Chats") {
@@ -114,6 +120,9 @@ const ChatContactItems = ({
       console.error(err);
     }
   };
+  // console.log(meeting?.caller.profilePhoto);
+  // console.log(meeting?.callee.profilePhoto);
+  console.log(friend?.profilePhoto);
 
   return (
     <ContactItems onClick={clickHandler}>
@@ -125,8 +134,10 @@ const ChatContactItems = ({
               type === "Friends"
                 ? friend.profilePhoto.url
                 : type === "Calls"
-                ? meeting.caller.profilePhoto.url
-                : conversation.profilePhoto
+                ? meeting.callee.profilePhoto.url
+                : isGroup
+                ? conversation.profilePhoto
+                : profilePhoto
             }
             alt="User"
           />

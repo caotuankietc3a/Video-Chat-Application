@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { formatDate } from "../../store/actions/common-function";
+import { fetchUserLogin } from "../../store/actions/fetch-action";
 import {
   SideBarHeader,
   ProfileContainer,
@@ -28,10 +29,10 @@ import { logoutHandler } from "../../store/actions/fetch-action.jsx";
 const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.user);
+  const userState = useSelector((state) => state.user);
   useEffect(() => {
-    if (!user) navigate("/home-chat");
-  }, [user]);
+    fetchUserLogin(navigate, 1);
+  }, [userState.user]);
   return (
     <ProfileContainer>
       <SideBarHeader>
@@ -41,10 +42,10 @@ const Profile = () => {
       <ProfileContent>
         <ProfileBody>
           <ProfileAvatar>
-            <img src={user?.profilePhoto.url} alt="User" />
+            <img src={userState?.user?.profilePhoto.url} alt="User" />
           </ProfileAvatar>
           <ProfileDetail>
-            <h5>{user?.fullname}</h5>
+            <h5>{userState?.user?.fullname}</h5>
             <ProfileInfo_Btn
               onClick={() => {
                 dispatch(logoutHandler(navigate));
@@ -71,35 +72,35 @@ const Profile = () => {
           <ListGroupInfoItem>
             <div>
               <p className="small">Birthdate</p>
-              <p>{user?.birthdate}</p>
+              <p>{userState?.user?.birthdate}</p>
             </div>
             <AiOutlineCalendar></AiOutlineCalendar>
           </ListGroupInfoItem>
           <ListGroupInfoItem>
             <div>
               <p className="small">Phone</p>
-              <p>{user?.phone}</p>
+              <p>{userState?.user?.phone}</p>
             </div>
             <FiPhone></FiPhone>
           </ListGroupInfoItem>
           <ListGroupInfoItem>
             <div>
               <p className="small">Email</p>
-              <p>{user?.email}</p>
+              <p>{userState?.user?.email}</p>
             </div>
             <AiOutlineMail></AiOutlineMail>
           </ListGroupInfoItem>
           <ListGroupInfoItem>
             <div>
               <p className="small">Website</p>
-              <p>{user?.website}</p>
+              <p>{userState?.user?.website}</p>
             </div>
             <IoEarthOutline></IoEarthOutline>
           </ListGroupInfoItem>
           <ListGroupInfoItem>
             <div>
               <p className="small">Address</p>
-              <p>{user?.address}</p>
+              <p>{userState?.user?.address}</p>
             </div>
             <AiOutlineHome></AiOutlineHome>
           </ListGroupInfoItem>
@@ -109,11 +110,8 @@ const Profile = () => {
           <ListGroupInfoItem>
             <div>
               <p className="small">Facebook</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.facebook.com
+              <a href={userState?.user?.facebook} target="_blank">
+                https://www.{userState?.user?.fullname}.facebook.com
               </a>
             </div>
             <FiFacebook></FiFacebook>
@@ -121,11 +119,8 @@ const Profile = () => {
           <ListGroupInfoItem>
             <div>
               <p className="small">Instagram</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.instagram.com
+              <a href={userState?.user?.instagram} target="_blank">
+                https://www.{userState?.user?.fullname}.instagram.com
               </a>
             </div>
             <FiInstagram></FiInstagram>
@@ -133,11 +128,8 @@ const Profile = () => {
           <ListGroupInfoItem>
             <div>
               <p className="small">Twitter</p>
-              <a
-                href="https://www.facebook.com/kiet.cao.7587370/"
-                target="_blank"
-              >
-                https://www.kietcao.twitter.com
+              <a href={userState?.user?.twitter} target="_blank">
+                https://www.{userState?.user?.fullname}.twitter.com
               </a>
             </div>
             <FiTwitter></FiTwitter>

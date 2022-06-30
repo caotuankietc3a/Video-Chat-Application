@@ -26,13 +26,23 @@ import { useNavigate } from "react-router-dom";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { postNewConversation } from "../../store/actions/conversation-function";
 const FriendForm = (props) => {
-  const { profilePhoto, fullname, birthdate, phone, email, website, address } =
-    props.friendDetail;
+  const {
+    profilePhoto,
+    fullname,
+    birthdate,
+    phone,
+    email,
+    website,
+    address,
+    facebook,
+    twitter,
+    instagram,
+  } = props.friendDetail;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const { conversation } = useSelector((state) => state.conversation);
-  console.log(conversation);
+  console.log(facebook);
   const [isFetching, setIsFetching] = useState(true);
 
   const clickChatHandler = () => {
@@ -127,11 +137,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Facebook</p>
-                <a
-                  href="https://www.facebook.com/kiet.cao.7587370/"
-                  target="_blank"
-                >
-                  https://www.kietcao.facebook.com
+                <a href={facebook} target="_blank">
+                  https://www.{fullname}.facebook.com
                 </a>
               </div>
               <FiFacebook></FiFacebook>
@@ -139,11 +146,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Instagram</p>
-                <a
-                  href="https://www.facebook.com/kiet.cao.7587370/"
-                  target="_blank"
-                >
-                  https://www.kietcao.instagram.com
+                <a href={instagram} target="_blank">
+                  https://www.{fullname}.instagram.com
                 </a>
               </div>
               <FiInstagram></FiInstagram>
@@ -151,11 +155,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Twitter</p>
-                <a
-                  href="https://www.facebook.com/kiet.cao.7587370/"
-                  target="_blank"
-                >
-                  https://www.kietcao.twitter.com
+                <a href={twitter} target="_blank">
+                  https://www.{fullname}.twitter.com
                 </a>
               </div>
               <FiTwitter></FiTwitter>

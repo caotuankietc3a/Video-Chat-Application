@@ -49,6 +49,18 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  facebook: {
+    type: String,
+    default: "Unknown facebook site",
+  },
+  instagram: {
+    type: String,
+    default: "Unknown instagram site",
+  },
+  twitter: {
+    type: String,
+    default: "Unknown twitter site",
+  },
 });
 
 module.exports = model("User", userSchema);

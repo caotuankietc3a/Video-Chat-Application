@@ -143,24 +143,30 @@ export const arrayDisplay = [
     rows: [
       {
         label: "Facebook",
-        type: "text",
+        type: "url",
+        pattern: "https://.*",
+        title: "https://example.com",
         placeholder: "Type your facebook site",
       },
       {
         label: "Instagram",
-        type: "text",
+        type: "url",
+        title: "https://example.com",
+        pattern: "https://.*",
         placeholder: "Type your instagram site",
       },
       {
         label: "Twitter",
-        type: "text",
+        type: "url",
+        title: "https://example.com",
+        pattern: "https://.*",
         placeholder: "Type your twitter site",
       },
-      {
-        label: "Linkedin",
-        type: "text",
-        placeholder: "Type your linkedin site",
-      },
+      // {
+      //   label: "Linkedin",
+      //   type: "text",
+      //   placeholder: "Type your linkedin site",
+      // },
     ],
   },
 
@@ -173,16 +179,19 @@ export const arrayDisplay = [
       {
         label: "Current Password",
         type: "password",
+        name: "oldPassword",
         placeholder: "Current password",
         width: "100%",
       },
       {
         label: "New Password",
         type: "password",
+        name: "newPassword",
         placeholder: "New password",
       },
       {
         label: "Repeat Password",
+        name: "repeatPassword",
         type: "password",
         placeholder: "Repeat password",
       },
