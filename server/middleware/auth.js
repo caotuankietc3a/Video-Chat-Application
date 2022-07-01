@@ -7,7 +7,7 @@ exports.checkEmailPassword = (method) => {
     case "login": {
       return check("email")
         .isEmail()
-        .withMessage("Invalid Email!")
+        .withMessage("Invalid Email. Please enter the correct one!!!")
         .custom(async (_value, { req }) => {
           const { email, password } = req.body;
           const user = await User.findOne({ email });
@@ -25,7 +25,7 @@ exports.checkEmailPassword = (method) => {
       return [
         check("email")
           .isEmail()
-          .withMessage("Invalid Email!")
+          .withMessage("Invalid Email. Please enter the correct one!!!")
           .normalizeEmail()
           .custom(async (value) => {
             const user = await User.findOne({ email: value });
@@ -35,11 +35,19 @@ exports.checkEmailPassword = (method) => {
           }),
         body(
           "password",
-          "The password must be 5+ chars long and contain a number"
+          "Password should contain one uppercase , one lower case, one special char, one digit!!!"
         )
-          .isLength({ min: 5 })
-          .isAlphanumeric()
-          .trim(),
+          .trim()
+          .isLength({ min: 8, max: 20 })
+          .withMessage(
+            "Password should contain at least 8 and max 20 chars long"
+          )
+          .isStrongPassword({
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+          }),
         body("confirmpassword")
           .trim()
           .custom((value, { req }) => {
@@ -76,16 +84,26 @@ exports.checkUpdatePassword = () => {
       }),
     body(
       "newPassword",
-      "The password must be 5+ chars long and contain a number"
+      "New password should contain one uppercase , one lower case, one special char, one digit!!!"
     )
-      .isLength({ min: 5 })
-      .isAlphanumeric()
-      .trim(),
+      .trim()
+      .isLength({ min: 8, max: 20 })
+      .withMessage(
+        "New password should contain at least 8 and max 20 chars long"
+      )
+      .isStrongPassword({
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1,
+      }),
     body("repeatPassword")
       .trim()
       .custom((value, { req }) => {
         if (value !== req.body.newPassword)
-          throw new Error("Password confirmation does not match password!!!");
+          throw new Error(
+            "Password confirmation does not match the new password!!!"
+          );
         return true;
       }),
   ];

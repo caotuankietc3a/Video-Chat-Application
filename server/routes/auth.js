@@ -17,5 +17,7 @@ router.post(
   checkUpdatePassword(),
   auth.postUpdatePasswordProfile
 );
+router.post("/update-profile-security/:userId", auth.postUpdateSecurityProfile);
+router.post("/verify-2FA/:userId", auth.postVerify2FA);
 
 module.exports = router;

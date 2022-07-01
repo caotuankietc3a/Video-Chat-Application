@@ -25,6 +25,7 @@ import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
 import Error from "../Error/Error";
+import Swal from "sweetalert2";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -61,34 +62,87 @@ const Login = (props) => {
       );
       if (data.status === "error") {
         setTimeout(() => {
-          dispatch(
-            userLoginActions.setLoginFailed({
-              error: { msg: data.msg },
-              isFetching: false,
-            })
-          );
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            html: data.msg,
+            showConfirmButton: "Continue",
+            timer: 7000,
+          });
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
           setIsClicked(false);
         }, 500);
-        return dispatch(userLoginActions.setIsFetching({ isFetching: true }));
+        dispatch(userLoginActions.setIsFetching({ isFetching: true }));
+      } else if (data.status === "success") {
+        setTimeout(() => {
+          if (type === "Register") navigate("/auth/login");
+          else if (type === "Login") {
+            socket_notify.emit("log-in");
+            navigate("/home-chat");
+          }
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+        }, 500);
+
+        dispatch(
+          userLoginActions.setUserLogin({
+            user: data.user,
+            isFetching: true,
+            error: null,
+          })
+        );
+      } else if (data.status === "enable2FA") {
+        console.log(data);
+        Swal.fire({
+          html: `Correct login information, will be redirected to <strong>2-factor authentication page</strong> after this message.`,
+          showConfirmButton: false,
+          icon: "success",
+          timer: 3500,
+        }).then(() => {
+          Swal.fire({
+            html: "Please enter your token complete <strong>2-factor authentication</strong>!!",
+            input: "number",
+            inputPlaceholder: "6-digits",
+            inputAttributes: {
+              autocapitalize: "off",
+            },
+            showCancelButton: true,
+            backdrop: true,
+            confirmButtonText: "Submit",
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+            preConfirm: async (otpToken) => {
+              return postData(
+                { otpToken },
+                `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${data.userId}`
+              )
+                .then((response) => {
+                  if (response.status === "valid") {
+                    setTimeout(() => {
+                      socket_notify.emit("log-in");
+                      navigate("/home-chat");
+                      dispatch(
+                        userLoginActions.setIsFetching({ isFetching: false })
+                      );
+                    }, 500);
+
+                    dispatch(
+                      userLoginActions.setUserLogin({
+                        user: response.user,
+                        isFetching: true,
+                        error: null,
+                      })
+                    );
+                  } else if (response.status === "invalid") {
+                    return Promise.reject(response.msg);
+                  }
+                })
+                .catch((error) => {
+                  Swal.showValidationMessage(`Error: ${error}`);
+                });
+            },
+          });
+        });
       }
-
-      setTimeout(() => {
-        if (type === "Register") navigate("/auth/login");
-        else if (type === "Login") {
-          socket_notify.emit("log-in");
-          navigate("/home-chat");
-        }
-        dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-      }, 500);
-
-      dispatch(
-        userLoginActions.setUserLogin({
-          user: data,
-          isFetching: true,
-          error: null,
-          isLogin: true,
-        })
-      );
     } catch (err) {
       console.error(err);
     }

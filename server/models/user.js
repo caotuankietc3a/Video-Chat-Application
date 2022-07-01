@@ -61,6 +61,16 @@ const userSchema = new Schema({
     type: String,
     default: "Unknown twitter site",
   },
+  twoFA: {
+    is2FAEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    secret: {
+      type: String,
+      default: "",
+    },
+  },
 });
 
 module.exports = model("User", userSchema);

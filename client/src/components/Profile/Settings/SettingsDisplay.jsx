@@ -12,34 +12,34 @@ import { postData } from "../../../store/actions/fetch-action";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { errorActions } from "../../../store/slices/error-slice";
 import { useSelector, useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 import { useState, useRef } from "react";
 import { TiTick } from "react-icons/ti";
 const SettingsDisplay = ({ header, rows }) => {
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const { user } = useSelector((state) => state.user);
   const [isFetching, setIsFetching] = useState(false);
-  const inputEl1 = useRef(null);
-  const inputEl2 = useRef(null);
   const accountRef = useRef({});
   const socialNetRef = useRef({});
   const passwordRef = useRef({});
+  const securityRef = useRef({});
   const dispatch = useDispatch();
-  console.log(isFetching);
 
   const submitHandler = async (e, h5) => {
     e.preventDefault();
-    console.log(h5);
     switch (h5) {
       case "Account": {
         const { updatedUser } = await postData(
           accountRef.current,
           `${END_POINT_SERVER}/auth/update-profile-account/${user._id}`
         );
-        dispatch(
-          errorActions.setNotify({
-            notify: "Your account profile has been updated!",
-          })
-        );
+        Swal.fire({
+          icon: "success",
+          title: "Successfully!!!",
+          html: "Your account profile has been updated!",
+          showConfirmButton: "Continue",
+          timer: 5000,
+        });
         setIsFetching(false);
         return dispatch(userLoginActions.setUser({ user: updatedUser }));
       }
@@ -53,11 +53,14 @@ const SettingsDisplay = ({ header, rows }) => {
             socialNetRef.current,
             `${END_POINT_SERVER}/auth/update-profile-social/${user._id}`
           );
-          dispatch(
-            errorActions.setNotify({
-              notify: "Your social networking sites have been updated!",
-            })
-          );
+
+          Swal.fire({
+            icon: "success",
+            title: "Successfully!!!",
+            html: "Your social networking sites have been updated!",
+            showConfirmButton: "Continue",
+            timer: 5000,
+          });
           dispatch(userLoginActions.setUser({ user: updatedUser }));
         } else {
           dispatch(
@@ -73,12 +76,54 @@ const SettingsDisplay = ({ header, rows }) => {
           passwordRef.current,
           `${END_POINT_SERVER}/auth/update-profile-password/${user._id}`
         );
-        dispatch(
-          errorActions.setNotify({
-            notify: res.msg,
-          })
-        );
+        if (res.status === "error") {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            html: res.msg,
+            showConfirmButton: "Continue",
+            timer: 5000,
+          });
+        } else if (res.status === "success") {
+          Swal.fire({
+            icon: "success",
+            title: "Successfully!!!",
+            html: res.msg,
+            showConfirmButton: "Continue",
+            timer: 5000,
+          });
+        }
         return setIsFetching(false);
+      }
+      case "Security": {
+        if (securityRef.current.is2FAEnabled !== undefined) {
+          const res = await postData(
+            securityRef.current,
+            `${END_POINT_SERVER}/auth/update-profile-security/${user._id}`
+          );
+          if (res.status === "success") {
+            Swal.fire({
+              html: "Please scan this <strong>QR code</strong> to complete <strong><i>2-factor authentication</i></strong>!!",
+              imageUrl: res.QRCodeUrl,
+              confirmButtonText: "Ok",
+            });
+          } else if (res.status === "cancel") {
+            Swal.fire({
+              html: "Disable <strong><i>2-factor authentication</i></strong> completely!",
+              icon: "success",
+              confirmButtonText: "Ok",
+            });
+          }
+        } else {
+          Swal.fire({
+            html: "Please click checkbox to activate <strong><i>2-factor authentication</i></strong>!!",
+            icon: "warning",
+            confirmButtonText: "Ok",
+          });
+        }
+
+        securityRef.current = {};
+        setIsFetching(false);
       }
     }
   };
@@ -146,6 +191,17 @@ const SettingsDisplay = ({ header, rows }) => {
       }
       case "Repeat Password": {
         return (passwordRef.current.repeatPassword = e.target.value);
+      }
+    }
+  };
+
+  const securityHandler = (e, id) => {
+    switch (id) {
+      case "two-factor": {
+        return (securityRef.current.is2FAEnabled = e.target.checked);
+      }
+      case "unrecognised-logins": {
+        return (securityRef.current.unrecognisedLogins = e.target.checked);
       }
     }
   };
@@ -228,15 +284,12 @@ const SettingsDisplay = ({ header, rows }) => {
                         <input
                           type="checkbox"
                           id={id}
-                          ref={id === "two-factor" ? inputEl1 : inputEl2}
                           onChange={(e) => {
-                            id === "two-factor"
-                              ? inputEl1.current.previousElementSibling.classList.toggle(
-                                  "active"
-                                )
-                              : inputEl2.current.previousElementSibling.classList.toggle(
-                                  "active"
-                                );
+                            e.target.previousElementSibling.classList.toggle(
+                              "active"
+                            );
+                            securityHandler(e, id);
+                            console.log(securityRef.current);
                           }}
                         />
                       </div>

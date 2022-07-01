@@ -120,9 +120,6 @@ const ChatContactItems = ({
       console.error(err);
     }
   };
-  // console.log(meeting?.caller.profilePhoto);
-  // console.log(meeting?.callee.profilePhoto);
-  console.log(friend?.profilePhoto);
 
   return (
     <ContactItems onClick={clickHandler}>
