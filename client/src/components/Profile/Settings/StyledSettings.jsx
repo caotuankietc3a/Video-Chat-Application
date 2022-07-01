@@ -210,7 +210,8 @@ export const SettingsFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  & button {
+  & button,
+  & > div {
     font-size: 0.875rem;
     cursor: pointer;
     margin: 0 0.375rem;

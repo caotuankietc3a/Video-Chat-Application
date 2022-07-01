@@ -46,6 +46,7 @@ export const VideoRemotePeerImg = styled.div`
     width: ${(props) => props.width};
     height: ${(props) => props.height};
     border-radius: 50%;
+    object-fit: cover;
   }
 `;
 

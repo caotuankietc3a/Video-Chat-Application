@@ -35,6 +35,7 @@ import { replyActions } from "../../../store/slices/reply-slice";
 import { forwardActions } from "../../../store/slices/forward-slice";
 import { messageActions } from "../../../store/slices/message-slice";
 import { showMenuHandler } from "../../../store/actions/common-function";
+import Swal from "sweetalert2";
 
 const Message = ({
   type,
@@ -58,12 +59,25 @@ const Message = ({
     setShowMenu(!showMenu);
   };
   const deleteMessageHandler = (id) => {
-    setShowMenu(false);
-    socket_chat.emit("delete-message", {
-      conversationId: conversation._id,
-      id,
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        socket_chat.emit("delete-message", {
+          conversationId: conversation._id,
+          id,
+        });
+        dispatch(messageActions.setReRender({ reRender: { id } }));
+      }
     });
-    dispatch(messageActions.setReRender({ reRender: { id } }));
+    setShowMenu(false);
   };
 
   const replyMessageHandler = () => {

@@ -33,6 +33,7 @@ export const ProfileContainer = styled.main`
   align-items: center;
   flex-direction: column;
   background-color: #2a2a2a;
+  overflow: hidden;
 `;
 
 export const ProfileContent = styled.div`

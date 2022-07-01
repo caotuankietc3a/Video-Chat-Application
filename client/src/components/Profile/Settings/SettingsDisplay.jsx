@@ -301,7 +301,7 @@ const SettingsDisplay = ({ header, rows }) => {
           </SettingsRows>
         </SettingsBody>
         <SettingsFooter>
-          <button className="reset">Reset</button>
+          <div className="reset">Reset</div>
           <button className="save-changes" type="submit">
             {isFetching ? (
               <BouncyLoading

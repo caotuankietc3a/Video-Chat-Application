@@ -17,6 +17,7 @@ const FriendShow = ({
   popArrayMembers,
   type,
 }) => {
+  console.log(friend);
   const disabledBtnEl = useRef(null);
   const [undoEl, setUndoEl] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -61,7 +62,12 @@ const FriendShow = ({
       ) : (
         <>
           <AvatarUser status={friend.status}>
-            <img src={friend.profilePhoto.url} alt="User" />
+            <img
+              src={
+                friend.isGroup ? friend.profilePhoto : friend.profilePhoto.url
+              }
+              alt="User"
+            />
           </AvatarUser>
           <FriendName>
             <div className="sendBtn">

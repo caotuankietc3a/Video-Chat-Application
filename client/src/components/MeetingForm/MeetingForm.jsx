@@ -118,6 +118,10 @@ function MeetingForm({ conversation }) {
       navigate(`/meeting-group/${conversation._id}?showVideo=0`);
     }
   };
+  console.log(group);
+  console.log(caller);
+  console.log(callee);
+  console.log(isReceivedCall);
 
   return (
     <MeetingFormContainer>
@@ -142,8 +146,8 @@ function MeetingForm({ conversation }) {
                 group
                   ? group?.groupImg
                   : isReceivedCall
-                  ? callee?.profilePhoto.url
-                  : caller?.profilePhoto.url
+                  ? caller?.profilePhoto.url
+                  : callee?.profilePhoto.url
               }
               alt=""
             />

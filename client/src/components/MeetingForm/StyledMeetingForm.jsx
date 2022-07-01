@@ -74,6 +74,7 @@ export const MeetingImgWrapper = styled.div`
     height: 100%;
     border-radius: 75px;
     border: 1px solid #da7d02;
+    object-fit: cover;
   }
   @keyframes ring {
     0% {

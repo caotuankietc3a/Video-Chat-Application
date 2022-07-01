@@ -14,14 +14,13 @@ const BouncyLoading = ({ height, width, translateY1, translateY2 }) => {
 export default BouncyLoading;
 
 const Loader = styled.div`
-  /* width: 80px; */
-  /* height: 55px; */
   width: ${({ width }) => (width ? width : "80px")};
   height: ${({ height }) => (height ? height : "55px")};
 
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
+  flex-direction: row;
   justify-content: space-evenly;
 `;
 

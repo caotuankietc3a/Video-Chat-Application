@@ -2,14 +2,7 @@ import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { videoActions } from "../../store/slices/video-chat-slice";
-import {
-  FiMenu,
-  FiVideo,
-  FiVideoOff,
-  FiPhone,
-  FiPhoneOff,
-  FiUserPlus,
-} from "react-icons/fi";
+import { FiMenu, FiVideo, FiVideoOff, FiPhoneOff } from "react-icons/fi";
 import { FaChevronDown } from "react-icons/fa";
 import { CgScreen } from "react-icons/cg";
 import { VscSplitHorizontal } from "react-icons/vsc";
@@ -31,7 +24,6 @@ import Peer from "./Peer/Peer";
 import {
   leaveMeetingRoom,
   shareScreen,
-  videoStreamStart,
 } from "../../store/actions/video-chat-function";
 
 const MeetingRoom = (props) => {
@@ -289,9 +281,6 @@ const MeetingRoom = (props) => {
           </FunctionControls>
           <FunctionControls className="phone_off" onClick={phoneOffHandler}>
             <FiPhoneOff />
-          </FunctionControls>
-          <FunctionControls>
-            <FiUserPlus />
           </FunctionControls>
           <FunctionControls onClick={makeFullScreen}>
             {isFullScreen ? <RiFullscreenFill /> : <RiFullscreenExitFill />}

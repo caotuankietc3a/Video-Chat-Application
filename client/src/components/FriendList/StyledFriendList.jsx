@@ -10,7 +10,6 @@ export const Container = styled.div`
   width: 100%;
   height: 100%;
   background-color: #00000050;
-
   z-index: 1;
 `;
 
@@ -25,6 +24,16 @@ export const Content = styled.div`
   border-color: #2b2b2f;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-bottom-width: 0;
+  transform: translateY(0%);
+  animation: 1.5s show;
+  @keyframes show {
+    from {
+      transform: translateY(-50%);
+    }
+    to {
+      transform: translateY(0%);
+    }
+  }
 `;
 
 export const Header = styled.div`

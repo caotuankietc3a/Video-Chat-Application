@@ -25,6 +25,7 @@ import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
 import Error from "../Error/Error";
+import { GoogleLogin } from "react-google-login";
 import Swal from "sweetalert2";
 
 const Login = (props) => {
@@ -43,7 +44,30 @@ const Login = (props) => {
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
   else END_POINT_SERVER += "/forgot-password";
-
+  // const googleLoginHandler = () => {
+  // const auth2 = window.gapi.auth2.init();
+  // const x = window.google.accounts.id.initialize({
+  //   client_id:
+  //     "1081127547168-u38d0u1veke9cmricrp91jlrucdhdi8o.apps.googleusercontent.com",
+  // });
+  // console.log(auth2);
+  // console.log(x);
+  // if (auth2.isSignedIn.get()) {
+  //   var profile = auth2.currentUser.get().getBasicProfile();
+  //   console.log("ID: " + profile.getId());
+  //   console.log("Full Name: " + profile.getName());
+  //   console.log("Given Name: " + profile.getGivenName());
+  //   console.log("Family Name: " + profile.getFamilyName());
+  //   console.log("Image URL: " + profile.getImageUrl());
+  //   console.log("Email: " + profile.getEmail());
+  // }
+  // };
+  // const responseSuccessGoogle = (response) => {
+  //   console.log(response);
+  // };
+  // const responseErrorGoogle = (response) => {
+  //   console.log(response);
+  // };
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -286,8 +310,16 @@ const Login = (props) => {
                 <a href="" className="tw-bg">
                   <FontAwesomeIcon icon={faTwitter} />
                 </a>
-                <a href="" className="gg-bg">
+                {/* <a href="#" className="gg-bg" onClick={googleLoginHandler}> */}
+                <a href="#" className="gg-bg">
                   <FontAwesomeIcon icon={faGoogle} />
+                  {/* <GoogleLogin */}
+                  {/*   clientId="1081127547168-u38d0u1veke9cmricrp91jlrucdhdi8o.apps.googleusercontent.com" */}
+                  {/*   buttonText="Login" */}
+                  {/*   onSuccess={responseSuccessGoogle} */}
+                  {/*   onFailure={responseErrorGoogle} */}
+                  {/*   cookiePolicy={"single_host_origin"} */}
+                  {/* /> */}
                 </a>
               </SocialList>
             </div>
