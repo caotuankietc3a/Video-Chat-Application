@@ -17,7 +17,11 @@ exports.postNewGroupConversation = async (req, res, next) => {
       profilePhoto: uploadedRes.url,
     });
     await newConversation.save();
-    res.status(200).json(await newConversation.populate({ path: "members" }));
+    res
+      .status(200)
+      .json(
+        await newConversation.populate({ path: "members", select: "-password" })
+      );
   } catch (err) {
     console.error(err);
   }
@@ -34,6 +38,7 @@ exports.getConversations = async (req, res, next) => {
           members: { $in: [userId] },
         }).populate({
           path: "members messages.sender messages.files messages.reply",
+          select: "-password",
         });
       } else {
         conversations = await Conversation.find({
@@ -45,6 +50,7 @@ exports.getConversations = async (req, res, next) => {
           ],
         }).populate({
           path: "members messages.sender messages.files messages.reply",
+          select: "-password",
         });
       }
     }
@@ -59,6 +65,7 @@ exports.getConversationDetail = async (req, res, next) => {
     const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId).populate({
       path: "members messages.sender messages.files messages.reply",
+      select: "-password",
     });
     res.status(200).json(conversation);
   } catch (err) {
@@ -127,6 +134,7 @@ exports.getMessages = async (req, res, next) => {
     const conversationId = req.params.conversationId;
     const conversation = await Conversation.findById(conversationId).populate({
       path: "messages.sender messages.files messages.reply",
+      select: "-password",
     });
     // .select("-messages.sender.password");
     res.status(200).json(conversation.messages);
@@ -147,7 +155,7 @@ const createNewConversation = async (friend, userId, group = null) => {
         { members: userId },
         { $expr: { $lte: [{ $size: "$members" }, 2] } },
       ],
-    }).populate({ path: "members" });
+    }).populate({ path: "members", select: "-password" });
 
     if (existedConversation) {
       return existedConversation;
@@ -158,7 +166,10 @@ const createNewConversation = async (friend, userId, group = null) => {
     });
     await newConversation.save();
 
-    return await newConversation.populate({ path: "members" });
+    return await newConversation.populate({
+      path: "members",
+      select: "-password",
+    });
   } catch (err) {
     console.error(err);
   }
@@ -266,7 +277,10 @@ exports.forwardMessage = async (forwardOb) => {
           },
         },
         { new: true }
-      ).populate({ path: "messages.sender messages.files" });
+      ).populate({
+        path: "messages.sender messages.files",
+        select: "-password",
+      });
     } else {
       conversation = await Conversation.findByIdAndUpdate(
         forwardOb.forwardee._id,
@@ -282,7 +296,10 @@ exports.forwardMessage = async (forwardOb) => {
           },
         },
         { new: true }
-      ).populate({ path: "messages.sender messages.files" });
+      ).populate({
+        path: "messages.sender messages.files",
+        select: "-password",
+      });
     }
     return conversation;
   } catch (err) {

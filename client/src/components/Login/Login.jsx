@@ -23,10 +23,16 @@ import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
-import { postData, fetchUserLogin } from "../../store/actions/fetch-action";
+import {
+  postData,
+  fetchUserLogin,
+  authOtherLoginHandler,
+  verifyEnable2FA,
+} from "../../store/actions/fetch-action";
 import Error from "../Error/Error";
-import { GoogleLogin } from "react-google-login";
 import Swal from "sweetalert2";
+import { signInWithPopup } from "firebase/auth";
+import { auth, facebookProvider, googleProvider } from "../../utils/firebase";
 
 const Login = (props) => {
   const dispatch = useDispatch();
@@ -38,36 +44,21 @@ const Login = (props) => {
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
   const [isClicked, setIsClicked] = useState(false);
-  // const inputEl = useRef(null);
   const { socket_notify } = useSelector((state) => state.socket);
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
   else END_POINT_SERVER += "/forgot-password";
-  // const googleLoginHandler = () => {
-  // const auth2 = window.gapi.auth2.init();
-  // const x = window.google.accounts.id.initialize({
-  //   client_id:
-  //     "1081127547168-u38d0u1veke9cmricrp91jlrucdhdi8o.apps.googleusercontent.com",
-  // });
-  // console.log(auth2);
-  // console.log(x);
-  // if (auth2.isSignedIn.get()) {
-  //   var profile = auth2.currentUser.get().getBasicProfile();
-  //   console.log("ID: " + profile.getId());
-  //   console.log("Full Name: " + profile.getName());
-  //   console.log("Given Name: " + profile.getGivenName());
-  //   console.log("Family Name: " + profile.getFamilyName());
-  //   console.log("Image URL: " + profile.getImageUrl());
-  //   console.log("Email: " + profile.getEmail());
-  // }
-  // };
-  // const responseSuccessGoogle = (response) => {
-  //   console.log(response);
-  // };
-  // const responseErrorGoogle = (response) => {
-  //   console.log(response);
-  // };
+
+  const authFacebookLoginHandler = async () => {
+    try {
+      const res = await signInWithPopup(auth, facebookProvider);
+      console.log(res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -115,57 +106,7 @@ const Login = (props) => {
           })
         );
       } else if (data.status === "enable2FA") {
-        console.log(data);
-        Swal.fire({
-          html: `Correct login information, will be redirected to <strong>2-factor authentication page</strong> after this message.`,
-          showConfirmButton: false,
-          icon: "success",
-          timer: 3500,
-        }).then(() => {
-          Swal.fire({
-            html: "Please enter your token complete <strong>2-factor authentication</strong>!!",
-            input: "number",
-            inputPlaceholder: "6-digits",
-            inputAttributes: {
-              autocapitalize: "off",
-            },
-            showCancelButton: true,
-            backdrop: true,
-            confirmButtonText: "Submit",
-            showLoaderOnConfirm: true,
-            allowOutsideClick: () => !Swal.isLoading(),
-            preConfirm: async (otpToken) => {
-              return postData(
-                { otpToken },
-                `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${data.userId}`
-              )
-                .then((response) => {
-                  if (response.status === "valid") {
-                    setTimeout(() => {
-                      socket_notify.emit("log-in");
-                      navigate("/home-chat");
-                      dispatch(
-                        userLoginActions.setIsFetching({ isFetching: false })
-                      );
-                    }, 500);
-
-                    dispatch(
-                      userLoginActions.setUserLogin({
-                        user: response.user,
-                        isFetching: true,
-                        error: null,
-                      })
-                    );
-                  } else if (response.status === "invalid") {
-                    return Promise.reject(response.msg);
-                  }
-                })
-                .catch((error) => {
-                  Swal.showValidationMessage(`Error: ${error}`);
-                });
-            },
-          });
-        });
+        dispatch(verifyEnable2FA(navigate, data.userId));
       }
     } catch (err) {
       console.error(err);
@@ -295,8 +236,6 @@ const Login = (props) => {
                     </p>
                   )}
                 </RegisterAccount>
-
-                {/* <input type="hidden" name="urlClient" value={urlClient} /> */}
               </form>
             }
           </FormSectionLogin>
@@ -304,22 +243,32 @@ const Login = (props) => {
             <div className="info">
               <h3>Or Login With</h3>
               <SocialList>
-                <a href="" className="fb-bg">
+                <a
+                  href="#"
+                  className="fb-bg"
+                  onClick={() => {
+                    dispatch(
+                      authOtherLoginHandler(
+                        navigate,
+                        facebookProvider,
+                        "facebook"
+                      )
+                    );
+                  }}
+                >
                   <FontAwesomeIcon icon={faFacebookF} />
                 </a>
-                <a href="" className="tw-bg">
+                <a href="#" className="tw-bg">
                   <FontAwesomeIcon icon={faTwitter} />
                 </a>
-                {/* <a href="#" className="gg-bg" onClick={googleLoginHandler}> */}
-                <a href="#" className="gg-bg">
+                <a
+                  href="#"
+                  className="gg-bg"
+                  onClick={() => {
+                    dispatch(authOtherLoginHandler(navigate, googleProvider));
+                  }}
+                >
                   <FontAwesomeIcon icon={faGoogle} />
-                  {/* <GoogleLogin */}
-                  {/*   clientId="1081127547168-u38d0u1veke9cmricrp91jlrucdhdi8o.apps.googleusercontent.com" */}
-                  {/*   buttonText="Login" */}
-                  {/*   onSuccess={responseSuccessGoogle} */}
-                  {/*   onFailure={responseErrorGoogle} */}
-                  {/*   cookiePolicy={"single_host_origin"} */}
-                  {/* /> */}
                 </a>
               </SocialList>
             </div>

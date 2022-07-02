@@ -102,7 +102,7 @@ io_video.on("connection", (socket) => {
     console.log("A user connected video-room!!!");
     const conversations = await Conversation.find({
       members: { $in: [userId] },
-    }).populate({ path: "members" });
+    }).populate({ path: "members", select: "-password" });
     socket.join(
       conversations.map((conversation) => conversation._id.toString())
     );
@@ -112,6 +112,7 @@ io_video.on("connection", (socket) => {
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
     const conversation = await Conversation.findById(conversationId).populate({
       path: "members",
+      select: "-password",
     });
     const callee = conversation.members.find(
       (user) => user._id.toString() !== caller._id.toString()
@@ -134,6 +135,7 @@ io_video.on("connection", (socket) => {
       const conversation = await Conversation.findById(conversationId).populate(
         {
           path: "members",
+          select: "-password",
         }
       );
       // sending to all clients except sender

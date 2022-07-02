@@ -1,6 +1,9 @@
+import { signInWithPopup } from "firebase/auth";
+import { auth } from "../../utils/firebase";
 import { friendActions } from "../slices/friend-slice";
 import { socketActions } from "../slices/socket-slice";
 import { userLoginActions } from "../slices/user-login-slice";
+import Swal from "sweetalert2";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postData = async (data, typeUrl) => {
   const res = await fetch(typeUrl, {
@@ -56,6 +59,80 @@ export const fetchUserLogin = (navigate, type = 0) => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+};
+
+export const authOtherLoginHandler = (navigate, provider, type = "google") => {
+  return async (dispatch, getState) => {
+    try {
+      const { user } = await signInWithPopup(auth, provider);
+      console.log(user);
+      const { socket_notify } = getState().socket;
+      let data = null;
+      if (type === "google") {
+        data = await postData(
+          {
+            fullname: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber,
+            profilePhoto: {
+              url: user.photoURL,
+            },
+          },
+          // `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-google`
+          `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-other?type=${type}`
+        );
+      } else if (type === "facebook") {
+        data = await postData(
+          {
+            fullname: user.displayName,
+            email: user.providerData[0].email,
+            phone: user.phoneNumber,
+            profilePhoto: {
+              url: user.photoURL,
+            },
+          },
+          // `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-google`
+          `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-other?type=${type}`
+        );
+      } else if (type === "twitter") {
+      }
+
+      if (data.status === "success") {
+        setTimeout(() => {
+          socket_notify.emit("log-in");
+          navigate("/home-chat");
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+        }, 500);
+        console.log(data.user);
+
+        dispatch(
+          userLoginActions.setUserLogin({
+            user: data.user,
+            isFetching: true,
+            error: null,
+          })
+        );
+      } else if (data.status === "error") {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          html: data.msg,
+          showConfirmButton: "Continue",
+          timer: 3000,
+        });
+      } else if (data.status === "enable2FA") {
+        dispatch(verifyEnable2FA(navigate, data.userId));
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        html: "Unable to login! Please try a gain!!!",
+        showConfirmButton: "Continue",
+        timer: 3000,
+      });
     }
   };
 };
@@ -122,5 +199,61 @@ export const logoutHandler = (navigate) => {
       dispatch(socketActions.setSocket_Notify());
       navigate("/");
     }, 50);
+  };
+};
+
+export const verifyEnable2FA = (navigate, userId) => {
+  return async (dispatch, getState) => {
+    const { socket_notify } = getState().socket;
+    Swal.fire({
+      html: `Correct login information, will be redirected to <strong>2-factor authentication page</strong> after this message.`,
+      showConfirmButton: false,
+      icon: "success",
+      timer: 3500,
+    }).then(() => {
+      Swal.fire({
+        html: "Please enter your token complete <strong>2-factor authentication</strong>!!",
+        input: "number",
+        inputPlaceholder: "6-digits",
+        inputAttributes: {
+          autocapitalize: "off",
+        },
+        showCancelButton: true,
+        backdrop: true,
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !Swal.isLoading(),
+        preConfirm: async (otpToken) => {
+          return postData(
+            { otpToken },
+            `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
+          )
+            .then((response) => {
+              if (response.status === "valid") {
+                setTimeout(() => {
+                  socket_notify.emit("log-in");
+                  navigate("/home-chat");
+                  dispatch(
+                    userLoginActions.setIsFetching({ isFetching: false })
+                  );
+                }, 500);
+
+                dispatch(
+                  userLoginActions.setUserLogin({
+                    user: response.user,
+                    isFetching: true,
+                    error: null,
+                  })
+                );
+              } else if (response.status === "invalid") {
+                return Promise.reject(response.msg);
+              }
+            })
+            .catch((error) => {
+              Swal.showValidationMessage(`Error: ${error}`);
+            });
+        },
+      });
+    });
   };
 };

@@ -8,12 +8,10 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   password: {
     type: String,
-    required: true,
-    min: 5,
+    default: "",
   },
   profilePhoto: {
     url: {
@@ -70,6 +68,18 @@ const userSchema = new Schema({
       type: String,
       default: "",
     },
+  },
+  isGoogle: {
+    type: Boolean,
+    default: false,
+  },
+  isFacebook: {
+    type: Boolean,
+    default: false,
+  },
+  isTwitter: {
+    type: Boolean,
+    default: false,
   },
 });
 

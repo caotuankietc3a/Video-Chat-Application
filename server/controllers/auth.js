@@ -19,20 +19,84 @@ exports.postLogin = async (req, res, next) => {
       throw new Error(errors.array()[0].msg);
     }
     const { email } = req.body;
-    const user = await User.findOne({ email: email });
-    if (user.twoFA.is2FAEnabled) {
-      return res.status(200).json({ status: "enable2FA", userId: user._id });
+    const user = await User.findOne({
+      email: email,
+      isGoogle: false,
+      isFacebook: false,
+      isTwitter: false,
+    });
+    console.log(user);
+    if (user) {
+      if (user.twoFA.is2FAEnabled) {
+        return res.status(200).json({ status: "enable2FA", userId: user._id });
+      } else {
+        user.status = true;
+        await user.save();
+        req.session.isLogin = true;
+        req.session.userId = user._id;
+        req.session.save();
+        return res.status(200).json({ user, status: "success" });
+      }
     } else {
-      const user = await User.findOneAndUpdate(
-        { email: email },
-        { status: true },
-        { new: true }
-      ).select("-password");
+      res.status(200).json({ msg: "User didn't exit!!!", status: "error" });
+    }
+  } catch (err) {
+    res.status(400).json({ msg: err.message, status: "error" });
+  }
+};
 
+exports.postLoginOther = async (req, res, next) => {
+  try {
+    const { email, fullname, profilePhoto, phone } = req.body;
+    const { type } = req.query;
+    let user = null;
+    if (type === "google") {
+      user = await User.findOne({ email: email, isGoogle: true }).select(
+        "-password"
+      );
+    } else if (type === "facebook") {
+      user = await User.findOne({ email: email, isFacebook: true }).select(
+        "-password"
+      );
+    } else if (type === "twitter") {
+      user = await User.findOne({ email: email, isTwitter: true }).select(
+        "-password"
+      );
+    }
+    console.log(user);
+    console.log(type);
+    console.log(email);
+    if (user) {
+      if (user.twoFA.is2FAEnabled) {
+        return res.status(200).json({ status: "enable2FA", userId: user._id });
+      }
+      user.status = true;
+      await user.save();
       req.session.isLogin = true;
       req.session.userId = user._id;
       req.session.save();
-      return res.status(200).json({ user, status: "success" });
+      res.status(200).json({
+        user,
+        status: "success",
+      });
+    } else {
+      const newUser = await new User({
+        email,
+        fullname,
+        profilePhoto,
+        phone: phone ? phone : "Unkown phone",
+        status: true,
+        isGoogle: type === "google" ? true : false,
+        isFacebook: type === "facebook" ? true : false,
+        isTwitter: type === "twitter" ? true : false,
+      }).save();
+      console.log("newUser", newUser);
+      const findedUser = await User.findById(newUser._id).select("-password");
+      console.log(findedUser);
+      req.session.isLogin = true;
+      req.session.userId = newUser._id;
+      req.session.save();
+      res.status(200).json({ user: findedUser, status: "success" });
     }
   } catch (err) {
     res.status(400).json({ msg: err.message, status: "error" });
@@ -65,7 +129,9 @@ exports.postRegister = async (req, res, next) => {
 exports.getSession = async (req, res, next) => {
   try {
     const { isLogin, userId } = req.session;
+    console.log(userId);
     const { type } = req.query;
+    console.log(type);
     const status = parseInt(type) ? true : isLogin ? true : false;
     const user = await User.findByIdAndUpdate(
       userId,

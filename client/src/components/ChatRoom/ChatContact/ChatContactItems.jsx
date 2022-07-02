@@ -46,6 +46,7 @@ const ChatContactItems = ({
     const member = conversation.members.find(
       (mem) => mem._id !== userState.user._id
     );
+    console.log(member);
     profilePhoto = isGroup
       ? conversation.profilePhoto
       : member.profilePhoto.url;
