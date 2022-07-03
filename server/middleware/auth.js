@@ -10,7 +10,7 @@ exports.checkEmailPassword = (method) => {
         .withMessage("Invalid Email. Please enter the correct one!!!")
         .custom(async (_value, { req }) => {
           const { email, password } = req.body;
-          const user = await User.findOne({ email });
+          const user = await User.findOne({ email, provider: "" });
           if (!user) {
             return Promise.reject("User didn't exist !!!");
           }
@@ -28,7 +28,7 @@ exports.checkEmailPassword = (method) => {
           .withMessage("Invalid Email. Please enter the correct one!!!")
           .normalizeEmail()
           .custom(async (value) => {
-            const user = await User.findOne({ email: value });
+            const user = await User.findOne({ email: value, provider: "" });
             if (user) {
               return Promise.reject("Email already in use!!!");
             }
@@ -59,8 +59,18 @@ exports.checkEmailPassword = (method) => {
           }),
       ];
     }
-    default: {
-      return [];
+    case "reset": {
+      return check("email")
+        .isEmail()
+        .withMessage("Invalid Email. Please enter the correct one!!!")
+        .normalizeEmail()
+        .custom(async (value) => {
+          const user = await User.findOne({ email: value, provider: "" });
+          if (!user) {
+            return Promise.reject("User didn't exist !!!");
+          }
+          return true;
+        });
     }
   }
 };

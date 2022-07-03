@@ -120,17 +120,11 @@ export const arrayDisplay = [
         placeholder: "Type your mobile phone",
       },
       { label: "Birth date", type: "date" },
-      {
-        label: "Email Address",
-        type: "email",
-        placeholder: "Type your email address",
-      },
       { label: "Website", type: "text", placeholder: "Type your website" },
       {
         label: "Address",
         type: "text",
         placeholder: "Type your address",
-        width: "100%",
       },
     ],
   },

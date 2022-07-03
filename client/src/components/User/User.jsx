@@ -11,6 +11,7 @@ const User = ({ user, isClickedHandler }) => {
       clearTimeout(timer);
     };
   }, []);
+  console.log(user);
   return (
     <UserContainer>
       {isFetching ? (

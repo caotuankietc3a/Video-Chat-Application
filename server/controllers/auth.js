@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const { randomBytes } = require("crypto");
 const { sendMailFunction } = require("../util/mailer");
 const {
   generateUniqueSecret,
@@ -298,5 +299,53 @@ exports.postVerify2FA = async (req, res, next) => {
     }
   } catch (err) {
     res.status(400).json({ msg: "Error!" });
+  }
+};
+
+exports.postReset = (req, res, next) => {
+  try {
+    // const errors = validationResult(req);
+    // console.log(errors);
+    // if (!errors.isEmpty()) {
+    //   throw new Error(errors.array()[0].msg);
+    // }
+    // const { email } = req.body;
+    // console.log(email);
+    // console.log(req.body);
+    //
+    // randomBytes(32, async (err, buf) => {
+    //   if (err) {
+    //     console.error(err);
+    //     return res.status(404).json({ status: "error", msg: err });
+    //   }
+    //   const token = buf.toString("hex");
+    //   try {
+    //     const user = await User.findOneAndUpdate(
+    //       {
+    //         email,
+    //         provider: "",
+    //       },
+    //       {
+    //         resetPassword: {
+    //           resetToken: token,
+    //           resetTokenExpiration: Date.now() + 36000000,
+    //         },
+    //       },
+    //       { new: true }
+    //     );
+    //     res.status(200).json({
+    //       msg: "Please check your email!",
+    //       token: token,
+    //       expiration: Date.now() + 36000000,
+    //       user,
+    //       email,
+    //     });
+    //     await sendMailFunction();
+    //   } catch (err) {
+    //     console.error(err);
+    //   }
+    // });
+  } catch (err) {
+    res.status(404).json({ status: "error", msg: err.message });
   }
 };

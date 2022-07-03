@@ -46,7 +46,7 @@ const Login = (props) => {
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
-  else END_POINT_SERVER += "/forgot-password";
+  else END_POINT_SERVER += "/reset";
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -64,6 +64,7 @@ const Login = (props) => {
         },
         END_POINT_SERVER
       );
+      console.log(data);
       if (data.status === "error") {
         setTimeout(() => {
           Swal.fire({
