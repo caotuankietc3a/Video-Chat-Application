@@ -69,35 +69,26 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
       const { user } = await signInWithPopup(auth, provider);
       console.log(user);
       const { socket_notify } = getState().socket;
-      let data = null;
-      if (type === "google") {
-        data = await postData(
-          {
-            fullname: user.displayName,
-            email: user.email,
-            phone: user.phoneNumber,
-            profilePhoto: {
-              url: user.photoURL,
-            },
+      const email =
+        type === "google"
+          ? user.email
+          : type === "facebook"
+          ? user.providerData[0].email
+          : type === "github"
+          ? user.reloadUserInfo.screenName + "@gmail.com"
+          : null;
+      console.log(email);
+      const data = await postData(
+        {
+          fullname: user.displayName,
+          email,
+          phone: user.phoneNumber,
+          profilePhoto: {
+            url: user.photoURL,
           },
-          // `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-google`
-          `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-other?type=${type}`
-        );
-      } else if (type === "facebook") {
-        data = await postData(
-          {
-            fullname: user.displayName,
-            email: user.providerData[0].email,
-            phone: user.phoneNumber,
-            profilePhoto: {
-              url: user.photoURL,
-            },
-          },
-          // `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-google`
-          `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-other?type=${type}`
-        );
-      } else if (type === "twitter") {
-      }
+        },
+        `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/login-with-other?type=${type}`
+      );
 
       if (data.status === "success") {
         setTimeout(() => {
@@ -105,7 +96,6 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
           navigate("/home-chat");
           dispatch(userLoginActions.setIsFetching({ isFetching: false }));
         }, 500);
-        console.log(data.user);
 
         dispatch(
           userLoginActions.setUserLogin({
@@ -126,6 +116,7 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
         dispatch(verifyEnable2FA(navigate, data.userId));
       }
     } catch (err) {
+      console.error(err);
       Swal.fire({
         icon: "error",
         title: "Oops...",

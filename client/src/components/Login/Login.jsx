@@ -13,12 +13,7 @@ import {
   // FormCheckRegister,
 } from "./StyledLogin";
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFacebookF,
-  faGoogle,
-  faTwitter,
-} from "@fortawesome/free-brands-svg-icons";
+import { FaFacebookF, FaGithub, FaGoogle } from "react-icons/fa";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress/CircularProgress";
@@ -31,13 +26,16 @@ import {
 } from "../../store/actions/fetch-action";
 import Error from "../Error/Error";
 import Swal from "sweetalert2";
-import { signInWithPopup } from "firebase/auth";
-import { auth, facebookProvider, googleProvider } from "../../utils/firebase";
+import {
+  facebookProvider,
+  githubProvider,
+  googleProvider,
+} from "../../utils/firebase";
 
 const Login = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isFetching, error, user } = useSelector((state) => state.user);
+  const { isFetching, error } = useSelector((state) => state.user);
   const { type } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,15 +47,6 @@ const Login = (props) => {
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
   else END_POINT_SERVER += "/forgot-password";
-
-  const authFacebookLoginHandler = async () => {
-    try {
-      const res = await signInWithPopup(auth, facebookProvider);
-      console.log(res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -256,10 +245,18 @@ const Login = (props) => {
                     );
                   }}
                 >
-                  <FontAwesomeIcon icon={faFacebookF} />
+                  <FaFacebookF />
                 </a>
-                <a href="#" className="tw-bg">
-                  <FontAwesomeIcon icon={faTwitter} />
+                <a
+                  href="#"
+                  className="tw-bg"
+                  onClick={() => {
+                    dispatch(
+                      authOtherLoginHandler(navigate, githubProvider, "github")
+                    );
+                  }}
+                >
+                  <FaGithub />
                 </a>
                 <a
                   href="#"
@@ -268,7 +265,7 @@ const Login = (props) => {
                     dispatch(authOtherLoginHandler(navigate, googleProvider));
                   }}
                 >
-                  <FontAwesomeIcon icon={faGoogle} />
+                  <FaGoogle />
                 </a>
               </SocialList>
             </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import {} from "react-router-dom";
 import Message from "./Message";
 import { MessagesBodyContainer, MessagesBodyContent } from "./StyledBodyMsg";

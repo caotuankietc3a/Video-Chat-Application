@@ -20,7 +20,7 @@ import {
   IoReturnUpForward,
   IoReturnUpBack,
 } from "react-icons/io5";
-import { AiOutlineStar, AiOutlineFileText } from "react-icons/ai";
+import { AiOutlineStar } from "react-icons/ai";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { ImImages } from "react-icons/im";
 import {
@@ -58,6 +58,7 @@ const Message = ({
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
   };
+  console.log(sender);
   const deleteMessageHandler = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -221,7 +222,7 @@ const Message = ({
 
         <MessageOptions type={type}>
           <AvatarUser>
-            <img src="/images/user-img.jpg" alt="" />
+            <img src={sender.profilePhoto.url} alt="User" />
           </AvatarUser>
           <span>{date}</span>
           <MessageOptionsDropDown

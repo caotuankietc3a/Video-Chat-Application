@@ -45,8 +45,8 @@ app.use(
     secret: "my secret",
     resave: false,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     },
     saveUninitialized: false,
     store,
@@ -64,7 +64,9 @@ io_chat.on("connection", (socket) => {
   socket.on(
     "send-message",
     async ({ userId, message, conversationId, reply, files, id }) => {
-      const sender = await User.findById(userId);
+      const sender = await User.findById(userId).select(
+        "-password -twoFA.secret"
+      );
       io_chat.to(conversationId).emit("receive-message", {
         text: message,
         reply,
@@ -102,7 +104,7 @@ io_video.on("connection", (socket) => {
     console.log("A user connected video-room!!!");
     const conversations = await Conversation.find({
       members: { $in: [userId] },
-    }).populate({ path: "members", select: "-password" });
+    }).populate({ path: "members", select: "-password -twoFA.secret" });
     socket.join(
       conversations.map((conversation) => conversation._id.toString())
     );
@@ -112,7 +114,7 @@ io_video.on("connection", (socket) => {
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
     const conversation = await Conversation.findById(conversationId).populate({
       path: "members",
-      select: "-password",
+      select: "-password -twoFA.secret",
     });
     const callee = conversation.members.find(
       (user) => user._id.toString() !== caller._id.toString()
@@ -135,7 +137,7 @@ io_video.on("connection", (socket) => {
       const conversation = await Conversation.findById(conversationId).populate(
         {
           path: "members",
-          select: "-password",
+          select: "-password -twoFA.secret",
         }
       );
       // sending to all clients except sender

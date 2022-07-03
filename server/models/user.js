@@ -69,17 +69,9 @@ const userSchema = new Schema({
       default: "",
     },
   },
-  isGoogle: {
-    type: Boolean,
-    default: false,
-  },
-  isFacebook: {
-    type: Boolean,
-    default: false,
-  },
-  isTwitter: {
-    type: Boolean,
-    default: false,
+  provider: {
+    type: String,
+    default: "",
   },
 });
 

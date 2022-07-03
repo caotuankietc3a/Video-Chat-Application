@@ -270,20 +270,27 @@ export const SocialList = styled.div`
   justify-content: space-evenly;
   align-items: center;
   a {
-    width: 45px;
-    height: 45px;
-    text-align: center;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    flex-direction: center;
+    align-items: center;
+    justify-content: center;
     line-height: 45px;
     border-radius: 5%;
     margin: 2px;
     background: #fff;
     box-shadow: 0 0 35px rgb(0 0 0 / 10%);
     position: relative;
+    transition: all 0.3s ease-in-out;
+    svg {
+      font-size: 1.5rem;
+    }
     &.fb-bg {
       color: #4867aa;
     }
     &.tw-bg {
-      color: #33ccff;
+      color: #2d333b;
     }
     &.gg-bg {
       color: #db4437;
@@ -296,7 +303,7 @@ export const SocialList = styled.div`
         box-shadow: 0px 12px 16px -6px rgba(0, 0, 0, 0.91);
       }
       &.tw-bg {
-        background-color: #33ccff;
+        background-color: #2d333b;
         box-shadow: 0px 12px 16px -6px rgba(0, 0, 0, 0.91);
       }
       &.gg-bg {

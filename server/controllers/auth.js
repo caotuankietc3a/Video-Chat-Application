@@ -21,11 +21,8 @@ exports.postLogin = async (req, res, next) => {
     const { email } = req.body;
     const user = await User.findOne({
       email: email,
-      isGoogle: false,
-      isFacebook: false,
-      isTwitter: false,
+      provider: "",
     });
-    console.log(user);
     if (user) {
       if (user.twoFA.is2FAEnabled) {
         return res.status(200).json({ status: "enable2FA", userId: user._id });
@@ -49,23 +46,9 @@ exports.postLoginOther = async (req, res, next) => {
   try {
     const { email, fullname, profilePhoto, phone } = req.body;
     const { type } = req.query;
-    let user = null;
-    if (type === "google") {
-      user = await User.findOne({ email: email, isGoogle: true }).select(
-        "-password"
-      );
-    } else if (type === "facebook") {
-      user = await User.findOne({ email: email, isFacebook: true }).select(
-        "-password"
-      );
-    } else if (type === "twitter") {
-      user = await User.findOne({ email: email, isTwitter: true }).select(
-        "-password"
-      );
-    }
-    console.log(user);
-    console.log(type);
-    console.log(email);
+    const user = await User.findOne({ email: email, provider: type }).select(
+      "-password -twoFA.secret"
+    );
     if (user) {
       if (user.twoFA.is2FAEnabled) {
         return res.status(200).json({ status: "enable2FA", userId: user._id });
@@ -86,13 +69,11 @@ exports.postLoginOther = async (req, res, next) => {
         profilePhoto,
         phone: phone ? phone : "Unkown phone",
         status: true,
-        isGoogle: type === "google" ? true : false,
-        isFacebook: type === "facebook" ? true : false,
-        isTwitter: type === "twitter" ? true : false,
+        provider: type,
       }).save();
-      console.log("newUser", newUser);
-      const findedUser = await User.findById(newUser._id).select("-password");
-      console.log(findedUser);
+      const findedUser = await User.findById(newUser._id).select(
+        "-password -twoFA.secret"
+      );
       req.session.isLogin = true;
       req.session.userId = newUser._id;
       req.session.save();
@@ -139,7 +120,7 @@ exports.getSession = async (req, res, next) => {
         status,
       },
       { new: true }
-    ).select("-password");
+    ).select("-password -twoFA.secret");
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {
     res.status(400).json({ msg: "Something went wrong!!!" });
@@ -253,6 +234,7 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { is2FAEnabled } = req.body;
+    console.log(is2FAEnabled);
     if (is2FAEnabled) {
       const uniqueSecret = generateUniqueSecret();
       const updatedUser = await User.findByIdAndUpdate(
@@ -294,7 +276,7 @@ exports.postVerify2FA = async (req, res, next) => {
   try {
     const { otpToken } = req.body;
     const { userId } = req.params;
-    const user = await User.findById(userId).select("-password");
+    const user = await User.findById(userId).select("-password -twoFA.secret");
     const isValid = verifyOTPToken(otpToken, user.twoFA.secret);
     if (!isValid) {
       res.status(200).json({
@@ -306,7 +288,7 @@ exports.postVerify2FA = async (req, res, next) => {
         userId,
         { status: true },
         { new: true }
-      ).select("-password");
+      ).select("-password -twoFA.secret");
       req.session.isLogin = true;
       req.session.userId = user._id;
       req.session.save();
