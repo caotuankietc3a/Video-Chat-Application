@@ -197,8 +197,8 @@ export const MessageWrapper = styled.div`
       padding: 0 5px;
       max-width: 100%;
       & img {
-        width: 68px;
-        height: 68px;
+        width: 118px;
+        height: 108px;
         border-radius: 10px;
         object-fit: cover;
       }

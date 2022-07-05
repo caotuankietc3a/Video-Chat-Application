@@ -18,7 +18,6 @@ import Notification from "../Notification/Notification";
 import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
-import { errorActions } from "../../store/slices/error-slice";
 import { closeNotification } from "../../store/actions/error-function";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");

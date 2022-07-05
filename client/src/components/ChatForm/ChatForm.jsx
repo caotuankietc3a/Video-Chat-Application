@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
+import SearchBox from "./SearchBox/SearchBox";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +25,8 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const attachmentsRef = useRef(null);
   const [isFetching, setIsFetching] = useState(true);
   const [messages, setMessages] = useState([]);
+  const [searchMessage, setSearchMessage] = useState("");
+  const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   useEffect(() => {
@@ -211,14 +214,30 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     });
   };
 
+  const toggleShowSearchBox = () => {
+    setShowSearchBox(!showSearchBox);
+  };
+
+  const searchMessageHandler = (e) => {
+    setSearchMessage(e.target.value);
+  };
+
   return (
-    <ChatFormContainer>
-      <Header conversation={conversation} onClickVideoCall={clickVideoCall} />
+    <ChatFormContainer showSearchBox={showSearchBox}>
+      <Header
+        conversation={conversation}
+        onClickVideoCall={clickVideoCall}
+        toggleShowSearchBox={toggleShowSearchBox}
+      />
+      {showSearchBox && (
+        <SearchBox searchMessageHandler={searchMessageHandler} />
+      )}
       {isFetching ? (
         <TikTokSpinner />
       ) : (
         <BodyBar
           messages={messages}
+          searchMessage={searchMessage}
           isGroup={conversation.no_mems ? true : false}
         />
       )}

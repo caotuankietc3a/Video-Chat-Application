@@ -10,7 +10,7 @@ import { LiTag } from "../../NavBarContact/StyledNavBarContact";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 import { BsTelephone, BsSearch } from "react-icons/bs";
 
-const Header = ({ conversation, onClickVideoCall }) => {
+const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
@@ -29,17 +29,17 @@ const Header = ({ conversation, onClickVideoCall }) => {
         </Media>
       </ChatHeaderAvatar>
       <UlChatHeaderOptions>
-        <a href="">
+        <a href="#" onClick={toggleShowSearchBox}>
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BsSearch />
           </LiTag>
         </a>
-        <a href="" onClick={onClickVideoCall}>
+        <a href="#" onClick={onClickVideoCall}>
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BsTelephone />
           </LiTag>
         </a>
-        <a href="">
+        <a href="#">
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BiDotsVerticalRounded />
           </LiTag>

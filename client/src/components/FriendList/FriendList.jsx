@@ -134,6 +134,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
       )
     );
   };
+  console.log(createGroup);
 
   return (
     <Container>

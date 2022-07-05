@@ -58,7 +58,6 @@ const Message = ({
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
   };
-  console.log(sender);
   const deleteMessageHandler = (id) => {
     Swal.fire({
       title: "Are you sure?",
