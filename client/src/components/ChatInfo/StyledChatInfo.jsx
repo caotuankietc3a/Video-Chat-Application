@@ -1,10 +1,17 @@
 import styled from "styled-components";
 export const Container = styled.div`
-  min-width: 26.875rem;
   width: 26.875rem;
   border-left: 1px solid #2b2b2f;
+  z-index: 100;
   background: #383f44;
   height: 100%;
+
+  /* @media screen and (max-width: 1200px) { */
+  /*   position: fixed; */
+  /*   right: 0; */
+  /*   top: 0; */
+  /*   height: 90%; */
+  /* } */
 `;
 export const Content = styled.div`
   display: flex;
@@ -206,12 +213,23 @@ export const BodyGroup = styled.div`
   }
 
   & .bodygroup-collapse {
-    padding: 1.25rem;
+    padding: ${({ about, image, attach, member }) =>
+        about || image || attach || member ? "1.25rem" : "0"}
+      1.25rem;
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     flex-direction: column;
+    overflow: hidden;
     width: 100%;
+    transition: all 0.5s ease-in-out;
+    height: ${({ about, image, attach, member }) =>
+      about || image || attach || member ? "300px" : "0"};
+    overflow: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     h5,
     p {
       margin: 0;
@@ -221,7 +239,6 @@ export const BodyGroup = styled.div`
       color: #e1e9f1;
       font-size: 18px;
       font-weight: 600;
-      /* line-height: 1.2; */
       margin-bottom: 0.75rem;
     }
     h5.location {

@@ -1,10 +1,8 @@
 import styled from "styled-components";
 export const ChatFooter = styled.form`
   display: flex;
-  position: fixed;
-  bottom: 0;
+  width: 100%;
   z-index: 10;
-  width: calc(100% - 69px - 419px);
   height: 5rem;
   padding: 0.75rem 1.25rem;
   background-color: #323333;
@@ -33,6 +31,8 @@ export const ChatFooter = styled.form`
 
   @media screen and (max-width: 1200px) {
     width: 100%;
+    position: fixed;
+    bottom: 0;
   }
 `;
 

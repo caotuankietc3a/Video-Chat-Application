@@ -23,8 +23,19 @@ import {
   BsCardImage,
 } from "react-icons/bs";
 import { CgAttachment } from "react-icons/cg";
+import { useState } from "react";
 
 const ChatInfo = () => {
+  const [about, setAbout] = useState(false);
+  const [image, setImage] = useState(false);
+  const [attach, setAttach] = useState(false);
+  const [member, setMember] = useState(false);
+  const closeAllStates = () => {
+    setAttach(false);
+    setAbout(false);
+    setImage(false);
+    setMember(false);
+  };
   return (
     <Container>
       <Content>
@@ -60,8 +71,14 @@ const ChatInfo = () => {
           </BodyDetail>
 
           <BodyGroupContainer>
-            <BodyGroup>
-              <div className="bodygroup-card">
+            <BodyGroup about={about}>
+              <div
+                className="bodygroup-card"
+                onClick={() => {
+                  closeAllStates();
+                  setAbout(!about);
+                }}
+              >
                 <div className="text-muted">
                   <FaUserAlt />
                   <span>About</span>
@@ -91,8 +108,14 @@ const ChatInfo = () => {
               </div>
             </BodyGroup>
 
-            <BodyGroup>
-              <div className="bodygroup-card">
+            <BodyGroup image={image}>
+              <div
+                className="bodygroup-card"
+                onClick={() => {
+                  closeAllStates();
+                  setImage(!image);
+                }}
+              >
                 <div className="text-muted">
                   <BsImages />
                   <span>Images</span>
@@ -123,8 +146,14 @@ const ChatInfo = () => {
               </div>
             </BodyGroup>
 
-            <BodyGroup>
-              <div className="bodygroup-card">
+            <BodyGroup attach={attach}>
+              <div
+                className="bodygroup-card"
+                onClick={() => {
+                  closeAllStates();
+                  setAttach(!attach);
+                }}
+              >
                 <div className="text-muted">
                   <CgAttachment />
                   <span>Attached Files</span>
@@ -155,8 +184,14 @@ const ChatInfo = () => {
               </div>
             </BodyGroup>
 
-            <BodyGroup>
-              <div className="bodygroup-card">
+            <BodyGroup member={member}>
+              <div
+                className="bodygroup-card"
+                onClick={() => {
+                  closeAllStates();
+                  setMember(!member);
+                }}
+              >
                 <div className="text-muted">
                   <FiUsers />
                   <span>Members</span>
@@ -167,6 +202,36 @@ const ChatInfo = () => {
                 </div>
               </div>
               <div className="bodygroup-collapse">
+                <div class="group-member">
+                  <div className="avatar">
+                    <img src="/images/user-img.jpg" alt="" />
+                  </div>
+                  <div className="member-name">
+                    <h5>
+                      Sara Muller<span>Admin</span>
+                    </h5>
+                  </div>
+                </div>
+                <div class="group-member">
+                  <div className="avatar">
+                    <img src="/images/user-img.jpg" alt="" />
+                  </div>
+                  <div className="member-name">
+                    <h5>
+                      Sara Muller<span>Admin</span>
+                    </h5>
+                  </div>
+                </div>
+                <div class="group-member">
+                  <div className="avatar">
+                    <img src="/images/user-img.jpg" alt="" />
+                  </div>
+                  <div className="member-name">
+                    <h5>
+                      Sara Muller<span>Admin</span>
+                    </h5>
+                  </div>
+                </div>
                 <div class="group-member">
                   <div className="avatar">
                     <img src="/images/user-img.jpg" alt="" />
