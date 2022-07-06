@@ -19,4 +19,8 @@ export const ChatBodyContainer = styled.div`
   height: 100%;
   width: 100%;
   background-color: #323232;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21.875rem;
 `;

@@ -43,4 +43,60 @@ export const UlChatHeaderOptions = styled(UlBarHeader)`
   & a svg:hover {
     color: #5d646b;
   }
+  & a {
+    position: relative;
+  }
+`;
+
+export const DropDownMenu = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 14px;
+  margin: 0;
+  width: 13rem;
+  transform: translate(0px, 22.2222px);
+  background-color: #2b2b2b;
+  padding: 0.5rem 0;
+  min-width: 10rem;
+  text-align: left;
+  list-style: none;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  display: block;
+  z-index: 100;
+  &:hover {
+    & a svg {
+      color: #5d646b;
+    }
+  }
+  & a:last-child {
+    svg {
+      color: #ff337c;
+    }
+    span {
+      color: #ff337c;
+    }
+  }
+`;
+
+export const DropDownItem = styled.a`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 1.25rem;
+  font-weight: 400;
+  font-size: 1rem;
+  color: rgba(197, 201, 223, 0.8);
+  white-space: nowrap;
+  border: 0;
+  background-color: transparent;
+  cursor: pointer;
+  &:hover {
+    background-color: #383f44;
+  }
+  svg {
+    margin-right: 0.75rem;
+    height: 1.05rem;
+    width: 1.05rem;
+  }
 `;

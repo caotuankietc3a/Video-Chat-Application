@@ -4,6 +4,7 @@ import Header from "./Header/Header";
 import Input from "./Input/Input";
 import BodyBar from "./BodyBar/BodyBar";
 import SearchBox from "./SearchBox/SearchBox";
+import ChatInfo from "../ChatInfo/ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
 import { useNavigate } from "react-router-dom";
@@ -223,36 +224,39 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   };
 
   return (
-    <ChatFormContainer showSearchBox={showSearchBox}>
-      <Header
-        conversation={conversation}
-        onClickVideoCall={clickVideoCall}
-        toggleShowSearchBox={toggleShowSearchBox}
-      />
-      {showSearchBox && (
-        <SearchBox searchMessageHandler={searchMessageHandler} />
-      )}
-      {isFetching ? (
-        <TikTokSpinner />
-      ) : (
-        <BodyBar
-          messages={messages}
-          searchMessage={searchMessage}
-          isGroup={conversation.no_mems ? true : false}
+    <>
+      <ChatFormContainer showSearchBox={showSearchBox}>
+        <Header
+          conversation={conversation}
+          onClickVideoCall={clickVideoCall}
+          toggleShowSearchBox={toggleShowSearchBox}
         />
-      )}
-      <Input
-        clickHandler={onClickHandler}
-        imagesRef={imagesRef}
-        attachmentsRef={attachmentsRef}
-        multipleImagesHandler={multipleImagesHandler}
-        multipleAttachmentsHandler={multipleAttachmentsHandler}
-        images={images}
-        removeImageInBuffers={removeImageInBuffers}
-        removeAttachmentInBuffers={removeAttachmentInBuffers}
-        attachments={attachments}
-      />
-    </ChatFormContainer>
+        {showSearchBox && (
+          <SearchBox searchMessageHandler={searchMessageHandler} />
+        )}
+        {isFetching ? (
+          <TikTokSpinner />
+        ) : (
+          <BodyBar
+            messages={messages}
+            searchMessage={searchMessage}
+            isGroup={conversation.no_mems ? true : false}
+          />
+        )}
+        <Input
+          clickHandler={onClickHandler}
+          imagesRef={imagesRef}
+          attachmentsRef={attachmentsRef}
+          multipleImagesHandler={multipleImagesHandler}
+          multipleAttachmentsHandler={multipleAttachmentsHandler}
+          images={images}
+          removeImageInBuffers={removeImageInBuffers}
+          removeAttachmentInBuffers={removeAttachmentInBuffers}
+          attachments={attachments}
+        />
+      </ChatFormContainer>
+      <ChatInfo></ChatInfo>
+    </>
   );
 };
 

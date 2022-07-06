@@ -1,16 +1,33 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { AvatarUser } from "../../ChatRoom/ChatContact/StyledContacts";
 import {
   ChatHeader,
   ChatHeaderAvatar,
   Media,
   UlChatHeaderOptions,
+  DropDownItem,
+  DropDownMenu,
 } from "./StyledHeader";
 import { LiTag } from "../../NavBarContact/StyledNavBarContact";
-import { BiDotsVerticalRounded } from "react-icons/bi";
-import { BsTelephone, BsSearch } from "react-icons/bs";
+import { BiBlock, BiDotsVerticalRounded } from "react-icons/bi";
+import { BsTelephone, BsSearch, BsInfoCircle, BsArchive } from "react-icons/bs";
+
+import { RiDeleteBinLine } from "react-icons/ri";
+import { VscMute } from "react-icons/vsc";
+import { MdOutlineWallpaper } from "react-icons/md";
+import { showMenuHandler } from "../../../store/actions/common-function";
 
 const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuShowHandler = (e) => {
+    setShowMenu(!showMenu);
+  };
+
+  useEffect(() => {
+    showMenuHandler(() => {
+      setShowMenu(false);
+    }, showMenu);
+  }, [showMenu]);
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
@@ -28,7 +45,11 @@ const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
           </small>
         </Media>
       </ChatHeaderAvatar>
-      <UlChatHeaderOptions>
+      <UlChatHeaderOptions
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <a href="#" onClick={toggleShowSearchBox}>
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BsSearch />
@@ -39,10 +60,49 @@ const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
             <BsTelephone />
           </LiTag>
         </a>
-        <a href="#">
+        <a href="#" onClick={menuShowHandler}>
           <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
             <BiDotsVerticalRounded />
           </LiTag>
+
+          {showMenu && (
+            <DropDownMenu>
+              <DropDownItem onClick={toggleShowSearchBox}>
+                <BsSearch />
+                <span>Search</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <BsInfoCircle />
+                <span>View Info</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <VscMute />
+                <span>Mute Notifications</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <MdOutlineWallpaper />
+                <span>Wallpaper</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <BsArchive />
+                <span>Archive</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <BiBlock />
+                <span>Block</span>
+              </DropDownItem>
+
+              <DropDownItem>
+                <RiDeleteBinLine />
+                <span>Delete</span>
+              </DropDownItem>
+            </DropDownMenu>
+          )}
         </a>
       </UlChatHeaderOptions>
     </ChatHeader>

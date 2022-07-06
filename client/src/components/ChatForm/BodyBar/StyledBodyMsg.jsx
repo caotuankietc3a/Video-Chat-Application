@@ -26,6 +26,11 @@ export const MessagesBodyContent = styled.div`
   flex-direction: column;
   height: 100%;
   max-height: 60vh;
+
+  mark {
+    color: black;
+  }
+
   & > div {
     &::-webkit-scrollbar {
       display: none;

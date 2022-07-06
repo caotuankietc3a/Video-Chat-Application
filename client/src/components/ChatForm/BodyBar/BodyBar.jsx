@@ -1,13 +1,22 @@
-import React from "react";
-import {} from "react-router-dom";
+import React, { useEffect } from "react";
 import Message from "./Message";
 import { MessagesBodyContainer, MessagesBodyContent } from "./StyledBodyMsg";
+import Mark from "mark.js";
 import { useSelector } from "react-redux";
 import { formatDate } from "../../../store/actions/common-function";
 
 const BodyBar = ({ messages, isGroup = false, searchMessage }) => {
+  useEffect(() => {
+    const instance = new Mark(document.getElementById("messages-container"));
+    instance.unmark({
+      done: () => {
+        instance.mark(searchMessage);
+      },
+    });
+  }, [searchMessage]);
+
   const userState = useSelector((state) => state.user);
-  const bodyMessagesDisplay = (messages, formatDate) => {
+  const bodyMessagesDisplay = (messages, formatDate, searchMessage) => {
     return messages
       .filter((mes) => {
         const images = mes.files.images;
@@ -71,8 +80,8 @@ const BodyBar = ({ messages, isGroup = false, searchMessage }) => {
   };
   return (
     <MessagesBodyContainer>
-      <MessagesBodyContent>
-        {bodyMessagesDisplay(messages, formatDate)}
+      <MessagesBodyContent id="messages-container">
+        {bodyMessagesDisplay(messages, formatDate, searchMessage)}
       </MessagesBodyContent>
     </MessagesBodyContainer>
   );
