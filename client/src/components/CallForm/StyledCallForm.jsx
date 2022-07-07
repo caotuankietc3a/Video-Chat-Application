@@ -7,6 +7,7 @@ export const CallFormContainer = styled.main`
   align-items: center;
   padding: 1.5rem;
   background-color: #323232;
+  width: 100%;
 `;
 
 export const CallFormContent = styled.div`
@@ -15,7 +16,6 @@ export const CallFormContent = styled.div`
   padding: 0 15px;
   margin: 0 auto;
   max-width: 1320px;
-  // max-height: 55rem;
   // important
   max-height: 90vh;
   overflow-y: scroll;

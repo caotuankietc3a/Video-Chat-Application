@@ -25,10 +25,13 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const imagesRef = useRef(null);
   const attachmentsRef = useRef(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [closeChatInfo, setCloseChatInfo] = useState(false);
   const [messages, setMessages] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(messages);
+  console.log(conversation);
 
   useEffect(() => {
     let timer = 0;
@@ -163,7 +166,11 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
       reader.onload = () => {
         setImages((preImgs) => [
           ...preImgs,
-          { url: reader.result, name: file.name },
+          {
+            url: reader.result,
+            name: file.name,
+            size: (file.size / 1024).toFixed(2),
+          },
         ]);
       };
       reader.readAsDataURL(file);
@@ -223,6 +230,10 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
     setSearchMessage(e.target.value);
   };
 
+  const toggleCloseChatInfo = () => {
+    setCloseChatInfo(!closeChatInfo);
+  };
+
   return (
     <>
       <ChatFormContainer showSearchBox={showSearchBox}>
@@ -230,6 +241,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           conversation={conversation}
           onClickVideoCall={clickVideoCall}
           toggleShowSearchBox={toggleShowSearchBox}
+          toggleCloseChatInfo={toggleCloseChatInfo}
         />
         {showSearchBox && (
           <SearchBox searchMessageHandler={searchMessageHandler} />
@@ -255,7 +267,12 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           attachments={attachments}
         />
       </ChatFormContainer>
-      <ChatInfo></ChatInfo>
+      <ChatInfo
+        toggleCloseChatInfo={toggleCloseChatInfo}
+        closeChatInfo={closeChatInfo}
+        messages={messages}
+        conversation={conversation}
+      ></ChatInfo>
     </>
   );
 };

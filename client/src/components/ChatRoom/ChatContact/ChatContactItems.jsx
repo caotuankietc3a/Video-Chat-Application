@@ -64,6 +64,7 @@ const ChatContactItems = ({
         ? "call"
         : "conversation"
       : "friend";
+
   const clickHandler = async () => {
     try {
       if (type === "Chats") {
@@ -82,6 +83,9 @@ const ChatContactItems = ({
                 _id: conversation._id,
                 members: conversation.members,
                 name: member.fullname,
+                address: member.address,
+                email: member.email,
+                time: formatDate(new Date(Date.now())),
                 profilePhoto: member.profilePhoto.url,
                 status: member.status,
               },

@@ -65,21 +65,18 @@ export const DropDownMenu = styled.div`
   display: block;
   z-index: 100;
   &:hover {
-    & a svg {
+    & div svg {
       color: #5d646b;
     }
   }
-  & a:last-child {
-    svg {
-      color: #ff337c;
-    }
+  & div:last-child {
     span {
       color: #ff337c;
     }
   }
 `;
 
-export const DropDownItem = styled.a`
+export const DropDownItem = styled.div`
   width: 100%;
   display: flex;
   align-items: center;

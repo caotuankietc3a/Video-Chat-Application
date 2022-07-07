@@ -111,9 +111,8 @@ exports.postRegister = async (req, res, next) => {
 exports.getSession = async (req, res, next) => {
   try {
     const { isLogin, userId } = req.session;
-    console.log(userId);
+    console.log(req.session);
     const { type } = req.query;
-    console.log(type);
     const status = parseInt(type) ? true : isLogin ? true : false;
     const user = await User.findByIdAndUpdate(
       userId,
@@ -277,7 +276,7 @@ exports.postVerify2FA = async (req, res, next) => {
   try {
     const { otpToken } = req.body;
     const { userId } = req.params;
-    const user = await User.findById(userId).select("-password -twoFA.secret");
+    const user = await User.findById(userId).select("-password");
     const isValid = verifyOTPToken(otpToken, user.twoFA.secret);
     if (!isValid) {
       res.status(200).json({

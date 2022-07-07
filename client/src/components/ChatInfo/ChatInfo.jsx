@@ -21,28 +21,84 @@ import {
   BsThreeDots,
   BsFillFileEarmarkTextFill,
   BsCardImage,
+  BsChevronDown,
 } from "react-icons/bs";
 import { CgAttachment } from "react-icons/cg";
 import { useState } from "react";
 
-const ChatInfo = () => {
+const ChatInfo = ({
+  toggleCloseChatInfo,
+  closeChatInfo,
+  messages,
+  conversation,
+}) => {
+  console.log("ChatInfo is running!!!");
   const [about, setAbout] = useState(false);
   const [image, setImage] = useState(false);
   const [attach, setAttach] = useState(false);
   const [member, setMember] = useState(false);
+
+  console.log(messages);
   const closeAllStates = () => {
     setAttach(false);
     setAbout(false);
     setImage(false);
     setMember(false);
   };
+  const filterFilesHandler = (files, type = "images") => {
+    return files.map((file, i) => {
+      return (
+        <div className="bodygroup-collapse-content" key={i}>
+          <div className="file-icon">
+            {type === "images" ? (
+              <BsCardImage />
+            ) : (
+              <BsFillFileEarmarkTextFill />
+            )}
+          </div>
+          <div className="file-body">
+            <h5>{file.name}</h5>
+            <p>{`${file.size}Mb`}</p>
+          </div>
+          <div className="file-btn">
+            <div className="download">
+              <a href={file.url} target="_blank">
+                <BsDownload />
+              </a>
+            </div>
+            <div className="drop-down">
+              <BsThreeDots />
+            </div>
+          </div>
+        </div>
+      );
+    });
+  };
+  const filterMembersHandler = (members) => {
+    return members.map((mem, i) => {
+      return (
+        <div className="group-member" key={i}>
+          <div className="avatar">
+            <img src={mem.profilePhoto.url} alt="Member" />
+          </div>
+          <div className="member-name">
+            <h5>
+              {mem.fullname}
+              {mem.isAdmin && <span>Admin</span>}
+            </h5>
+          </div>
+        </div>
+      );
+    });
+  };
+
   return (
-    <Container>
+    <Container closeChatInfo={closeChatInfo}>
       <Content>
         <Header>
           <div className="header-content">
             <h5 className="text-muted">Profile Details</h5>
-            <div className="btn-close">
+            <div className="btn-close" onClick={toggleCloseChatInfo}>
               <AiOutlineClose />
             </div>
           </div>
@@ -50,12 +106,12 @@ const ChatInfo = () => {
         <Body>
           <BodyDetail>
             <div className="avatar">
-              <img src="/images/user-img.jpg" alt="" />
+              <img src={conversation.profilePhoto} alt="User" />
             </div>
-            <h5>Catherine Richardson</h5>
+            <h5>{conversation.name}</h5>
             <div className="address-participant">
               <AiOutlineStar />
-              <span>San Fransisco, CA</span>
+              <span>{conversation.address}</span>
             </div>
             <BodyDetailIcons>
               <div className="icon icon-add-friend">
@@ -71,7 +127,7 @@ const ChatInfo = () => {
           </BodyDetail>
 
           <BodyGroupContainer>
-            <BodyGroup about={about}>
+            <BodyGroup isAbout={about}>
               <div
                 className="bodygroup-card"
                 onClick={() => {
@@ -84,26 +140,25 @@ const ChatInfo = () => {
                   <span>About</span>
                 </div>
                 <div className="plus-icon">
-                  <BsChevronRight />
-                  {/* <BsChevronUp /> */}
+                  {!about ? <BsChevronRight /> : <BsChevronDown />}
                 </div>
               </div>
               <div className="bodygroup-collapse">
                 <div>
                   <p className="text-muted">Name</p>
-                  <h5>CaoTuanKiet</h5>
+                  <h5>{conversation.name}</h5>
                 </div>
                 <div>
                   <p className="text-muted">Email</p>
-                  <h5>caotuankietc3a@gmail.com</h5>
+                  <h5>{conversation.email}</h5>
                 </div>
                 <div>
                   <p className="text-muted">Time</p>
-                  <h5>11:40am</h5>
+                  <h5>{conversation.time}</h5>
                 </div>
                 <div>
                   <p className="text-muted">Location</p>
-                  <h5 className="location">No Trang Long</h5>
+                  <h5 className="location">{conversation.address}</h5>
                 </div>
               </div>
             </BodyGroup>
@@ -121,28 +176,13 @@ const ChatInfo = () => {
                   <span>Images</span>
                 </div>
                 <div className="plus-icon">
-                  <BsChevronRight />
-                  {/* <BsChevronUp /> */}
+                  {!image ? <BsChevronRight /> : <BsChevronDown />}
                 </div>
               </div>
               <div className="bodygroup-collapse">
-                <div className="bodygroup-collapse-content">
-                  <div className="file-icon">
-                    <BsCardImage />
-                  </div>
-                  <div className="file-body">
-                    <h5>Admin.zip</h5>
-                    <p>12.5mb</p>
-                  </div>
-                  <div className="file-btn">
-                    <div className="download">
-                      <BsDownload />
-                    </div>
-                    <div className="drop-down">
-                      <BsThreeDots />
-                    </div>
-                  </div>
-                </div>
+                {messages.map((mes) => {
+                  return filterFilesHandler(mes.files.images, "images");
+                })}
               </div>
             </BodyGroup>
 
@@ -159,28 +199,16 @@ const ChatInfo = () => {
                   <span>Attached Files</span>
                 </div>
                 <div className="plus-icon">
-                  <BsChevronRight />
-                  {/* <BsChevronDown /> */}
+                  {!attach ? <BsChevronRight /> : <BsChevronDown />}
                 </div>
               </div>
               <div className="bodygroup-collapse">
-                <div className="bodygroup-collapse-content">
-                  <div className="file-icon">
-                    <BsFillFileEarmarkTextFill />
-                  </div>
-                  <div className="file-body">
-                    <h5>Admin.zip</h5>
-                    <p>12.5mb</p>
-                  </div>
-                  <div className="file-btn">
-                    <div className="download">
-                      <BsDownload />
-                    </div>
-                    <div className="drop-down">
-                      <BsThreeDots />
-                    </div>
-                  </div>
-                </div>
+                {messages.map((mes) => {
+                  return filterFilesHandler(
+                    mes.files.attachments,
+                    "attachments"
+                  );
+                })}
               </div>
             </BodyGroup>
 
@@ -197,81 +225,81 @@ const ChatInfo = () => {
                   <span>Members</span>
                 </div>
                 <div className="plus-icon">
-                  <BsChevronRight />
-                  {/* <BsChevronDown /> */}
+                  {!member ? <BsChevronRight /> : <BsChevronDown />}
                 </div>
               </div>
               <div className="bodygroup-collapse">
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
-                <div class="group-member">
-                  <div className="avatar">
-                    <img src="/images/user-img.jpg" alt="" />
-                  </div>
-                  <div className="member-name">
-                    <h5>
-                      Sara Muller<span>Admin</span>
-                    </h5>
-                  </div>
-                </div>
+                {filterMembersHandler(conversation.members)}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
+                {/* <div className="group-member"> */}
+                {/*   <div className="avatar"> */}
+                {/*     <img src="/images/user-img.jpg" alt="" /> */}
+                {/*   </div> */}
+                {/*   <div className="member-name"> */}
+                {/*     <h5> */}
+                {/*       Sara Muller<span>Admin</span> */}
+                {/*     </h5> */}
+                {/*   </div> */}
+                {/* </div> */}
               </div>
             </BodyGroup>
           </BodyGroupContainer>

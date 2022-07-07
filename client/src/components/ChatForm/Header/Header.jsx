@@ -17,7 +17,12 @@ import { VscMute } from "react-icons/vsc";
 import { MdOutlineWallpaper } from "react-icons/md";
 import { showMenuHandler } from "../../../store/actions/common-function";
 
-const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
+const Header = ({
+  conversation,
+  onClickVideoCall,
+  toggleShowSearchBox,
+  toggleCloseChatInfo,
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
@@ -72,7 +77,7 @@ const Header = ({ conversation, onClickVideoCall, toggleShowSearchBox }) => {
                 <span>Search</span>
               </DropDownItem>
 
-              <DropDownItem>
+              <DropDownItem onClick={toggleCloseChatInfo}>
                 <BsInfoCircle />
                 <span>View Info</span>
               </DropDownItem>

@@ -6,6 +6,7 @@ export const FriendFormContainer = styled.main`
   justify-content: center;
   align-items: center;
   padding: 1.5rem;
+  width: 100%;
   background-color: #323232;
 `;
 

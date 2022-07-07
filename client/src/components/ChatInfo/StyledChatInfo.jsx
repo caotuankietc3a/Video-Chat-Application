@@ -1,17 +1,24 @@
 import styled from "styled-components";
 export const Container = styled.div`
-  width: 26.875rem;
+  width: ${({ closeChatInfo }) => (closeChatInfo ? "27rem" : "0")};
   border-left: 1px solid #2b2b2f;
   z-index: 100;
   background: #383f44;
   height: 100%;
+  transition: width 0.2s ease-in-out;
+  overflow: hidden;
 
-  /* @media screen and (max-width: 1200px) { */
-  /*   position: fixed; */
-  /*   right: 0; */
-  /*   top: 0; */
-  /*   height: 90%; */
-  /* } */
+  @media screen and (max-width: 1200px) {
+    overflow: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: ${({ closeChatInfo }) => (closeChatInfo ? "100%" : "0")};
+  }
 `;
 export const Content = styled.div`
   display: flex;
@@ -213,8 +220,8 @@ export const BodyGroup = styled.div`
   }
 
   & .bodygroup-collapse {
-    padding: ${({ about, image, attach, member }) =>
-        about || image || attach || member ? "1.25rem" : "0"}
+    padding: ${({ isAbout, image, attach, member }) =>
+        isAbout || image || attach || member ? "1.25rem" : "0"}
       1.25rem;
     display: flex;
     align-items: flex-start;
@@ -223,8 +230,8 @@ export const BodyGroup = styled.div`
     overflow: hidden;
     width: 100%;
     transition: all 0.5s ease-in-out;
-    height: ${({ about, image, attach, member }) =>
-      about || image || attach || member ? "300px" : "0"};
+    height: ${({ isAbout, image, attach, member }) =>
+      isAbout || image || attach || member ? "300px" : "0"};
     overflow: scroll;
     &::-webkit-scrollbar {
       display: none;
@@ -339,7 +346,7 @@ export const BodyGroup = styled.div`
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 1rem;
+        margin-right: 0.5rem;
         img {
           border-radius: 50%;
           width: 2.2rem;

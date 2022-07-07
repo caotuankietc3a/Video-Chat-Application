@@ -19,7 +19,6 @@ import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
 import { closeNotification } from "../../store/actions/error-function";
-import ChatInfo from "../ChatInfo/ChatInfo";
 const ChatRoom = (props) => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
@@ -32,6 +31,7 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
+  console.log(createGroup);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );
@@ -202,7 +202,7 @@ const ChatRoom = (props) => {
               <ChatContact
                 header="Calls"
                 isClickedHandler={isClickedHandler}
-                createGroup={createGroup}
+                createGroupHandler={createGroupHandler}
               />
             }
           ></Route>
