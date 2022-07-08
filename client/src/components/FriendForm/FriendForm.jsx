@@ -41,8 +41,6 @@ const FriendForm = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
-  const { conversation } = useSelector((state) => state.conversation);
-  console.log(facebook);
   const [isFetching, setIsFetching] = useState(true);
 
   const clickChatHandler = () => {

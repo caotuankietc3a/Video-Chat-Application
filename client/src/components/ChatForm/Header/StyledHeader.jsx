@@ -11,6 +11,7 @@ export const ChatHeader = styled.header`
   padding: 0.75rem 2.25rem;
   background-color: #323333;
   height: 5rem;
+  z-index: 100;
 `;
 
 export const ChatHeaderAvatar = styled.header`

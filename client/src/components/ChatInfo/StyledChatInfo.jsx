@@ -75,6 +75,13 @@ export const Body = styled.div`
   align-items: center;
   justify-content: flex-start;
   flex-direction: column;
+
+  @media screen and (max-width: 3200px) and (min-width: 1200px) {
+    overflow: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 export const BodyDetail = styled.div`
   padding: 1.5rem;
@@ -178,7 +185,7 @@ export const BodyGroupContainer = styled.div`
   height: 100%;
   width: 100%;
   background-color: #2a2a2a;
-  max-height: 350px;
+  max-height: auto;
   overflow-y: scroll;
 
   &::-webkit-scrollbar {
@@ -227,7 +234,6 @@ export const BodyGroup = styled.div`
     align-items: flex-start;
     justify-content: flex-start;
     flex-direction: column;
-    overflow: hidden;
     width: 100%;
     transition: all 0.5s ease-in-out;
     height: ${({ isAbout, image, attach, member }) =>

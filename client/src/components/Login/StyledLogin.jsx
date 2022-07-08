@@ -27,6 +27,7 @@ export const LoginBox = styled.div`
   height: ${(props) => {
     if (props.type === "Login") return "520px";
     else if (props.type === "Register") return "690px";
+    else if (props.type === "Change password") return "490px";
     else return "430px";
   }};
   border-radius: 20px;

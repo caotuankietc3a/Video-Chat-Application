@@ -16,7 +16,7 @@ export const MainLayOut = styled.div`
   }
 `;
 export const ChatBodyContainer = styled.div`
-  height: 100%;
+  height: 100vh;
   width: 100%;
   background-color: #323232;
   display: flex;

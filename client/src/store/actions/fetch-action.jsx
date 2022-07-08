@@ -28,25 +28,47 @@ export const fetchSession = async (type) => {
 export const fetchUserLogin = (navigate, type = 0) => {
   return async (dispatch, getState) => {
     try {
+      if (type) dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       const { socket_notify, socket_video } = getState().socket;
 
-      const { user, isLogin } = await fetchSession(type);
+      const { user, isLogin, status, msg } = await fetchSession(type);
       if (!type) {
+        if (!user) {
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+          return navigate("/");
+        }
         if (isLogin) {
-          setTimeout(() => {
-            navigate("/home-chat");
-          }, 500);
           socket_video.emit("join-video", { userId: user._id });
           socket_notify.emit("log-in");
+          dispatch(
+            userLoginActions.setUserLogin({
+              user: user,
+              isFetching: false,
+              error: null,
+            })
+          );
+          navigate("/home-chat");
+        } else {
+          dispatch(
+            userLoginActions.setUserLogin({
+              user: null,
+              isFetching: false,
+              error: null,
+            })
+          );
         }
-        return dispatch(
-          userLoginActions.setUserLogin({
-            user: isLogin ? user : null,
-            isFetching: isLogin ? true : false,
-            error: null,
-          })
-        );
       } else {
+        if (status === "error") {
+          return Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            html: msg,
+            showConfirmButton: "Ok",
+            allowOutsideClick: false,
+          }).then(() => {
+            navigate("/");
+          });
+        }
         socket_video.emit("join-video", { userId: user._id });
         socket_notify.emit("log-in");
         dispatch(
@@ -66,8 +88,8 @@ export const fetchUserLogin = (navigate, type = 0) => {
 export const authOtherLoginHandler = (navigate, provider, type = "google") => {
   return async (dispatch, getState) => {
     try {
+      dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       const { user } = await signInWithPopup(auth, provider);
-      console.log(user);
       const { socket_notify } = getState().socket;
       const email =
         type === "google"
@@ -77,7 +99,6 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
           : type === "github"
           ? user.reloadUserInfo.screenName + "@gmail.com"
           : null;
-      console.log(email);
       const data = await postData(
         {
           fullname: user.displayName,
@@ -91,19 +112,10 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
       );
 
       if (data.status === "success") {
-        setTimeout(() => {
-          socket_notify.emit("log-in");
-          navigate("/home-chat");
-          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-        }, 500);
-
-        dispatch(
-          userLoginActions.setUserLogin({
-            user: data.user,
-            isFetching: true,
-            error: null,
-          })
-        );
+        socket_notify.emit("log-in");
+        dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+        dispatch(userLoginActions.setUser({ user: data.user }));
+        navigate("/home-chat");
       } else if (data.status === "error") {
         Swal.fire({
           icon: "error",
@@ -123,6 +135,8 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
         html: "Unable to login! Please try a gain!!!",
         showConfirmButton: "Continue",
         timer: 3000,
+      }).then(() => {
+        dispatch(userLoginActions.setIsFetching({ isFetching: false }));
       });
     }
   };
@@ -160,7 +174,6 @@ export const fetchFriends = () => {
             _id: el._id,
           };
         });
-        console.log(group_conversations);
 
         return dispatch(
           friendActions.setFriends({
@@ -221,21 +234,10 @@ export const verifyEnable2FA = (navigate, userId) => {
           )
             .then((response) => {
               if (response.status === "valid") {
-                setTimeout(() => {
-                  socket_notify.emit("log-in");
-                  navigate("/home-chat");
-                  dispatch(
-                    userLoginActions.setIsFetching({ isFetching: false })
-                  );
-                }, 500);
-
-                dispatch(
-                  userLoginActions.setUserLogin({
-                    user: response.user,
-                    isFetching: true,
-                    error: null,
-                  })
-                );
+                socket_notify.emit("log-in");
+                dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+                dispatch(userLoginActions.setUser({ user: response.user }));
+                navigate("/home-chat");
               } else if (response.status === "invalid") {
                 return Promise.reject(response.msg);
               }
@@ -244,6 +246,16 @@ export const verifyEnable2FA = (navigate, userId) => {
               Swal.showValidationMessage(`Error: ${error}`);
             });
         },
+      }).then((result) => {
+        if (result.isDismissed) {
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            html: "Unable to login! Please try a gain!!!",
+            showConfirmButton: "Ok",
+          });
+        }
       });
     });
   };

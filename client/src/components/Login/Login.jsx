@@ -12,15 +12,14 @@ import {
   SocialList,
   // FormCheckRegister,
 } from "./StyledLogin";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FaFacebookF, FaGithub, FaGoogle } from "react-icons/fa";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import CircularProgress from "../UI/CircularProgress/CircularProgress";
 import { userLoginActions } from "../../store/slices/user-login-slice";
 import {
   postData,
-  fetchUserLogin,
   authOtherLoginHandler,
   verifyEnable2FA,
 } from "../../store/actions/fetch-action";
@@ -33,11 +32,13 @@ import {
 } from "../../utils/firebase";
 
 const Login = (props) => {
+  console.log("Login is running!!!");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isFetching, error } = useSelector((state) => state.user);
   const { type } = props;
   const [email, setEmail] = useState("");
+  const [searchParams] = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmpassword, setConfirmpassword] = useState("");
   const [fullname, setFullName] = useState("");
@@ -46,11 +47,14 @@ const Login = (props) => {
   let END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER + "/auth";
   if (type === "Login") END_POINT_SERVER += "/login";
   else if (type === "Register") END_POINT_SERVER += "/register";
-  else END_POINT_SERVER += "/reset";
+  else if (type === "Reset password") END_POINT_SERVER += "/reset";
+  else if (type === "Change password")
+    END_POINT_SERVER += `/new-password?token=${searchParams.get("token")}`;
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
+      dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       const data = await postData(
         {
           fullname,
@@ -79,22 +83,38 @@ const Login = (props) => {
         }, 500);
         dispatch(userLoginActions.setIsFetching({ isFetching: true }));
       } else if (data.status === "success") {
-        setTimeout(() => {
-          if (type === "Register") navigate("/auth/login");
-          else if (type === "Login") {
-            socket_notify.emit("log-in");
-            navigate("/home-chat");
-          }
-          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-        }, 500);
+        console.log(type);
+        if (type === "Register" || type === "Login") {
+          setTimeout(() => {
+            if (type === "Register") navigate("/auth/login");
+            else if (type === "Login") {
+              socket_notify.emit("log-in");
+              navigate("/home-chat");
+            }
+            dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+          }, 500);
 
-        dispatch(
-          userLoginActions.setUserLogin({
-            user: data.user,
-            isFetching: true,
-            error: null,
-          })
-        );
+          dispatch(
+            userLoginActions.setUserLogin({
+              user: data.user,
+              isFetching: true,
+              error: null,
+            })
+          );
+        } else if (type === "Reset password" || type === "Change password") {
+          Swal.fire({
+            html: data.msg,
+            showConfirmButton: true,
+            icon: "success",
+            timer: 5000,
+          }).then(() => {
+            if (type === "Change password") navigate("/auth/login");
+            dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+          });
+        }
+        setEmail("");
+        setPassword("");
+        setConfirmpassword("");
       } else if (data.status === "enable2FA") {
         dispatch(verifyEnable2FA(navigate, data.userId));
       }
@@ -106,10 +126,6 @@ const Login = (props) => {
   const isClickedHandle = (e) => {
     setIsClicked(true);
   };
-
-  useEffect(() => {
-    dispatch(fetchUserLogin(navigate));
-  }, []);
 
   return (
     <LoginComponent>
@@ -146,17 +162,22 @@ const Login = (props) => {
                     ></EmailPassInput>
                   </FormGroupLogin>
                 )}
-                <FormGroupLogin>
-                  <EmailPassInput
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={email}
-                    required={true}
-                    onChange={(e) => setEmail(e.target.value)}
-                  ></EmailPassInput>
-                </FormGroupLogin>
-                {(type === "Register" || type === "Login") && (
+                {type !== "Change password" && (
+                  <FormGroupLogin>
+                    <EmailPassInput
+                      type="email"
+                      name="email"
+                      placeholder="Email Address"
+                      value={email}
+                      required={true}
+                      onChange={(e) => setEmail(e.target.value)}
+                    ></EmailPassInput>
+                  </FormGroupLogin>
+                )}
+
+                {(type === "Register" ||
+                  type === "Login" ||
+                  type === "Change password") && (
                   <FormGroupLogin>
                     <EmailPassInput
                       type="password"
@@ -168,7 +189,7 @@ const Login = (props) => {
                     ></EmailPassInput>
                   </FormGroupLogin>
                 )}
-                {type === "Register" && (
+                {(type === "Register" || type === "Change password") && (
                   <FormGroupLogin>
                     <EmailPassInput
                       type="password"
@@ -205,10 +226,7 @@ const Login = (props) => {
                   </ButtonLogin>
 
                   {type === "Login" && (
-                    <Link
-                      to="/auth/forgot-password"
-                      className="forgot-password"
-                    >
+                    <Link to="/auth/reset-password" className="forgot-password">
                       Forgot password?
                     </Link>
                   )}
@@ -220,10 +238,12 @@ const Login = (props) => {
                       <Link to="/auth/register">Register here</Link>
                     </p>
                   ) : (
-                    <p>
-                      Already a member?
-                      <Link to="/auth/login">Login here</Link>
-                    </p>
+                    type !== "Change password" && (
+                      <p>
+                        Already a member?
+                        <Link to="/auth/login">Login here</Link>
+                      </p>
+                    )
                   )}
                 </RegisterAccount>
               </form>

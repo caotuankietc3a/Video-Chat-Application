@@ -37,6 +37,7 @@ const ChatInfo = ({
   const [image, setImage] = useState(false);
   const [attach, setAttach] = useState(false);
   const [member, setMember] = useState(false);
+  console.log(conversation);
 
   console.log(messages);
   const closeAllStates = () => {
@@ -97,7 +98,9 @@ const ChatInfo = ({
       <Content>
         <Header>
           <div className="header-content">
-            <h5 className="text-muted">Profile Details</h5>
+            <h5 className="text-muted">
+              {conversation.no_mems ? "Group Details" : "Profile Details"}
+            </h5>
             <div className="btn-close" onClick={toggleCloseChatInfo}>
               <AiOutlineClose />
             </div>
@@ -111,7 +114,11 @@ const ChatInfo = ({
             <h5>{conversation.name}</h5>
             <div className="address-participant">
               <AiOutlineStar />
-              <span>{conversation.address}</span>
+              <span>
+                {conversation.no_mems
+                  ? `${conversation.no_mems} paticipants`
+                  : conversation.address}
+              </span>
             </div>
             <BodyDetailIcons>
               <div className="icon icon-add-friend">
@@ -212,96 +219,28 @@ const ChatInfo = ({
               </div>
             </BodyGroup>
 
-            <BodyGroup member={member}>
-              <div
-                className="bodygroup-card"
-                onClick={() => {
-                  closeAllStates();
-                  setMember(!member);
-                }}
-              >
-                <div className="text-muted">
-                  <FiUsers />
-                  <span>Members</span>
+            {conversation.no_mems && (
+              <BodyGroup member={member}>
+                <div
+                  className="bodygroup-card"
+                  onClick={() => {
+                    closeAllStates();
+                    setMember(!member);
+                  }}
+                >
+                  <div className="text-muted">
+                    <FiUsers />
+                    <span>Members</span>
+                  </div>
+                  <div className="plus-icon">
+                    {!member ? <BsChevronRight /> : <BsChevronDown />}
+                  </div>
                 </div>
-                <div className="plus-icon">
-                  {!member ? <BsChevronRight /> : <BsChevronDown />}
+                <div className="bodygroup-collapse">
+                  {filterMembersHandler(conversation.members)}
                 </div>
-              </div>
-              <div className="bodygroup-collapse">
-                {filterMembersHandler(conversation.members)}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-                {/* <div className="group-member"> */}
-                {/*   <div className="avatar"> */}
-                {/*     <img src="/images/user-img.jpg" alt="" /> */}
-                {/*   </div> */}
-                {/*   <div className="member-name"> */}
-                {/*     <h5> */}
-                {/*       Sara Muller<span>Admin</span> */}
-                {/*     </h5> */}
-                {/*   </div> */}
-                {/* </div> */}
-              </div>
-            </BodyGroup>
+              </BodyGroup>
+            )}
           </BodyGroupContainer>
         </Body>
       </Content>

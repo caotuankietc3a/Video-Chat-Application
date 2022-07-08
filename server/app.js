@@ -44,10 +44,6 @@ app.use(
   session({
     secret: "my secret",
     resave: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    },
     saveUninitialized: false,
     store,
   })

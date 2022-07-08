@@ -8,7 +8,7 @@ import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItem
 import { conversationActions } from "../../../store/slices/conversation-slice";
 
 const ChatContactLists = ({ searchContactItems, type }) => {
-  // console.log("ChatContactLists running!!!");
+  console.log("ChatContactLists running!!!");
   const [conversations, setConversations] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -51,6 +51,8 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   useEffect(() => {
     const getConversation = async () => {
       try {
+        console.log("ddddddddddddddd");
+        console.log(userState);
         const resConversation = await fetch(
           `${END_POINT_SERVER}/conversation/${
             userState.user ? userState.user._id : "error"
@@ -60,6 +62,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
+        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(
@@ -72,6 +75,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         );
 
         const friends = await resFriends.json();
+        console.log(friends);
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);

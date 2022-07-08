@@ -1,5 +1,6 @@
 import { conversationActions } from "../slices/conversation-slice";
 import { errorActions } from "../slices/error-slice";
+import { formatDate } from "./common-function";
 import { postData } from "./fetch-action";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postNewConversation = (user, friendDetail, navigate) => {
@@ -17,6 +18,7 @@ export const postNewConversation = (user, friendDetail, navigate) => {
             _id: conversation._id,
             members: conversation.members,
             name: conversation.name,
+            time: formatDate(new Date(Date.now())),
             status: true,
             profilePhoto: conversation.profilePhoto,
             no_mems: conversation.members.length,
@@ -33,6 +35,9 @@ export const postNewConversation = (user, friendDetail, navigate) => {
             _id: conversation._id,
             members: conversation.members,
             name: member.fullname,
+            address: member.address,
+            email: member.email,
+            time: formatDate(new Date(Date.now())),
             status: member.status,
             profilePhoto: member.profilePhoto.url,
           },

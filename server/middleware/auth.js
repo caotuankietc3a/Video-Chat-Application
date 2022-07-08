@@ -72,6 +72,34 @@ exports.checkEmailPassword = (method) => {
           return true;
         });
     }
+    case "new-password": {
+      return [
+        body(
+          "password",
+          "Password should contain one uppercase , one lower case, one special char, one digit!!!"
+        )
+          .trim()
+          .isLength({ min: 8, max: 20 })
+          .withMessage(
+            "Password should contain at least 8 and max 20 chars long"
+          )
+          .isStrongPassword({
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1,
+          }),
+        body("confirmpassword")
+          .trim()
+          .custom((value, { req }) => {
+            if (value !== req.body.password)
+              throw new Error(
+                "Password confirmation does not match password!!!"
+              );
+            return true;
+          }),
+      ];
+    }
   }
 };
 

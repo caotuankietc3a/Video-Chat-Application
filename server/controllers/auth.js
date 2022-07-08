@@ -13,6 +13,13 @@ const {
 const { validationResult } = require("express-validator");
 const { uploads, deletes } = require("../util/cloudinary");
 
+const saveSession = (session, userId) => {
+  session.isLogin = true;
+  session.cookieExpiration = Date.now() + 1000 * 60 * 60 * 10;
+  session.userId = userId;
+  session.save();
+};
+
 exports.postLogin = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -30,9 +37,7 @@ exports.postLogin = async (req, res, next) => {
       } else {
         user.status = true;
         await user.save();
-        req.session.isLogin = true;
-        req.session.userId = user._id;
-        req.session.save();
+        saveSession(req.session, user._id);
         return res.status(200).json({ user, status: "success" });
       }
     } else {
@@ -56,9 +61,7 @@ exports.postLoginOther = async (req, res, next) => {
       }
       user.status = true;
       await user.save();
-      req.session.isLogin = true;
-      req.session.userId = user._id;
-      req.session.save();
+      saveSession(req.session, user._id);
       res.status(200).json({
         user,
         status: "success",
@@ -75,9 +78,8 @@ exports.postLoginOther = async (req, res, next) => {
       const findedUser = await User.findById(newUser._id).select(
         "-password -twoFA.secret"
       );
-      req.session.isLogin = true;
-      req.session.userId = newUser._id;
-      req.session.save();
+
+      saveSession(req.session, user._id);
       res.status(200).json({ user: findedUser, status: "success" });
     }
   } catch (err) {
@@ -110,8 +112,10 @@ exports.postRegister = async (req, res, next) => {
 
 exports.getSession = async (req, res, next) => {
   try {
+    if (Date.now() - req.session.cookieExpiration >= 0) {
+      throw new Error("Your session cookie has been expired!!!");
+    }
     const { isLogin, userId } = req.session;
-    console.log(req.session);
     const { type } = req.query;
     const status = parseInt(type) ? true : isLogin ? true : false;
     const user = await User.findByIdAndUpdate(
@@ -123,7 +127,7 @@ exports.getSession = async (req, res, next) => {
     ).select("-password -twoFA.secret");
     res.status(200).json({ isLogin: isLogin ? true : false, user });
   } catch (err) {
-    res.status(400).json({ msg: "Something went wrong!!!" });
+    res.status(400).json({ msg: err.message, status: "error" });
   }
 };
 
@@ -289,9 +293,8 @@ exports.postVerify2FA = async (req, res, next) => {
         { status: true },
         { new: true }
       ).select("-password -twoFA.secret");
-      req.session.isLogin = true;
-      req.session.userId = user._id;
-      req.session.save();
+
+      saveSession(req.session, user._id);
       res
         .status(200)
         .json({ msg: "success", status: "valid", user: updatedUser });
@@ -301,49 +304,84 @@ exports.postVerify2FA = async (req, res, next) => {
   }
 };
 
-exports.postReset = (req, res, next) => {
+exports.postReset = async (req, res, next) => {
   try {
-    // const errors = validationResult(req);
-    // console.log(errors);
-    // if (!errors.isEmpty()) {
-    //   throw new Error(errors.array()[0].msg);
-    // }
-    // const { email } = req.body;
-    // console.log(email);
-    // console.log(req.body);
-    //
-    // randomBytes(32, async (err, buf) => {
-    //   if (err) {
-    //     console.error(err);
-    //     return res.status(404).json({ status: "error", msg: err });
-    //   }
-    //   const token = buf.toString("hex");
-    //   try {
-    //     const user = await User.findOneAndUpdate(
-    //       {
-    //         email,
-    //         provider: "",
-    //       },
-    //       {
-    //         resetPassword: {
-    //           resetToken: token,
-    //           resetTokenExpiration: Date.now() + 36000000,
-    //         },
-    //       },
-    //       { new: true }
-    //     );
-    //     res.status(200).json({
-    //       msg: "Please check your email!",
-    //       token: token,
-    //       expiration: Date.now() + 36000000,
-    //       user,
-    //       email,
-    //     });
-    //     await sendMailFunction();
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new Error(errors.array()[0].msg);
+    }
+    const { email } = req.body;
+
+    randomBytes(32, async (err, buf) => {
+      try {
+        if (err) {
+          console.error(err);
+          throw new Error(err);
+        }
+        const token = buf.toString("hex");
+        await User.findOneAndUpdate(
+          {
+            email,
+            provider: "",
+          },
+          {
+            resetPassword: {
+              resetToken: token,
+              resetTokenExpiration: Date.now() + 36000000,
+            },
+          },
+          { new: true }
+        );
+
+        await sendMailFunction(email, token);
+        res.status(200).json({
+          msg: "Please check your email to reset your password!!!",
+          status: "success",
+        });
+      } catch (err) {
+        res.status(404).json({ status: "error", msg: err });
+      }
+    });
+  } catch (err) {
+    res.status(404).json({ status: "error", msg: err.message });
+  }
+};
+
+exports.postNewPassword = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new Error(errors.array()[0].msg);
+    }
+    const { token } = req.query;
+    const { password } = req.body;
+
+    const newHashPass = await bcrypt.hash(password, 12);
+
+    const user = await User.findOneAndUpdate(
+      {
+        $and: [
+          { "resetPassword.resetToken": token },
+          { "resetPassword.resetTokenExpiration": { $gt: Date.now() } },
+        ],
+      },
+      {
+        resetPassword: {
+          resetTokenExpiration: null,
+          resetToken: null,
+        },
+        password: newHashPass,
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error("Your reset token had been expired!!!");
+    }
+
+    res
+      .status(200)
+      .json({ status: "success", msg: "Change your password successfully!!!" });
   } catch (err) {
     res.status(404).json({ status: "error", msg: err.message });
   }

@@ -1,39 +1,32 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-const sgTransport = require("nodemailer-sendgrid-transport");
-const sgMail = require("@sendgrid/mail");
-const { REACT_URL, NODEMAILER_API_KEY, NODEMAILER_API_USER, SENDGRID_API_KEY } =
-  process.env;
-sgMail.setApiKey(SENDGRID_API_KEY);
-const options = {
-  auth: {
-    // api_user: NODEMAILER_API_USER,
-    api_key: NODEMAILER_API_KEY,
-  },
-};
+const { NODEMAILER_API_PASS, NODEMAILER_API_USER, REACT_URL } = process.env;
 
-async function sendMailFunction() {
+async function sendMailFunction(email, token) {
   try {
-    console.log(new URL(REACT_URL).hostname);
-    let mailer = nodemailer.createTransport(sgTransport(options));
-    let info = await mailer.sendMail({
-      from: "caotuankietc3a@gmail.com", // sender address
-      to: "kiet.caoc3a@hcmut.edu.vn", // list of receivers
-      subject: "Update password succeeded!!",
-      html: "<h1>Update password succeeded!!</h1>",
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      // host: "smtp.ethereal.email",
+      // port: 465,
+      // secure: true, // true for 465, false for other ports
+      auth: {
+        user: NODEMAILER_API_USER, // generated ethereal user
+        pass: NODEMAILER_API_PASS, // generated ethereal password
+      },
     });
-    console.log(info);
+    const url = `${REACT_URL}/auth/new-password?token=${token}`;
 
-    // const msg = {
-    //   from: "caotuankietc3a@gmail.com", // sender address
-    //   to: "kiet.caoc3a@hcmut.edu.vn", // list of receivers
-    //   subject: "Update password succeeded!!",
-    //   html: "<h1>Update password succeeded!!</h1>",
-    //   text: "and easy to do anywhere, even with Node.js",
-    //   templateId: "d-9af66d5891244cc3b7ae22bea80763b8 ",
-    // };
-    // const info1 = await sgMail.send(msg);
-    // console.log(info1.body.errors);
+    const msg = {
+      from: "caotuankietc3a@gmail.com", // sender address
+      to: email, // list of receivers
+      subject: "Reset password!!",
+      html: `<strong>Hello</strong> <i>${email}</i>.
+        <br/>A request has been received to change the password for your Video Chat App account. 
+        Please click <a href=${url}>here</a> to reset your password!!!
+      `,
+    };
+    const info = await transporter.sendMail(msg);
+    console.log(info);
   } catch (err) {
     console.error(err);
   }

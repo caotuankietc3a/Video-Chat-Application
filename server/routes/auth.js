@@ -9,8 +9,12 @@ const {
 router.post("/login", checkEmailPassword("login"), auth.postLogin);
 router.post("/login-with-Other", auth.postLoginOther);
 router.post("/register", checkEmailPassword("register"), auth.postRegister);
-router.post("/reset", auth.postReset);
-// router.post("/reset", checkEmailPassword("reset"), auth.postReset);
+router.post("/reset", checkEmailPassword("reset"), auth.postReset);
+router.post(
+  "/new-password",
+  checkEmailPassword("new-password"),
+  auth.postNewPassword
+);
 router.get("/session", auth.getSession);
 router.post("/logout", auth.postLogout);
 router.post("/update-profile-account/:userId", auth.postUpdateAccountProfile);

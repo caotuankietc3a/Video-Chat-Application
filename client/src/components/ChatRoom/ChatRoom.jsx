@@ -31,7 +31,6 @@ const ChatRoom = (props) => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
-  console.log(createGroup);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );

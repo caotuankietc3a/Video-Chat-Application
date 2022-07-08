@@ -24,7 +24,6 @@ const SettingsDisplay = ({ header, rows }) => {
   const passwordRef = useRef({});
   const securityRef = useRef({});
   const dispatch = useDispatch();
-  console.log(user);
   useEffect(() => {
     if (user) {
       securityRef.current.is2FAEnabled = user.twoFA.is2FAEnabled;
