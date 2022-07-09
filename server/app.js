@@ -155,7 +155,6 @@ io_video.on("connection", (socket) => {
       callAccepted,
       isReceivedCall,
     }) => {
-      console.log(isReceivedCall);
       if (!isReceivedCall) {
         socket.broadcast.to(conversationId.toString()).emit("reject-call", {
           error: "Caller canceled the call!!!",

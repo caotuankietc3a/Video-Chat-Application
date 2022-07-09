@@ -70,34 +70,26 @@ const Login = (props) => {
       );
       console.log(data);
       if (data.status === "error") {
-        setTimeout(() => {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            html: data.msg,
-            showConfirmButton: "Continue",
-            timer: 7000,
-          });
-          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-          setIsClicked(false);
-        }, 500);
-        dispatch(userLoginActions.setIsFetching({ isFetching: true }));
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          html: data.msg,
+          showConfirmButton: "Continue",
+          timer: 7000,
+        });
+        dispatch(userLoginActions.setIsFetching({ isFetching: false }));
+        setIsClicked(false);
       } else if (data.status === "success") {
-        console.log(type);
         if (type === "Register" || type === "Login") {
-          setTimeout(() => {
-            if (type === "Register") navigate("/auth/login");
-            else if (type === "Login") {
-              socket_notify.emit("log-in");
-              navigate("/home-chat");
-            }
-            dispatch(userLoginActions.setIsFetching({ isFetching: false }));
-          }, 500);
-
+          if (type === "Register") navigate("/auth/login");
+          else if (type === "Login") {
+            socket_notify.emit("log-in");
+            navigate("/home-chat");
+          }
           dispatch(
             userLoginActions.setUserLogin({
               user: data.user,
-              isFetching: true,
+              isFetching: false,
               error: null,
             })
           );
@@ -115,6 +107,7 @@ const Login = (props) => {
         setEmail("");
         setPassword("");
         setConfirmpassword("");
+        setFullName("");
       } else if (data.status === "enable2FA") {
         dispatch(verifyEnable2FA(navigate, data.userId));
       }

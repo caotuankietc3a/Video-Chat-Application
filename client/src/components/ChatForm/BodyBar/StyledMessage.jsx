@@ -192,6 +192,11 @@ export const MessageWrapper = styled.div`
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
+
+    & div {
+      text-align: center;
+    }
+
     & .image-row {
       cursor: pointer;
       padding: 0 5px;

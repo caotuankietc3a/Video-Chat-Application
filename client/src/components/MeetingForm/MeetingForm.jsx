@@ -24,9 +24,11 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { errorActions } from "../../store/slices/error-slice";
-import { videoActions } from "../../store/slices/video-chat-slice";
+import { useAudio } from "../Hooks/audio-hook";
 
 function MeetingForm({ conversation }) {
+  const url = `${process.env.REACT_APP_ENDPOINT_CLIENT}/sounds/calling-ring.mp3`;
+  const [playing, toggle] = useAudio(url);
   console.log("MeetingForm running");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,18 +36,21 @@ function MeetingForm({ conversation }) {
     call: { isReceivedCall, caller, callee, group },
     stream,
   } = useSelector((state) => state.video);
-  // console.log(user);
-  // console.log(isReceivedCall);
-  // console.log(callee);
-  // console.log(group);
   const { socket_video } = useSelector((state) => state.socket);
 
   useEffect(() => {
-    if (stream && !isReceivedCall) {
+    toggle();
+  }, []);
+
+  useEffect(() => {
+    if (stream && !isReceivedCall && !group) {
       dispatch(callUser());
     }
+  }, [isReceivedCall]);
 
-    socket_video.on("reject-call", ({ error }) => {
+  useEffect(() => {
+    socket_video.on("reject-call", async ({ error }) => {
+      await toggle();
       dispatch(rejectCall(navigate));
 
       dispatch(
@@ -54,12 +59,17 @@ function MeetingForm({ conversation }) {
         })
       );
     });
+    socket_video.on("join-meeting-room", async () => {
+      await toggle();
+      navigate(`/meeting/${conversation._id}`);
+    });
 
     return () => {
       // depend on stream (null or not)
       socket_video.off("reject-call");
+      socket_video.off("join-meeting-room");
     };
-  }, [isReceivedCall]);
+  }, [playing]);
 
   useEffect(() => {
     if (isReceivedCall && !group) {
@@ -67,13 +77,8 @@ function MeetingForm({ conversation }) {
     }
   }, []);
 
-  useEffect(() => {
-    socket_video.on("join-meeting-room", () => {
-      navigate(`/meeting/${conversation._id}`);
-    });
-  }, []);
-
-  const rejectCallHandler = () => {
+  const rejectCallHandler = async () => {
+    await toggle();
     if (!group) {
       socket_video.emit("reject-call", {
         conversationId: conversation._id,
@@ -83,14 +88,13 @@ function MeetingForm({ conversation }) {
         callee,
         date: new Date(Date.now()),
       });
-
       dispatch(rejectCall(navigate));
     } else {
       navigate(`/home-chat`);
     }
   };
 
-  const anwserCallHandler = () => {
+  const anwserCallHandler = async () => {
     if (!group) {
       socket_video.emit("join-meeting-room", {
         conversationId: conversation._id,
@@ -101,11 +105,12 @@ function MeetingForm({ conversation }) {
       });
       dispatch(answerCall(socket_video, true));
     } else {
+      await toggle();
       navigate(`/meeting-group/${conversation._id}?showVideo=1`);
     }
   };
 
-  const anwserCallWithoutVideoHandler = () => {
+  const anwserCallWithoutVideoHandler = async () => {
     if (!group) {
       socket_video.emit("join-meeting-room", {
         conversationId: conversation._id,
@@ -115,13 +120,10 @@ function MeetingForm({ conversation }) {
       });
       dispatch(answerCall(socket_video, false));
     } else {
+      await toggle();
       navigate(`/meeting-group/${conversation._id}?showVideo=0`);
     }
   };
-  console.log(group);
-  console.log(caller);
-  console.log(callee);
-  console.log(isReceivedCall);
 
   return (
     <MeetingFormContainer>

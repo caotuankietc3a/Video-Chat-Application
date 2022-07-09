@@ -250,16 +250,18 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
           },
         },
         { new: true }
-      );
+      ).select("-password -twoFA.secret");
       const otpAuth = generateOTPToken(
         updatedUser.email,
         "chat-zoom.com",
         uniqueSecret
       );
       const QRCodeUrl = await generateQRCode(otpAuth);
-      return res.status(200).json({ QRCodeUrl, status: "success" });
+      return res
+        .status(200)
+        .json({ QRCodeUrl, status: "success", user: updatedUser });
     } else {
-      await User.findByIdAndUpdate(
+      const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
           twoFA: {
@@ -268,8 +270,8 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
           },
         },
         { new: true }
-      );
-      return res.status(200).json({ status: "cancel" });
+      ).select("-password -twoFA.secret");
+      return res.status(200).json({ status: "cancel", user: updatedUser });
     }
   } catch (err) {
     console.error(err);

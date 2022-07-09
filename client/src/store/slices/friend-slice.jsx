@@ -4,10 +4,14 @@ const friendSlice = createSlice({
   name: "friend",
   initialState: {
     friend: null,
+    friends: null,
   },
   reducers: {
-    setFriends(state, action) {
+    setFriend(state, action) {
       state.friend = action.payload.friend;
+    },
+    setFriends(state, action) {
+      state.friends = action.payload.friends;
     },
   },
 });

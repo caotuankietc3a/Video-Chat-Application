@@ -36,6 +36,7 @@ import { forwardActions } from "../../../store/slices/forward-slice";
 import { messageActions } from "../../../store/slices/message-slice";
 import { showMenuHandler } from "../../../store/actions/common-function";
 import Swal from "sweetalert2";
+import Gallery from "../../Gallery/Gallery";
 
 const Message = ({
   type,
@@ -59,24 +60,34 @@ const Message = ({
     setShowMenu(!showMenu);
   };
   const deleteMessageHandler = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire("Deleted!", "Your file has been deleted.", "success");
-        socket_chat.emit("delete-message", {
-          conversationId: conversation._id,
-          id,
-        });
-        dispatch(messageActions.setReRender({ reRender: { id } }));
-      }
-    });
+    if (type === "right") {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+          socket_chat.emit("delete-message", {
+            conversationId: conversation._id,
+            id,
+          });
+          dispatch(messageActions.setReRender({ reRender: { id } }));
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        html: "You donn't have any permission to remove user's message!!!",
+        showConfirmButton: "Ok",
+        timer: 4000,
+      });
+    }
     setShowMenu(false);
   };
 
@@ -193,13 +204,13 @@ const Message = ({
             {text !== "" && <span>{text}</span>}
             {images.length !== 0 && (
               <div className="images-row">
-                {images.map(({ url, name }, i) => (
-                  <div className="image-row" key={i}>
-                    <div className="item">
+                <Gallery className="gallery">
+                  {images.map(({ url, name }, i) => (
+                    <a className="image-row" key={i} href={url}>
                       <img src={url} alt="Image" />
-                    </div>
-                  </div>
-                ))}
+                    </a>
+                  ))}
+                </Gallery>
               </div>
             )}
             {attachments.length !== 0 &&

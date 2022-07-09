@@ -66,6 +66,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   };
 
   const friendsHandler = (friends, searchText, createGroup = false) => {
+    console.log(friends);
     return friends
       ?.filter((friend) => {
         if (createGroup && friend.isGroup) return false;

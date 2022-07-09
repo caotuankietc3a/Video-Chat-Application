@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { ContactLists } from "./StyledContacts";
 import ChatContactItems from "./ChatContactItems";
 import { useSelector, useDispatch } from "react-redux";
-import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { compareString } from "../../../store/actions/common-function";
 import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
 import { conversationActions } from "../../../store/slices/conversation-slice";
@@ -62,7 +61,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
           }
         );
         const conversations = await resConversation.json();
-        console.log(conversations);
         setConversations(conversations);
 
         const resFriends = await fetch(
@@ -75,7 +73,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         );
 
         const friends = await resFriends.json();
-        console.log(friends);
         setFriends(compareString(friends));
         setTimeout(() => {
           setIsFetching(false);
@@ -98,7 +95,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
             }
           );
           const res = await data.json();
-          console.log(res);
           setCalls(res);
           // dispatch(callActions.setMeeting())
         }

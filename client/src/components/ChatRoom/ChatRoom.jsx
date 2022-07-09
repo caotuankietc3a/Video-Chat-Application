@@ -19,14 +19,14 @@ import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
 import { closeNotification } from "../../store/actions/error-function";
-const ChatRoom = (props) => {
+const ChatRoom = () => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
   const { error } = useSelector((state) => state.error);
   const { forward } = useSelector((state) => state.forward);
   const callState = useSelector((state) => state.call);
-  const { friend } = useSelector((state) => state.friend);
+  const { friend, friends } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
@@ -140,7 +140,7 @@ const ChatRoom = (props) => {
     socket_notify.on("log-in", () => {
       dispatch(fetchFriends());
     });
-  }, [friend]);
+  }, [friends]);
 
   useEffect(() => {
     if (createGroup) dispatch(fetchFriends());
@@ -159,14 +159,14 @@ const ChatRoom = (props) => {
       <MainLayOut>
         {isClickedConversation || forward ? (
           <Portal>
-            <FriendList isClosedHandler={isClosedHandler} friends={friend} />
+            <FriendList isClosedHandler={isClosedHandler} friends={friends} />
           </Portal>
         ) : (
           createGroup && (
             <Portal>
               <FriendList
                 isClosedHandler={isClosedHandler}
-                friends={friend}
+                friends={friends}
                 createGroup={createGroup}
                 error={error}
               />

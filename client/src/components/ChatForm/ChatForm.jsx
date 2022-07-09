@@ -30,8 +30,6 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(messages);
-  console.log(conversation);
 
   useEffect(() => {
     let timer = 0;

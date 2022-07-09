@@ -177,7 +177,7 @@ export const fetchFriends = () => {
 
         return dispatch(
           friendActions.setFriends({
-            friend: [...friends, ...group_conversations],
+            friends: [...friends, ...group_conversations],
           })
         );
       }

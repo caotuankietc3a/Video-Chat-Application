@@ -128,6 +128,8 @@ const SettingsDisplay = ({ header, rows }) => {
                   icon: "success",
                   confirmButtonText: "Ok",
                 });
+                console.log(res.user);
+                dispatch(userLoginActions.setUser({ user: res.user }));
               }
             } else {
               Swal.fire({
@@ -154,6 +156,9 @@ const SettingsDisplay = ({ header, rows }) => {
                   imageUrl: res.QRCodeUrl,
                   confirmButtonText: "Ok",
                 });
+
+                console.log(res.user);
+                dispatch(userLoginActions.setUser({ user: res.user }));
               }
             }
           }
@@ -236,10 +241,8 @@ const SettingsDisplay = ({ header, rows }) => {
   };
 
   const securityHandler = (e, id) => {
-    console.log(e.target.checked);
     const isChecked =
       e.target.previousElementSibling.classList.contains("active");
-    console.log(isChecked);
     switch (id) {
       case "two-factor": {
         return (securityRef.current.is2FAEnabled = isChecked);
@@ -308,9 +311,6 @@ const SettingsDisplay = ({ header, rows }) => {
                             socialNetHandler(e, label);
                           else if (header.h5 === "Password")
                             passwordHandler(e, label);
-                          console.log(accountRef.current);
-                          console.log(socialNetRef.current);
-                          console.log(passwordRef.current);
                         }}
                       />
                     </>
@@ -342,7 +342,6 @@ const SettingsDisplay = ({ header, rows }) => {
                               "active"
                             );
                             securityHandler(e, id);
-                            console.log(securityRef.current);
                           }}
                         />
                       </div>
