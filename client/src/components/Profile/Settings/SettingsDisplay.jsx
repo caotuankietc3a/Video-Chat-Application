@@ -117,8 +117,6 @@ const SettingsDisplay = ({ header, rows }) => {
       }
       case "Security": {
         try {
-          console.log(securityRef.current);
-          console.log(user.twoFA.is2FAEnabled);
           if (!securityRef.current.is2FAEnabled) {
             if (user.twoFA.is2FAEnabled) {
               const res = await postData(
@@ -131,7 +129,6 @@ const SettingsDisplay = ({ header, rows }) => {
                   icon: "success",
                   confirmButtonText: "Ok",
                 });
-                console.log(res.user);
                 dispatch(userLoginActions.setUser({ user: res.user }));
               }
             } else {
@@ -149,34 +146,20 @@ const SettingsDisplay = ({ header, rows }) => {
                 confirmButtonText: "Ok",
               });
             } else {
-              console.log("sssssssssssssssssssssssssssss");
               const res = await postData(
                 securityRef.current,
                 `${END_POINT_SERVER}/auth/update-profile-security/${user._id}`
               );
               console.log(res);
               if (res.status === "success") {
-                // Swal.fire({
-                //   html: "Please scan this <strong>QR code</strong> to complete <strong><i>2-factor authentication</i></strong>!!",
-                //   imageUrl: res.QRCodeUrl,
-                //   confirmButtonText: "Ok",
-                // });
-                //
-                // console.log(res.user);
-                // dispatch(userLoginActions.setUser({ user: res.user }));
-                dispatch(
-                  enable2FAFunction(res.QRCodeUrl, user._id, res.uniqueSecret)
-                );
+                dispatch(enable2FAFunction(res.QRCodeUrl, user._id));
               }
             }
           }
-          // } else {
-          // }
           return setIsFetching(false);
         } catch (err) {
           return console.error(err);
         }
-        // if (securityRef.current.is2FAEnabled !== undefined) {
       }
     }
   };

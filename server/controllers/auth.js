@@ -244,7 +244,7 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
         userId,
         {
           twoFA: {
-            is2FAEnabled: is2FAEnabled,
+            is2FAEnabled: true,
             secret: uniqueSecret,
           },
         },
@@ -264,7 +264,7 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
         userId,
         {
           twoFA: {
-            is2FAEnabled: is2FAEnabled,
+            is2FAEnabled: false,
             secret: "",
           },
         },
@@ -304,90 +304,6 @@ exports.postVerify2FA = async (req, res, next) => {
     res.status(400).json({ msg: "Error!" });
   }
 };
-
-// exports.postUpdateSecurityProfile = async (req, res, next) => {
-//   try {
-//     const { userId } = req.params;
-//     const { is2FAEnabled } = req.body;
-//     console.log(is2FAEnabled);
-//     if (is2FAEnabled) {
-//       const uniqueSecret = generateUniqueSecret();
-//       console.log(uniqueSecret);
-//       const updatedUser = await User.findByIdAndUpdate(
-//         userId,
-//         {
-//           twoFA: {
-//             is2FAEnabled: true,
-//             secret: uniqueSecret,
-//           },
-//         },
-//         { new: true }
-//       );
-//       console.log(uniqueSecret === updatedUser.twoFA.secret);
-//       const otpAuth = generateOTPToken(
-//         updatedUser.email,
-//         "chat-zoom.com",
-//         uniqueSecret
-//       );
-//       const QRCodeUrl = await generateQRCode(otpAuth);
-//       return res.status(200).json({
-//         QRCodeUrl,
-//         status: "success",
-//         user: updatedUser,
-//         uniqueSecret,
-//       });
-//     } else {
-//       const updatedUser = await User.findByIdAndUpdate(
-//         userId,
-//         {
-//           twoFA: {
-//             is2FAEnabled: false,
-//             secret: "",
-//           },
-//         },
-//         { new: true }
-//       ).select("-password -twoFA.secret");
-//       return res.status(200).json({ status: "cancel", user: updatedUser });
-//     }
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
-//
-// exports.postVerify2FA = async (req, res, next) => {
-//   try {
-//     const { otpToken, secret } = req.body;
-//     const { userId } = req.params;
-//     console.log(typeof otpToken);
-//     console.log(typeof secret);
-//     console.log(userId);
-//     const user = await User.findById(userId);
-//     console.log(secret === user.twoFA.secret);
-//     console.log(user);
-//     const isValid = verifyOTPToken(otpToken, secret);
-//     console.log(isValid);
-//     if (!isValid) {
-//       res.status(200).json({
-//         msg: "Invalid 2FA token! Please try another one!!!",
-//         status: "invalid",
-//       });
-//     } else {
-//       const updatedUser = await User.findOneAndUpdate(
-//         userId,
-//         { status: true },
-//         { new: true }
-//       );
-//       // .select("-password -twoFA.secret");
-//
-//       saveSession(req.session, user._id);
-//       res
-//         .status(200)
-//         .json({ msg: "success", status: "valid", user: updatedUser });
-//     }
-//   } catch (err) {
-//     res.status(400).json({ msg: "Error!" });
-//   }
-// };
 
 exports.postReset = async (req, res, next) => {
   try {

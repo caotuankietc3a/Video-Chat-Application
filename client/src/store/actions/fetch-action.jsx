@@ -270,12 +270,6 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
       imageUrl: QRCodeUrl,
       confirmButtonText: "Next",
     }).then(() => {
-      // Swal.fire({
-      //   html: `You will be redirected to <strong>2-factor authentication page</strong> after this message.`,
-      //   showConfirmButton: false,
-      //   icon: "success",
-      //   timer: 3500,
-      // }).then(() => {
       Swal.fire({
         html: "Please enter your token to complete <strong>2-factor authentication</strong>!!",
         input: "number",
@@ -311,26 +305,26 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
               Swal.showValidationMessage(`Error: ${error}`);
             });
         },
-      });
-      // .then((result) => {
-      //   if (result.isDismissed) {
-      //     return postData(
-      //       { is2FAEnabled: false },
-      //       `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/update-profile-security/${userId}`
-      //     );
-      //   }
-      // })
-      // .then((res) => {
-      //   if (res.status === "cancel") {
-      //     dispatch(userLoginActions.setUser({ user: res.user }));
-      //     Swal.fire({
-      //       icon: "error",
-      //       title: "Oops...",
-      //       html: "Can't activate <strong>2-factor authentication</strong>!!",
-      //       showConfirmButton: "Ok",
-      //     });
-      //   }
-      // });
+      })
+        .then((result) => {
+          if (result.isDismissed) {
+            return postData(
+              { is2FAEnabled: false },
+              `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/update-profile-security/${userId}`
+            );
+          }
+        })
+        .then((res) => {
+          if (res.status === "cancel") {
+            dispatch(userLoginActions.setUser({ user: res.user }));
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              html: "Can't activate <strong>2-factor authentication</strong>!!",
+              showConfirmButton: "Ok",
+            });
+          }
+        });
     });
     // });
   };
