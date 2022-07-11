@@ -33,25 +33,27 @@ const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
   const { socket_chat } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
   const [inputText, setInputText] = useState("");
-  const [no_members, setNo_Members] = useState([user._id]);
+  const [no_members, setNo_Members] = useState([
+    { user: user._id, isAdmin: true },
+  ]);
   const [groupName, setGroupName] = useState("");
   const [groupImg, setGroupImg] = useState("");
   const [isFetching, setIsFetching] = useState(false);
 
   const pushArrayMembers = (mem) => {
     setNo_Members((preMems) => {
-      const index = preMems.findIndex((el) => el === mem);
+      const index = preMems.findIndex((el) => el.user === mem);
       if (index !== -1) return [...preMems];
-      return [...preMems, mem];
+      return [...preMems, { user: mem, isAdmin: false }];
     });
   };
 
   const popArrayMembers = (mem) => {
     setNo_Members((preMems) => {
-      const index = preMems.findIndex((el) => el === mem);
+      const index = preMems.findIndex((el) => el.user === mem);
       if (index !== -1) {
         preMems.splice(index, 1);
-        return [...preMems];
+        // return [...preMems];
       }
       return [...preMems];
     });

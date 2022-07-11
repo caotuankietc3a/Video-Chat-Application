@@ -27,6 +27,8 @@ const SettingsDisplay = ({ header, rows }) => {
   const passwordRef = useRef({});
   const securityRef = useRef({});
   const dispatch = useDispatch();
+  // console.log("SettingsDisplay running!!!");
+  // console.log(user.twoFA.is2FAEnabled);
   useEffect(() => {
     if (user) {
       securityRef.current.is2FAEnabled = user.twoFA.is2FAEnabled;
@@ -150,7 +152,6 @@ const SettingsDisplay = ({ header, rows }) => {
                 securityRef.current,
                 `${END_POINT_SERVER}/auth/update-profile-security/${user._id}`
               );
-              console.log(res);
               if (res.status === "success") {
                 dispatch(enable2FAFunction(res.QRCodeUrl, user._id));
               }

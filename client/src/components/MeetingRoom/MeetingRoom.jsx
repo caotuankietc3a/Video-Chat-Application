@@ -26,7 +26,7 @@ import {
   shareScreen,
 } from "../../store/actions/video-chat-function";
 
-const MeetingRoom = (props) => {
+const MeetingRoom = () => {
   console.log("MeetingRoom running");
   const [showTopControls, setShowTopControls] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(true);
@@ -50,20 +50,13 @@ const MeetingRoom = (props) => {
   const onClickShowTopControls = (e) => {
     setShowTopControls(!showTopControls);
   };
-  // console.log("showVideo: ", showVideo);
-  // console.log("showUserVideo: ", showUserVideo);
-  // console.log("showUserStream: ", userStream);
-  // console.log("showStream: ", stream);
-  // console.log("muted: ", muted);
 
   useEffect(() => {
     if (stream) {
       if (myVideo.current) myVideo.current.srcObject = stream;
-      // console.log("myVideo: ", myVideo);
     }
     if (userStream) {
       if (userVideo.current) userVideo.current.srcObject = userStream;
-      // console.log("userVideo: ", userVideo);
     }
   }, [
     stream,
@@ -129,8 +122,8 @@ const MeetingRoom = (props) => {
               fontsize={fontsize}
               heightImg={heightImg}
               widthImg={widthImg}
-              userImg={peer.profilePhoto.url}
-              name={peer.fullname}
+              userImg={peer.user.profilePhoto.url}
+              name={peer.user.fullname}
               displayText={
                 showUserVideo
                   ? muted
@@ -151,8 +144,8 @@ const MeetingRoom = (props) => {
               fontsize={fontsize}
               heightImg={heightImg}
               widthImg={widthImg}
-              userImg={peer.profilePhoto.url}
-              name={peer.fullname}
+              userImg={peer.user.profilePhoto.url}
+              name={peer.user.fullname}
               displayText={
                 !showUserVideo && muted ? "Spectator" : "Audio Only!"
               }
@@ -183,8 +176,8 @@ const MeetingRoom = (props) => {
               fontsize="11px"
               heightImg="40px"
               widthImg="40px"
-              userImg={member.profilePhoto.url}
-              name={member.fullname}
+              userImg={member.user.profilePhoto.url}
+              name={member.user.fullname}
               displayText={
                 !showUserVideo && muted ? "Spectator" : "Audio Only!"
               }
@@ -234,7 +227,7 @@ const MeetingRoom = (props) => {
             {/* /> */}
             {returnPeersOnTopControl(
               conversation.members.filter(
-                (member) => member.fullname !== user.fullname
+                (member) => member.user.fullname !== user.fullname
               )
             )}
           </Peers>
@@ -264,7 +257,7 @@ const MeetingRoom = (props) => {
             isTurnOnAudio: false,
           },
           conversation.members.filter(
-            (member) => member.fullname !== user.fullname
+            (member) => member.user.fullname !== user.fullname
           ),
           showTopControls
         )}

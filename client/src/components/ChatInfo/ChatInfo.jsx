@@ -80,11 +80,11 @@ const ChatInfo = ({
       return (
         <div className="group-member" key={i}>
           <div className="avatar">
-            <img src={mem.profilePhoto.url} alt="Member" />
+            <img src={mem.user.profilePhoto.url} alt="Member" />
           </div>
           <div className="member-name">
             <h5>
-              {mem.fullname}
+              {mem.user.fullname}
               {mem.isAdmin && <span>Admin</span>}
             </h5>
           </div>

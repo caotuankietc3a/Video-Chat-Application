@@ -77,4 +77,34 @@ const uploadsFiles = async (datas, id, folderName = "images") => {
   return { fileId: newFile._id };
 };
 
-module.exports = { cloudinary, uploads, deletes, uploadsFiles };
+const deletesFiles = async (fileId) => {
+  console.log(fileId);
+  const file = await File.findByIdAndRemove(fileId);
+  if (file.images.length !== 0) {
+    file.images.forEach(async (img) => {
+      try {
+        await deletes({
+          public_id: img.cloudinary_id,
+          resource_type: "image",
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  }
+
+  if (file.attachments.length !== 0) {
+    file.attachments.forEach(async (attachment) => {
+      try {
+        await deletes({
+          public_id: attachment.cloudinary_id,
+          resource_type: "raw",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+};
+
+module.exports = { cloudinary, uploads, deletes, uploadsFiles, deletesFiles };

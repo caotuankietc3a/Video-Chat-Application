@@ -1,4 +1,5 @@
 const Meeting = require("../models/meeting.js");
+const Conversation = require("../models/conversation.js");
 const User = require("../models/user.js");
 exports.getMeetings = async (req, res, _next) => {
   try {
@@ -50,15 +51,30 @@ exports.getMeetingDetail = async (req, res, next) => {
   }
 };
 
-exports.saveMeeting = async (caller, callee, date, callAccepted) => {
+exports.saveMeeting = async (
+  caller,
+  callee,
+  date,
+  callAccepted,
+  conversationId
+) => {
   try {
-    const newMeeting = new Meeting({
+    const newMeeting = await new Meeting({
       caller,
       callee,
       date,
       callAccepted,
-    });
-    newMeeting.save();
+    }).save();
+    const conversation = await Conversation.findByIdAndUpdate(
+      conversationId,
+      {
+        $push: {
+          meetings: newMeeting._id,
+        },
+      },
+      { new: true }
+    );
+    console.log(conversation);
   } catch (err) {
     console.error(err);
   }

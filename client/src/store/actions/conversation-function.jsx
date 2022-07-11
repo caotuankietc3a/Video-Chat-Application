@@ -27,19 +27,19 @@ export const postNewConversation = (user, friendDetail, navigate) => {
       );
     } else {
       const member = conversation.members.find(
-        (member) => member._id !== user._id
+        (member) => member.user._id !== user._id
       );
       dispatch(
         conversationActions.setConversation({
           conversation: {
             _id: conversation._id,
             members: conversation.members,
-            name: member.fullname,
-            address: member.address,
-            email: member.email,
+            name: member.user.fullname,
+            address: member.user.address,
+            email: member.user.email,
             time: formatDate(new Date(Date.now())),
-            status: member.status,
-            profilePhoto: member.profilePhoto.url,
+            status: member.user.status,
+            profilePhoto: member.user.profilePhoto.url,
           },
         })
       );

@@ -1,13 +1,20 @@
 const Conversation = require("../models/conversation");
 const Reply = require("../models/reply");
+const Meeting = require("../models/meeting");
 const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
-const { uploads, deletes, uploadsFiles } = require("../util/cloudinary.js");
+const {
+  uploads,
+  deletes,
+  uploadsFiles,
+  deletesFiles,
+} = require("../util/cloudinary.js");
 const { validationResult } = require("express-validator");
 const { sendInvitationMessage } = require("../util/mailer");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
+    console.log(members);
     const uploadedRes = await uploads(
       { fileName: groupName.split(".")[0], folderName: "images-group" },
       groupImg
@@ -17,11 +24,12 @@ exports.postNewGroupConversation = async (req, res, next) => {
       messages: [],
       name: groupName,
       profilePhoto: uploadedRes.url,
+      meetings: [],
     });
     await newConversation.save();
     res.status(200).json(
       await newConversation.populate({
-        path: "members",
+        path: "members.user",
         select: "-password -twoFA.secret",
       })
     );
@@ -52,9 +60,9 @@ exports.getConversations = async (req, res, next) => {
     if (userId !== "error") {
       if (!parseInt(isGroup)) {
         conversations = await Conversation.find({
-          members: { $in: [userId] },
+          "members.user": userId,
         }).populate({
-          path: "members messages.sender messages.files messages.reply",
+          path: "members.user messages.sender messages.files messages.reply",
           select: "-password -twoFA.secret",
         });
       } else {
@@ -63,10 +71,10 @@ exports.getConversations = async (req, res, next) => {
             {
               $expr: { $gte: [{ $size: "$members" }, 3] },
             },
-            { members: userId },
+            { "members.user": userId },
           ],
         }).populate({
-          path: "members messages.sender messages.files messages.reply",
+          path: "members.user messages.sender messages.files messages.reply",
           select: "-password -twoFA.secret",
         });
       }
@@ -81,7 +89,7 @@ exports.getConversationDetail = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId).populate({
-      path: "members messages.sender messages.files messages.reply",
+      path: "members.user messages.sender messages.files messages.reply",
       select: "-password -twoFA.secret",
     });
     res.status(200).json(conversation);
@@ -134,7 +142,6 @@ exports.postNewMessage = async (req, res, next) => {
             date: new Date(Date.now()),
             reply: replyOb ? newReply._id : null,
             forward: forwardOb ? forwardOb : null,
-            // files: newFile._id,
             files: file_id,
           },
         },
@@ -164,27 +171,32 @@ const findGroupConversation = async (groupId) => {
   return await Conversation.findById(groupId);
 };
 
-const createNewConversation = async (friend, userId, group = null) => {
+const createNewConversation = async (friend, userId) => {
   try {
     const existedConversation = await Conversation.findOne({
       $and: [
-        { members: friend._id },
-        { members: userId },
+        { "members.user": friend._id },
+        { "members.user": userId },
         { $expr: { $lte: [{ $size: "$members" }, 2] } },
       ],
-    }).populate({ path: "members", select: "-password -twoFA.secret" });
+    }).populate({ path: "members.user", select: "-password -twoFA.secret" });
 
     if (existedConversation) {
       return existedConversation;
     }
     const newConversation = await new Conversation({
-      members: [friend._id, userId],
+      // members: [friend._id, userId],
+      members: [
+        { user: friend._id, isAdmin: false },
+        { user: userId, isAdmin: true },
+      ],
       messages: [],
-    });
-    await newConversation.save();
+      meetings: [],
+    }).save();
+    // await newConversation.save();
 
     return await newConversation.populate({
-      path: "members",
+      path: "membes.user",
       select: "-password -twoFA.secret",
     });
   } catch (err) {
@@ -222,32 +234,33 @@ exports.deleteMessage = async (conversationId, id) => {
     });
     await Reply.deleteMany({ messageId: id });
 
-    const file = await File.findByIdAndRemove(conversation.messages[0].files);
-    if (file.images.length !== 0) {
-      file.images.forEach(async (img) => {
-        try {
-          await deletes({
-            public_id: img.cloudinary_id,
-            resource_type: "image",
-          });
-        } catch (err) {
-          console.log(err);
-        }
-      });
-    }
-
-    if (file.attachments.length !== 0) {
-      file.attachments.forEach(async (attachment) => {
-        try {
-          await deletes({
-            public_id: attachment.cloudinary_id,
-            resource_type: "raw",
-          });
-        } catch (err) {
-          console.error(err);
-        }
-      });
-    }
+    // const file = await File.findByIdAndRemove(conversation.messages[0].files);
+    // if (file.images.length !== 0) {
+    //   file.images.forEach(async (img) => {
+    //     try {
+    //       await deletes({
+    //         public_id: img.cloudinary_id,
+    //         resource_type: "image",
+    //       });
+    //     } catch (err) {
+    //       console.log(err);
+    //     }
+    //   });
+    // }
+    //
+    // if (file.attachments.length !== 0) {
+    //   file.attachments.forEach(async (attachment) => {
+    //     try {
+    //       await deletes({
+    //         public_id: attachment.cloudinary_id,
+    //         resource_type: "raw",
+    //       });
+    //     } catch (err) {
+    //       console.error(err);
+    //     }
+    //   });
+    // }
+    deletesFiles(conversation.messages[0].files);
   } catch (err) {
     console.error(err);
   }
@@ -271,14 +284,20 @@ exports.forwardMessage = async (forwardOb) => {
         "attachments"
       );
       file_id = fileId;
+    } else {
+      const newFile = await new File({
+        images: [],
+        attachments: [],
+      }).save();
+      file_id = newFile._id;
     }
     if (!forwardOb.forwardee.isGroup) {
       await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
       conversation = await Conversation.findOneAndUpdate(
         {
           $and: [
-            { members: forwardOb.forwarder._id },
-            { members: forwardOb.forwardee._id },
+            { "members.user": forwardOb.forwarder._id },
+            { "members.user": forwardOb.forwardee._id },
             { $expr: { $lte: [{ $size: "$members" }, 2] } },
           ],
         },
@@ -322,6 +341,21 @@ exports.forwardMessage = async (forwardOb) => {
   } catch (err) {
     console.error(err);
   }
+};
+
+exports.deleteConversation = async (conversationId) => {
+  const conversation = await Conversation.findByIdAndRemove(conversationId);
+  conversation.messages.forEach(async (message) => {
+    await deletesFiles(message.files);
+
+    await Reply.deleteOne({
+      _id: message.reply,
+    });
+  });
+  conversation.meetings.foreach(async (meeting) => {
+    console.log(meeting);
+    await Meeting.deleteOne({ _id: meeting });
+  });
 };
 
 module.exports.createNewConversation = createNewConversation;

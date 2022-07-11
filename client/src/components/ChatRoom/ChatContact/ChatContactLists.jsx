@@ -50,8 +50,6 @@ const ChatContactLists = ({ searchContactItems, type }) => {
   useEffect(() => {
     const getConversation = async () => {
       try {
-        console.log("ddddddddddddddd");
-        console.log(userState);
         const resConversation = await fetch(
           `${END_POINT_SERVER}/conversation/${
             userState.user ? userState.user._id : "error"
@@ -127,10 +125,11 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         if (searchContactItems === "") return true;
         if (conversation.members.length <= 2) {
           const member = conversation?.members.find(
-            (member) => member._id.toString() !== userState.user._id.toString()
+            (member) =>
+              member.user._id.toString() !== userState.user._id.toString()
           );
           if (
-            member.fullname
+            member.user.fullname
               .toLowerCase()
               .includes(searchContactItems.toLowerCase())
           )
@@ -148,16 +147,17 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       .map((conversation, i) => {
         if (conversation.members.length <= 2) {
           const member = conversation?.members.find(
-            (member) => member._id.toString() !== userState.user._id.toString()
+            (member) =>
+              member.user._id.toString() !== userState.user._id.toString()
           );
-          conversation.name = member?.fullname;
+          conversation.name = member?.user.fullname;
           return (
             <ChatContactItems
               key={i}
               id={conversation._id}
               conversation={conversation}
               type={type}
-              status={member?.status}
+              status={member?.user.status}
             />
           );
         } else {

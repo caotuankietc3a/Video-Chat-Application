@@ -11,9 +11,18 @@ const conversationSchema = new Schema({
   },
   members: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      isAdmin: {
+        type: Boolean,
+        default: false,
+      },
+      // type: Schema.Types.ObjectId,
+      // ref: "User",
+      // required: true,
     },
   ],
   messages: [
@@ -47,6 +56,12 @@ const conversationSchema = new Schema({
         type: Schema.Types.Boolean,
         default: false,
       },
+    },
+  ],
+  meetings: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Meeting",
     },
   ],
 });

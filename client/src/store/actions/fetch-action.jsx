@@ -315,6 +315,7 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
           }
         })
         .then((res) => {
+          console.log(res);
           if (res.status === "cancel") {
             dispatch(userLoginActions.setUser({ user: res.user }));
             Swal.fire({

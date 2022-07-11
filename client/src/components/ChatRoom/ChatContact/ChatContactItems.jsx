@@ -44,11 +44,11 @@ const ChatContactItems = ({
   if (type === "Chats") {
     length = conversation.messages.length;
     const member = conversation.members.find(
-      (mem) => mem._id !== userState.user._id
+      (mem) => mem.user._id !== userState.user._id
     );
     profilePhoto = isGroup
       ? conversation.profilePhoto
-      : member.profilePhoto.url;
+      : member.user.profilePhoto.url;
     if (length - 1 !== -1) {
       latestMessage = {
         text: conversation.messages[length - 1].text,
@@ -74,19 +74,19 @@ const ChatContactItems = ({
 
         if (conversation.members.length === 2) {
           const member = conversation.members.find(
-            (member) => member._id !== userState.user._id
+            (member) => member.user._id !== userState.user._id
           );
           dispatch(
             conversationActions.setConversation({
               conversation: {
                 _id: conversation._id,
                 members: conversation.members,
-                name: member.fullname,
-                address: member.address,
-                email: member.email,
+                name: member.user.fullname,
+                address: member.user.address,
+                email: member.user.email,
                 time: formatDate(new Date(Date.now())),
-                profilePhoto: member.profilePhoto.url,
-                status: member.status,
+                profilePhoto: member.user.profilePhoto.url,
+                status: member.user.status,
               },
             })
           );
