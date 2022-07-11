@@ -7,6 +7,8 @@ import {
   FriendCol,
   Footer,
   GroupName,
+  DialogInvitation,
+  DialogInvitationContainer,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
@@ -20,10 +22,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { forwardActions } from "../../store/slices/forward-slice";
 import BouncyLoading from "../UI/BouncyLoading/BouncyLoading";
+import { postInvitationMessage } from "../../store/actions/invite-function";
 const { v4: uuidv4 } = require("uuid");
-const FriendList = ({ isClosedHandler, friends, createGroup }) => {
+const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
+  const invitationRef = useRef({});
   const { user } = useSelector((state) => state.user);
   const { forward } = useSelector((state) => state.forward);
   const { socket_chat } = useSelector((state) => state.socket);
@@ -66,7 +70,6 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
   };
 
   const friendsHandler = (friends, searchText, createGroup = false) => {
-    console.log(friends);
     return friends
       ?.filter((friend) => {
         if (createGroup && friend.isGroup) return false;
@@ -135,10 +138,25 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
       )
     );
   };
-  console.log(createGroup);
+
+  const createInvitaionMessage = async () => {
+    setIsFetching(true);
+    await postInvitationMessage(
+      { ...invitationRef.current, senderEmail: user.email },
+      () => {
+        setIsFetching(false);
+        isClosedHandler();
+      }
+    );
+  };
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    createGroup ? createNewGroupConversation() : createInvitaionMessage();
+  };
 
   return (
-    <Container>
+    <Container onSubmit={submitHandler}>
       <Content>
         <Header>
           <div>
@@ -147,6 +165,8 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
                 ? "Forward message"
                 : createGroup
                 ? "Create new group"
+                : invite
+                ? "Invite Others"
                 : user.fullname}
             </h5>
           </div>
@@ -184,37 +204,74 @@ const FriendList = ({ isClosedHandler, friends, createGroup }) => {
               </GroupName>
             </>
           )}
-          <SearchBar>
-            <input
-              type="text"
-              placeholder={
-                forward
-                  ? "Search user to forward message....."
-                  : createGroup
-                  ? "Search users to create a new group....."
-                  : "Search user to start a new conversation....."
-              }
-              onChange={(e) => setInputText(e.target.value)}
-            />
-            <div>
-              <BsSearch />
-            </div>
-          </SearchBar>
-          <FriendCol>
-            {friendsHandler(friends, inputText, createGroup)}
-          </FriendCol>
+
+          {invite && (
+            <DialogInvitationContainer>
+              <DialogInvitation>
+                <label>Email address</label>
+                <input
+                  type="email"
+                  name="email"
+                  required={true}
+                  placeholder="Type email address here"
+                  onChange={(e) => {
+                    invitationRef.current.receiverEmail = e.target.value;
+                  }}
+                />
+              </DialogInvitation>
+
+              <DialogInvitation>
+                <label>Invitation message</label>
+                <textarea
+                  placeholder="Type your messages here"
+                  required={true}
+                  onChange={(e) => {
+                    invitationRef.current.textArea = e.target.value;
+                  }}
+                />
+              </DialogInvitation>
+            </DialogInvitationContainer>
+          )}
+          {!invite && (
+            <SearchBar>
+              <input
+                type="text"
+                placeholder={
+                  forward
+                    ? "Search user to forward message....."
+                    : createGroup
+                    ? "Search users to create a new group....."
+                    : "Search user to start a new conversation....."
+                }
+                onChange={(e) => setInputText(e.target.value)}
+              />
+              <div>
+                <BsSearch />
+              </div>
+            </SearchBar>
+          )}
+          {!invite && (
+            <FriendCol>
+              {friendsHandler(friends, inputText, createGroup)}
+            </FriendCol>
+          )}
         </Body>
-        {createGroup && (
-          <Footer>
+        {(createGroup || invite) && (
+          <Footer type={invite ? "invite" : "create-group"}>
             <button className="cancel" onClick={isClosedHandler}>
               Cancel
             </button>
             {!isFetching ? (
               <button
                 className="create-group"
-                onClick={createNewGroupConversation}
+                // onClick={
+                //   createGroup
+                //     ? createNewGroupConversation
+                //     : createInvitaionMessage
+                // }
               >
-                Create group
+                {createGroup && "Create group"}
+                {invite && "Send Invitation"}
               </button>
             ) : (
               <BouncyLoading

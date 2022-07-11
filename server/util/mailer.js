@@ -2,22 +2,21 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 const { NODEMAILER_API_PASS, NODEMAILER_API_USER, REACT_URL } = process.env;
 
+// Need to change method authentication in google (2FA) into App method;
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: NODEMAILER_API_USER,
+    pass: NODEMAILER_API_PASS,
+  },
+});
+
 async function sendMailFunction(email, token) {
   try {
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      // host: "smtp.ethereal.email",
-      // port: 465,
-      // secure: true, // true for 465, false for other ports
-      auth: {
-        user: NODEMAILER_API_USER, // generated ethereal user
-        pass: NODEMAILER_API_PASS, // generated ethereal password
-      },
-    });
     const url = `${REACT_URL}/auth/new-password?token=${token}`;
 
     const msg = {
-      from: "caotuankietc3a@gmail.com", // sender address
+      from: NODEMAILER_API_USER, // sender address
       to: email, // list of receivers
       subject: "Reset password!!",
       html: `<strong>Hello</strong> <i>${email}</i>.
@@ -25,11 +24,30 @@ async function sendMailFunction(email, token) {
         Please click <a href=${url}>here</a> to reset your password!!!
       `,
     };
-    const info = await transporter.sendMail(msg);
-    console.log(info);
+    await transporter.sendMail(msg);
   } catch (err) {
     console.error(err);
   }
 }
 
-module.exports = { sendMailFunction };
+async function sendInvitationMessage({ senderEmail, receiverEmail, textArea }) {
+  try {
+    const url = `${REACT_URL}/auth/login`;
+
+    const msg = {
+      from: NODEMAILER_API_USER, // sender address
+      to: receiverEmail, // list of receivers
+      subject: "Invitation message to join into Video Chat App!!",
+      html: `<strong>Hello</strong> <i>${receiverEmail}</i>.
+        <br/>An invite request has been sended to you from ${senderEmail} account. <br/>
+        <p><strong>Message:</strong> ${textArea}</p>
+        Please click <a href=${url}>here</a> to participate in Video Chat App with me!!!
+      `,
+    };
+    await transporter.sendMail(msg);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+module.exports = { sendMailFunction, sendInvitationMessage };

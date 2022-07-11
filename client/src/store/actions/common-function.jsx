@@ -224,3 +224,18 @@ export const showMenuHandler = (cb, showMenu) => {
     document.removeEventListener("click", checkIsClickOutside);
   };
 };
+
+export const convertString = (oldString) => {
+  let arrStr = oldString.trim().split("\n");
+
+  return arrStr
+    .map((str) => str.trim())
+    .filter((str) => str.length > 0)
+    .map((str) =>
+      str
+        .split(" ")
+        .filter((x) => x.length > 0)
+        .join(" ")
+    )
+    .join(" ");
+};

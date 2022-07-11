@@ -31,6 +31,7 @@ const ChatRoom = () => {
   const dispatch = useDispatch();
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
+  const [invite, setInvite] = useState(false);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );
@@ -40,12 +41,17 @@ const ChatRoom = () => {
   };
 
   const createGroupHandler = () => {
-    setCreateGroup(!createGroup);
+    setCreateGroup(true);
+  };
+
+  const inviteHandler = () => {
+    setInvite(true);
   };
 
   const isClosedHandler = () => {
     setIsClickedConversation(false);
     setCreateGroup(false);
+    setInvite(false);
     dispatch(forwardActions.setForward({ forward: null }));
   };
 
@@ -157,21 +163,15 @@ const ChatRoom = () => {
   return (
     <Container>
       <MainLayOut>
-        {isClickedConversation || forward ? (
+        {(isClickedConversation || forward || createGroup || invite) && (
           <Portal>
-            <FriendList isClosedHandler={isClosedHandler} friends={friends} />
+            <FriendList
+              isClosedHandler={isClosedHandler}
+              friends={friends}
+              createGroup={createGroup}
+              invite={invite}
+            />
           </Portal>
-        ) : (
-          createGroup && (
-            <Portal>
-              <FriendList
-                isClosedHandler={isClosedHandler}
-                friends={friends}
-                createGroup={createGroup}
-                error={error}
-              />
-            </Portal>
-          )
         )}
         <NavBarContact />
         <Routes>
@@ -182,6 +182,7 @@ const ChatRoom = () => {
                 header="Chats"
                 isClickedHandler={isClickedHandler}
                 createGroupHandler={createGroupHandler}
+                inviteHandler={inviteHandler}
               />
             }
           ></Route>

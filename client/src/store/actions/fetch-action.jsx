@@ -216,7 +216,7 @@ export const verifyEnable2FA = (navigate, userId) => {
       timer: 3500,
     }).then(() => {
       Swal.fire({
-        html: "Please enter your token complete <strong>2-factor authentication</strong>!!",
+        html: "Please enter your token to complete <strong>2-factor authentication</strong>!!",
         input: "number",
         inputPlaceholder: "6-digits",
         inputAttributes: {
@@ -226,13 +226,14 @@ export const verifyEnable2FA = (navigate, userId) => {
         backdrop: true,
         confirmButtonText: "Submit",
         showLoaderOnConfirm: true,
-        allowOutsideClick: () => !Swal.isLoading(),
-        preConfirm: async (otpToken) => {
+        allowOutsideClick: false,
+        preConfirm: (otpToken) => {
           return postData(
             { otpToken },
             `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
           )
             .then((response) => {
+              console.log(response);
               if (response.status === "valid") {
                 socket_notify.emit("log-in");
                 dispatch(userLoginActions.setIsFetching({ isFetching: false }));
@@ -243,6 +244,7 @@ export const verifyEnable2FA = (navigate, userId) => {
               }
             })
             .catch((error) => {
+              console.log(error);
               Swal.showValidationMessage(`Error: ${error}`);
             });
         },
@@ -258,5 +260,78 @@ export const verifyEnable2FA = (navigate, userId) => {
         }
       });
     });
+  };
+};
+
+export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
+  return async (dispatch, _getState) => {
+    Swal.fire({
+      html: "Please scan this <strong>QR code</strong> to verify <strong><i>2-factor authentication</i></strong>!!",
+      imageUrl: QRCodeUrl,
+      confirmButtonText: "Next",
+    }).then(() => {
+      // Swal.fire({
+      //   html: `You will be redirected to <strong>2-factor authentication page</strong> after this message.`,
+      //   showConfirmButton: false,
+      //   icon: "success",
+      //   timer: 3500,
+      // }).then(() => {
+      Swal.fire({
+        html: "Please enter your token to complete <strong>2-factor authentication</strong>!!",
+        input: "number",
+        inputPlaceholder: "6-digits",
+        inputAttributes: {
+          autocapitalize: "off",
+        },
+        showCancelButton: true,
+        backdrop: true,
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        allowOutsideClick: false,
+        preConfirm: (otpToken) => {
+          return postData(
+            { otpToken, secret: uniqueSecret },
+            `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
+          )
+            .then((response) => {
+              console.log(response);
+              if (response.status === "valid") {
+                dispatch(userLoginActions.setUser({ user: response.user }));
+
+                Swal.fire({
+                  html: "Enable <strong><i>2-factor authentication</i></strong> completely!",
+                  icon: "success",
+                  confirmButtonText: "Ok",
+                });
+              } else if (response.status === "invalid") {
+                return Promise.reject(response.msg);
+              }
+            })
+            .catch((error) => {
+              Swal.showValidationMessage(`Error: ${error}`);
+            });
+        },
+      });
+      // .then((result) => {
+      //   if (result.isDismissed) {
+      //     return postData(
+      //       { is2FAEnabled: false },
+      //       `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/update-profile-security/${userId}`
+      //     );
+      //   }
+      // })
+      // .then((res) => {
+      //   if (res.status === "cancel") {
+      //     dispatch(userLoginActions.setUser({ user: res.user }));
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Oops...",
+      //       html: "Can't activate <strong>2-factor authentication</strong>!!",
+      //       showConfirmButton: "Ok",
+      //     });
+      //   }
+      // });
+    });
+    // });
   };
 };

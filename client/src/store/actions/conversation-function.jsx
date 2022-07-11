@@ -101,6 +101,6 @@ export const postNewGroupConversation = (
       socket_notify.emit("post-new-group-conversation");
       navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
       isClosedHandler();
-    }, 750);
+    }, 350);
   };
 };

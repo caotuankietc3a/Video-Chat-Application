@@ -15,7 +15,12 @@ import ChatContactLists from "./ChatContactLists";
 import { BsBell, BsSearch } from "react-icons/bs";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 import { showMenuHandler } from "../../../store/actions/common-function";
-const ChatContact = ({ header, isClickedHandler, createGroupHandler }) => {
+const ChatContact = ({
+  header,
+  isClickedHandler,
+  createGroupHandler,
+  inviteHandler,
+}) => {
   const [searchContactItems, setSearchContactItems] = useState("");
   const [showMenu, setShowMenu] = useState(false);
 
@@ -53,7 +58,7 @@ const ChatContact = ({ header, isClickedHandler, createGroupHandler }) => {
                     <DropDownItem onClick={createGroupHandler}>
                       <span>Create Group</span>
                     </DropDownItem>
-                    <DropDownItem>
+                    <DropDownItem onClick={inviteHandler}>
                       <span>Invite Others</span>
                     </DropDownItem>
                   </DropDownMenu>

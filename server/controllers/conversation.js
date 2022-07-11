@@ -3,6 +3,8 @@ const Reply = require("../models/reply");
 const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
 const { uploads, deletes, uploadsFiles } = require("../util/cloudinary.js");
+const { validationResult } = require("express-validator");
+const { sendInvitationMessage } = require("../util/mailer");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
@@ -25,6 +27,20 @@ exports.postNewGroupConversation = async (req, res, next) => {
     );
   } catch (err) {
     console.error(err);
+  }
+};
+
+exports.postNewInvitationMessage = async (req, res, next) => {
+  try {
+    const { receiverEmail, textArea, senderEmail } = req.body;
+    sendInvitationMessage({ senderEmail, receiverEmail, textArea });
+    res.status(200).json({
+      msg: "An invite request has been sended successfully!!!",
+      status: "success",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ msg: err.message, status: "error" });
   }
 };
 

@@ -2,7 +2,7 @@ import "./App.css";
 import Login from "./components/Login/Login";
 import ChatRoom from "./components/ChatRoom/ChatRoom";
 import MeetingRoom from "./components/MeetingRoom/MeetingRoom";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import MeetingGroupRoom from "./components/MeetingRoom/MeetingGroupRoom";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

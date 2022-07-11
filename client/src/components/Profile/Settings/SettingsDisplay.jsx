@@ -8,7 +8,10 @@ import {
   SettingsRow,
 } from "./StyledSettings";
 import BouncyLoading from "../../UI/BouncyLoading/BouncyLoading";
-import { postData } from "../../../store/actions/fetch-action";
+import {
+  enable2FAFunction,
+  postData,
+} from "../../../store/actions/fetch-action";
 import { userLoginActions } from "../../../store/slices/user-login-slice";
 import { errorActions } from "../../../store/slices/error-slice";
 import { useSelector, useDispatch } from "react-redux";
@@ -146,19 +149,24 @@ const SettingsDisplay = ({ header, rows }) => {
                 confirmButtonText: "Ok",
               });
             } else {
+              console.log("sssssssssssssssssssssssssssss");
               const res = await postData(
                 securityRef.current,
                 `${END_POINT_SERVER}/auth/update-profile-security/${user._id}`
               );
+              console.log(res);
               if (res.status === "success") {
-                Swal.fire({
-                  html: "Please scan this <strong>QR code</strong> to complete <strong><i>2-factor authentication</i></strong>!!",
-                  imageUrl: res.QRCodeUrl,
-                  confirmButtonText: "Ok",
-                });
-
-                console.log(res.user);
-                dispatch(userLoginActions.setUser({ user: res.user }));
+                // Swal.fire({
+                //   html: "Please scan this <strong>QR code</strong> to complete <strong><i>2-factor authentication</i></strong>!!",
+                //   imageUrl: res.QRCodeUrl,
+                //   confirmButtonText: "Ok",
+                // });
+                //
+                // console.log(res.user);
+                // dispatch(userLoginActions.setUser({ user: res.user }));
+                dispatch(
+                  enable2FAFunction(res.QRCodeUrl, user._id, res.uniqueSecret)
+                );
               }
             }
           }

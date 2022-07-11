@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Container = styled.div`
+export const Container = styled.form`
   position: fixed;
   top: 0;
   left: 0;
@@ -218,7 +218,8 @@ export const FriendCol = styled.ul`
 export const Footer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: ${({ type }) =>
+    type === "invite" ? "flex-end" : "space-between"};
   padding: 0.75rem;
   border-top: 1px solid #2a2a2a;
   width: 100%;
@@ -234,8 +235,10 @@ export const Footer = styled.div`
   }
   & button.cancel {
     background-color: transparent;
-    text-decoration: underline;
     border: 1px solid transparent;
+    &:hover {
+      text-decoration: underline;
+    }
   }
   & button.create-group {
     background-color: #44a675;
@@ -244,6 +247,77 @@ export const Footer = styled.div`
     color: #fff;
     &:hover {
       background-color: #398b62;
+    }
+  }
+`;
+
+export const DialogInvitationContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+export const DialogInvitation = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  width: 100%;
+  padding: 0.75rem;
+
+  & label {
+    color: #fff;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+  & input {
+    background-color: #2a2a2a;
+    width: 100%;
+    height: 90%;
+    padding: 0.75rem;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #495057;
+    border: 1px solid #2a2a2a;
+    border-radius: 0.25rem;
+    outline: none;
+    &::placeholder {
+      color: #adb5bd;
+    }
+
+    &:focus {
+      color: #fff;
+    }
+  }
+  & textarea {
+    color: #b9b9b9;
+    caret-color: #adb5bd;
+    padding: 0.75rem;
+    font-weight: 400;
+    font-size: 0.9rem;
+    min-height: 77px;
+    width: 100%;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    border: 1px solid #2a2a2a;
+    resize: none;
+    line-height: 1.4;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    &:focus {
+      color: #fff;
+      outline: none;
+      background-color: #383f44;
+      &::placeholder {
+        color: #fff;
+      }
+    }
+    &::placeholder {
+      color: #adb5bd;
     }
   }
 `;
