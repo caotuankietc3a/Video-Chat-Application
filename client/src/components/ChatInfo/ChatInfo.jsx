@@ -37,9 +37,6 @@ const ChatInfo = ({
   const [image, setImage] = useState(false);
   const [attach, setAttach] = useState(false);
   const [member, setMember] = useState(false);
-  console.log(conversation);
-
-  console.log(messages);
   const closeAllStates = () => {
     setAttach(false);
     setAbout(false);
@@ -109,7 +106,7 @@ const ChatInfo = ({
         <Body>
           <BodyDetail>
             <div className="avatar">
-              <img src={conversation.profilePhoto} alt="User" />
+              <img src={conversation.profilePhoto.url} alt="User" />
             </div>
             <h5>{conversation.name}</h5>
             <div className="address-participant">

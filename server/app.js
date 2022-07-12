@@ -21,6 +21,7 @@ const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 const {
   deleteMessage,
   forwardMessage,
+  deleteConversation,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
 const User_Socket = require("./models/user-socket");
@@ -83,6 +84,17 @@ io_chat.on("connection", (socket) => {
   socket.on("delete-message", ({ conversationId, id }) => {
     deleteMessage(conversationId, id);
     io_chat.to(conversationId).emit("delete-message", { id });
+  });
+
+  socket.on("delete-conversation", async ({ conversationId, user, group }) => {
+    const { msg, type, conversation } = await deleteConversation({
+      conversationId,
+      user,
+      group,
+    });
+    socket.broadcast
+      .to(conversationId)
+      .emit("delete-conversation", { msg, type, conversation });
   });
 
   socket.on("forward-message", async ({ forward }) => {
@@ -328,6 +340,11 @@ io_notify.on("connection", (socket) => {
 
   socket.on("post-new-group-conversation", () => {
     socket.broadcast.emit("post-new-group-conversation");
+  });
+
+  socket.on("delete-conversation", () => {
+    // to all clients in the current namespace
+    io_notify.emit("delete-conversation");
   });
 });
 

@@ -3,11 +3,21 @@ const { v4: uuidv4 } = require("uuid");
 const conversationSchema = new Schema({
   name: {
     type: String,
-    default: "Group name",
+    default: "",
   },
   profilePhoto: {
-    type: String,
-    default: "/images/user-img.jpg",
+    url: {
+      type: String,
+      default: "/images/user-img.jpg",
+    },
+    name: {
+      type: String,
+      default: "",
+    },
+    cloudinary_id: {
+      type: String,
+      default: "",
+    },
   },
   members: [
     {
@@ -17,6 +27,10 @@ const conversationSchema = new Schema({
         required: true,
       },
       isAdmin: {
+        type: Boolean,
+        default: false,
+      },
+      isBlock: {
         type: Boolean,
         default: false,
       },

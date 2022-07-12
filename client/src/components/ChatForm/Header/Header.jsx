@@ -22,6 +22,7 @@ const Header = ({
   onClickVideoCall,
   toggleShowSearchBox,
   toggleCloseChatInfo,
+  deleteConversation,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
@@ -37,7 +38,7 @@ const Header = ({
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
         <AvatarUser status={conversation.status ? true : false}>
-          <img src={`${conversation.profilePhoto}`} alt="" />
+          <img src={`${conversation.profilePhoto.url}`} alt="" />
         </AvatarUser>
         <Media>
           <h6 className="text-truncate">{conversation.name}</h6>
@@ -97,14 +98,14 @@ const Header = ({
                 <span>Archive</span>
               </DropDownItem>
 
-              <DropDownItem>
-                <BiBlock />
-                <span>Block</span>
+              <DropDownItem onClick={deleteConversation}>
+                <RiDeleteBinLine />
+                <span>Delete</span>
               </DropDownItem>
 
               <DropDownItem>
-                <RiDeleteBinLine />
-                <span>Delete</span>
+                <BiBlock />
+                <span>Block</span>
               </DropDownItem>
             </DropDownMenu>
           )}

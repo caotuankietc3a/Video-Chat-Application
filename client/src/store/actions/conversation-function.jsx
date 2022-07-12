@@ -39,7 +39,7 @@ export const postNewConversation = (user, friendDetail, navigate) => {
             email: member.user.email,
             time: formatDate(new Date(Date.now())),
             status: member.user.status,
-            profilePhoto: member.user.profilePhoto.url,
+            profilePhoto: member.user.profilePhoto,
           },
         })
       );
@@ -57,7 +57,7 @@ export const postNewGroupConversation = (
   isClosedHandler,
   setIsFetching
 ) => {
-  if (groupName === "") {
+  if (groupName.trim() === "") {
     setIsFetching(false);
     return dispatch(
       errorActions.setError({ error: "Please enter a group name!!!" })

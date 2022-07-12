@@ -233,7 +233,6 @@ export const verifyEnable2FA = (navigate, userId) => {
             `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
           )
             .then((response) => {
-              console.log(response);
               if (response.status === "valid") {
                 socket_notify.emit("log-in");
                 dispatch(userLoginActions.setIsFetching({ isFetching: false }));
@@ -288,7 +287,6 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
             `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
           )
             .then((response) => {
-              console.log(response);
               if (response.status === "valid") {
                 dispatch(userLoginActions.setUser({ user: response.user }));
 
@@ -315,7 +313,6 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
           }
         })
         .then((res) => {
-          console.log(res);
           if (res.status === "cancel") {
             dispatch(userLoginActions.setUser({ user: res.user }));
             Swal.fire({

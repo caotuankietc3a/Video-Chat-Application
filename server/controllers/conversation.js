@@ -16,14 +16,18 @@ exports.postNewGroupConversation = async (req, res, next) => {
     const { members, groupName, groupImg } = req.body;
     console.log(members);
     const uploadedRes = await uploads(
-      { fileName: groupName.split(".")[0], folderName: "images-group" },
+      { fileName: groupName.trim().split(".")[0], folderName: "images-group" },
       groupImg
     );
     const newConversation = new Conversation({
       members,
       messages: [],
       name: groupName,
-      profilePhoto: uploadedRes.url,
+      profilePhoto: {
+        url: uploadedRes.url,
+        name: groupName.trim().split(".")[0],
+        cloudinary_id: uploadedRes.public_id,
+      },
       meetings: [],
     });
     await newConversation.save();
@@ -119,9 +123,9 @@ exports.postNewMessage = async (req, res, next) => {
       file_id = newFile._id;
     }
 
-    let newReply;
+    let newReply = null;
     if (replyOb) {
-      newReply = await Reply({
+      newReply = await new Reply({
         messageId: replyOb.messageId,
         replyer: replyOb.replyer,
         replyee: replyOb.replyee,
@@ -168,7 +172,9 @@ exports.getMessages = async (req, res, next) => {
 };
 
 const findGroupConversation = async (groupId) => {
-  return await Conversation.findById(groupId);
+  return await Conversation.findById(groupId).populate({
+    path: "members.user",
+  });
 };
 
 const createNewConversation = async (friend, userId) => {
@@ -196,7 +202,7 @@ const createNewConversation = async (friend, userId) => {
     // await newConversation.save();
 
     return await newConversation.populate({
-      path: "membes.user",
+      path: "members.user",
       select: "-password -twoFA.secret",
     });
   } catch (err) {
@@ -291,6 +297,7 @@ exports.forwardMessage = async (forwardOb) => {
       }).save();
       file_id = newFile._id;
     }
+    console.log(forwardOb.forwardee);
     if (!forwardOb.forwardee.isGroup) {
       await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
       conversation = await Conversation.findOneAndUpdate(
@@ -343,19 +350,72 @@ exports.forwardMessage = async (forwardOb) => {
   }
 };
 
-exports.deleteConversation = async (conversationId) => {
-  const conversation = await Conversation.findByIdAndRemove(conversationId);
-  conversation.messages.forEach(async (message) => {
-    await deletesFiles(message.files);
+exports.deleteConversation = async ({
+  conversationId,
+  user: { userId, isAdmin, userName },
+  group: { groupName, isGroup },
+}) => {
+  try {
+    if ((isGroup && isAdmin) || !isGroup) {
+      const conversation = await Conversation.findByIdAndRemove(conversationId);
+      console.log(conversation);
+      if (conversation.profilePhoto.cloudinary_id !== "")
+        await deletes({
+          public_id: conversation.profilePhoto.cloudinary_id,
+          resource_type: "image",
+        });
+      conversation.messages.forEach(async (message) => {
+        deletesFiles(message.files);
 
-    await Reply.deleteOne({
-      _id: message.reply,
-    });
-  });
-  conversation.meetings.foreach(async (meeting) => {
-    console.log(meeting);
-    await Meeting.deleteOne({ _id: meeting });
-  });
+        message.reply &&
+          (await Reply.deleteOne({
+            _id: message.reply,
+          }));
+      });
+      conversation.meetings.forEach(async (meeting) => {
+        await Meeting.deleteOne({ _id: meeting });
+      });
+      if (!isGroup) {
+        return {
+          msg: `Sorry ${userName} removed the conversation with you!!!`,
+          type: true,
+        };
+      } else if (isAdmin && isGroup) {
+        return {
+          msg: `Sorry ${userName} removed the <strong>${groupName}</strong> conversation!!!`,
+          type: true,
+        };
+      }
+    } else {
+      const conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        {
+          $pull: {
+            members: { user: userId },
+          },
+        },
+        { new: true }
+      ).populate({ path: "members.user" });
+      console.log(conversation);
+      return {
+        msg: `${userName} had left the <strong>${groupName}</strong> conversation!!!`,
+        type: false,
+        conversation,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.blockConversation = async (req, res, _next) => {
+  try {
+    const { userId } = req.query;
+    const { conversationId } = req.params;
+    await Conversation.findByIdAndUpdate(conversationId, {});
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 module.exports.createNewConversation = createNewConversation;

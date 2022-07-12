@@ -99,7 +99,7 @@ const ChatRoom = () => {
               _id: conversation._id,
               members: conversation.members,
               name: conversation.name,
-              profilePhoto: conversation.profilePhoto,
+              profilePhoto: conversation.profilePhoto.url,
             },
           })
         );
@@ -110,7 +110,7 @@ const ChatRoom = () => {
               callerId,
               group: {
                 groupName: conversation.name,
-                groupImg: conversation.profilePhoto,
+                groupImg: conversation.profilePhoto.url,
               },
             },
           })
@@ -218,6 +218,7 @@ const ChatRoom = () => {
                   user={user}
                   socket_chat={socket_chat}
                   socket_video={socket_video}
+                  socket_notify={socket_notify}
                 />
               }
             ></Route>

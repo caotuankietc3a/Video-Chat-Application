@@ -47,7 +47,7 @@ const ChatContactItems = ({
       (mem) => mem.user._id !== userState.user._id
     );
     profilePhoto = isGroup
-      ? conversation.profilePhoto
+      ? conversation.profilePhoto.url
       : member.user.profilePhoto.url;
     if (length - 1 !== -1) {
       latestMessage = {
@@ -85,7 +85,7 @@ const ChatContactItems = ({
                 address: member.user.address,
                 email: member.user.email,
                 time: formatDate(new Date(Date.now())),
-                profilePhoto: member.user.profilePhoto.url,
+                profilePhoto: member.user.profilePhoto,
                 status: member.user.status,
               },
             })
@@ -125,6 +125,8 @@ const ChatContactItems = ({
       console.error(err);
     }
   };
+  console.log(type);
+  console.log(isGroup);
 
   return (
     <ContactItems onClick={clickHandler}>
@@ -138,7 +140,7 @@ const ChatContactItems = ({
                 : type === "Calls"
                 ? meeting.callee.profilePhoto.url
                 : isGroup
-                ? conversation.profilePhoto
+                ? conversation.profilePhoto.url
                 : profilePhoto
             }
             alt="User"

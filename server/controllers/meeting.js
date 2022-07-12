@@ -22,6 +22,7 @@ exports.getMeetings = async (req, res, _next) => {
       }
       return false;
     });
+    console.log(meeting_array);
     res.status(200).json(meeting_array);
   } catch (err) {
     console.error(err);

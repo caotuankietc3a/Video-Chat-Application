@@ -14,8 +14,17 @@ import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
 import { videoStreamStart } from "../../store/actions/video-chat-function";
 import { errorActions } from "../../store/slices/error-slice";
+import Swal from "sweetalert2";
+import { conversationActions } from "../../store/slices/conversation-slice";
+import { formatDate } from "../../store/actions/common-function";
 
-const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
+const ChatForm = ({
+  conversation,
+  user,
+  socket_chat,
+  socket_video,
+  socket_notify,
+}) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
   const { reply } = useSelector((state) => state.reply);
@@ -93,6 +102,33 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
         return [...preMessages];
       });
       dispatch(messageActions.setReRender({ reRender: { id } }));
+    });
+
+    socket_chat.on("delete-conversation", ({ msg, type, conversation }) => {
+      Swal.fire({
+        title: "Notification!!!",
+        html: msg,
+        icon: "warning",
+        confirmButtonText: "Ok, I know",
+      });
+      if (type) {
+        navigate("/home-chat");
+        dispatch(conversationActions.setConversation({ conversation: {} }));
+      } else {
+        dispatch(
+          conversationActions.setConversation({
+            conversation: {
+              _id: conversation._id,
+              members: conversation.members,
+              name: conversation.name,
+              time: formatDate(new Date(Date.now())),
+              status: true,
+              profilePhoto: conversation.profilePhoto,
+              no_mems: conversation.members.length,
+            },
+          })
+        );
+      }
     });
 
     return function cleanup() {
@@ -231,6 +267,51 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
   const toggleCloseChatInfo = () => {
     setCloseChatInfo(!closeChatInfo);
   };
+  console.log(conversation);
+
+  const deleteConversation = () => {
+    const member = conversation.members.find(
+      (member) => member.user._id === user._id
+    );
+    Swal.fire({
+      title: "Delete this conversation?",
+      text: "Once you delete the conversation, it can't be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#665dfe",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      preConfirm: () => {},
+      showLoaderOnConfirm: true,
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Deleted!", "The conversation had been deleted.", "success");
+        socket_chat.emit("delete-conversation", {
+          conversationId: conversation._id,
+          user: {
+            userId: user._id,
+            isAdmin: member.isAdmin,
+            userName: user.fullname,
+          },
+          group: conversation.no_mems
+            ? { isGroup: true, groupName: conversation.name }
+            : { isGroup: false },
+        });
+        socket_notify.emit("delete-conversation");
+        navigate("/home-chat");
+        dispatch(conversationActions.setConversation({ conversation: {} }));
+      }
+    });
+  };
+
+  const checkIsBlock = (members) => {
+    const member = members.find((member) => {
+      return member.user._id === user._id;
+    });
+    console.log(member);
+    return member.isBlock;
+  };
 
   return (
     <>
@@ -240,6 +321,7 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
           onClickVideoCall={clickVideoCall}
           toggleShowSearchBox={toggleShowSearchBox}
           toggleCloseChatInfo={toggleCloseChatInfo}
+          deleteConversation={deleteConversation}
         />
         {showSearchBox && (
           <SearchBox searchMessageHandler={searchMessageHandler} />
@@ -253,17 +335,21 @@ const ChatForm = ({ conversation, user, socket_chat, socket_video }) => {
             isGroup={conversation.no_mems ? true : false}
           />
         )}
-        <Input
-          clickHandler={onClickHandler}
-          imagesRef={imagesRef}
-          attachmentsRef={attachmentsRef}
-          multipleImagesHandler={multipleImagesHandler}
-          multipleAttachmentsHandler={multipleAttachmentsHandler}
-          images={images}
-          removeImageInBuffers={removeImageInBuffers}
-          removeAttachmentInBuffers={removeAttachmentInBuffers}
-          attachments={attachments}
-        />
+        {checkIsBlock(conversation.members) ? (
+          <Input
+            clickHandler={onClickHandler}
+            imagesRef={imagesRef}
+            attachmentsRef={attachmentsRef}
+            multipleImagesHandler={multipleImagesHandler}
+            multipleAttachmentsHandler={multipleAttachmentsHandler}
+            images={images}
+            removeImageInBuffers={removeImageInBuffers}
+            removeAttachmentInBuffers={removeAttachmentInBuffers}
+            attachments={attachments}
+          />
+        ) : (
+          <div>ok ban oi</div>
+        )}
       </ChatFormContainer>
       <ChatInfo
         toggleCloseChatInfo={toggleCloseChatInfo}

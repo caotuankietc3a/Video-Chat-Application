@@ -21,6 +21,7 @@ const uploads = ({ fileName, folderName }, data) => {
       },
       (error, result) => {
         if (error) reject(error);
+        console.log(result);
         resolve(result);
       }
     );
@@ -78,7 +79,6 @@ const uploadsFiles = async (datas, id, folderName = "images") => {
 };
 
 const deletesFiles = async (fileId) => {
-  console.log(fileId);
   const file = await File.findByIdAndRemove(fileId);
   if (file.images.length !== 0) {
     file.images.forEach(async (img) => {

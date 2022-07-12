@@ -40,10 +40,17 @@ const ChatContactLists = ({ searchContactItems, type }) => {
       setRendering(!rendering);
     });
 
+    socket_notify.on("delete-conversation", () => {
+      console.log("saaaaaaaaaaadfffffffffffffffffffffff");
+      setRendering(!rendering);
+    });
+
     return () => {
       socket_notify.off("log-out");
       socket_notify.off("log-in");
       socket_notify.off("post-new-group-conversation");
+      socket_notify.off("post-new-conversation");
+      socket_notify.off("delete-conversation");
     };
   }, [rendering]);
 
@@ -145,7 +152,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
         return false;
       })
       .map((conversation, i) => {
-        if (conversation.members.length <= 2) {
+        if (conversation.members.length === 2 && conversation.name === "") {
           const member = conversation?.members.find(
             (member) =>
               member.user._id.toString() !== userState.user._id.toString()
