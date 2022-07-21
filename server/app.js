@@ -16,6 +16,7 @@ const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
+const PORT = process.env.PORT || 5000;
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 const {
@@ -30,9 +31,12 @@ const User_Socket = require("./models/user-socket");
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 
+// https://helpex.vn/question/cross-domain-session-cookie-express-api-on-heroku-react-app-on-netlify-60e9d52132040a40275cd60d?fbclid=IwAR1J6CuQwzb6CGsDDZjb7XZEwi3yLIBMxAXfy5UL9DCh7uhove0oM_0edJA
+app.set("trust proxy", 1);
+
 app.use(
   cors({
-    origin: process.env.REACT_URL,
+    origin: [process.env.REACT_URL],
     optionsSuccessStatus: 200,
     credentials: true,
   })
@@ -51,6 +55,8 @@ app.use(
     store,
     cookie: {
       maxAge: Date.now() + 1000 * 60 * 60 * 10,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // must be 'none' to enable cross-site delivery
+      secure: process.env.NODE_ENV === "production", // must be true if sameSite='none'
     },
   })
 );
@@ -407,6 +413,9 @@ io_notify.on("connection", (socket) => {
   });
 });
 
+app.get("/", (res, res, next) => {
+  res.status(200).json({ msg: `Server is on port ${PORT}!!!` });
+});
 app.use("/auth", authRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
@@ -415,8 +424,8 @@ app.use("/meeting", meetingRoutes);
 (async function () {
   try {
     await mongoose.connect(process.env.MONGOOSE_URL);
-    server.listen(5000, () => {
-      console.log("Server is on port 5000!!!");
+    server.listen(PORT, () => {
+      console.log(`Server is on port ${PORT}!!!`);
     });
   } catch (err) {
     console.error(err);
