@@ -415,8 +415,8 @@ app.use("/meeting", meetingRoutes);
 (async function () {
   try {
     await mongoose.connect(process.env.MONGOOSE_URL);
-    server.listen(5000, () => {
-      console.log("Server is on port 5000!!!");
+    server.listen(process.env.PORT || 5000, () => {
+      console.log(`Server is on port ${process.env.PORT || 5000}!!!`);
     });
   } catch (err) {
     console.error(err);
