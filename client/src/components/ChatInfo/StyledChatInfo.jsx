@@ -339,49 +339,5 @@ export const BodyGroup = styled.div`
         margin-right: 0.25rem;
       }
     }
-
-    & .group-member {
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
-      margin-top: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      & .avatar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 0.5rem;
-        img {
-          border-radius: 50%;
-          width: 2.2rem;
-          height: 2.2rem;
-          object-fit: cover;
-        }
-      }
-      & .member-name {
-        width: 100%;
-        h5 {
-          text-align: left;
-          font-size: 14px;
-          margin-bottom: 0.25rem;
-          font-weight: 600;
-          color: #e1e9f1;
-          position: relative;
-          span {
-            border-radius: 0.25rem;
-            position: absolute;
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.15rem 0.5rem;
-            text-align: center;
-            color: #ef476f;
-            background-color: #ef476f2e;
-            top: -10px;
-          }
-        }
-      }
-    }
   }
 `;

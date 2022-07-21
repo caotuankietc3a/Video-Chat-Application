@@ -73,7 +73,11 @@ const ChatContactItems = ({
         );
         const conversation = await res.json();
 
-        if (conversation.members.length === 2) {
+        if (
+          conversation.members.length === 2 &&
+          conversation.profilePhoto.cloudinary_id === "" &&
+          conversation.profilePhoto.name === ""
+        ) {
           const member = conversation.members.find(
             (member) => member.user._id !== userState.user._id
           );

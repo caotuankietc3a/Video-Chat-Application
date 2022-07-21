@@ -8,7 +8,7 @@ import ChatInfo from "../ChatInfo/ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
 import { useNavigate } from "react-router-dom";
-import { ChatFormContainer } from "./StyledChatForm";
+import { ChatFormContainer, Block } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
 import { messageActions } from "../../store/slices/message-slice";
@@ -40,7 +40,8 @@ const ChatForm = ({
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation.members);
+  console.log(conversation);
+  console.log("block: ", block);
 
   useEffect(() => {
     let timer = 0;
@@ -144,6 +145,28 @@ const ChatForm = ({
             title: isBlocked
               ? "Conversation is blocked!!!"
               : "Conversation is unblocked!!!",
+            html: isBlocked
+              ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
+              : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
+            icon: "warning",
+            showConfirmButton: true,
+            confirmButtonColor: "#665dfe",
+            allowOutsideClick: false,
+          });
+          setBlock(isBlocked);
+        }
+        dispatch(conversationActions.setMembers({ members }));
+      }
+    );
+
+    socket_chat.on(
+      "block-member-conversation",
+      ({ isBlocked, userName, members, type }) => {
+        if (type) {
+          Swal.fire({
+            title: isBlocked
+              ? "The conversation is blocked!!!"
+              : "The conversation is unblocked!!!",
             html: isBlocked
               ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
               : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
@@ -372,12 +395,66 @@ const ChatForm = ({
     return {
       isBlocked: member.block.isBlocked,
       blockerId: member.block.userId,
+      isAdmin: member.isAdmin,
     };
   };
 
   const checkUnblockHandler = () => {
     const { blockerId } = blockHandler(conversation.members);
     return blockerId === user._id;
+  };
+
+  const checkBlockHandler = () => {
+    return checkUnblockHandler();
+  };
+
+  const displayBlockerName = () => {
+    const { blockerId } = blockHandler(conversation.members);
+    const member = conversation.members.find((member) => {
+      return member.user._id === blockerId;
+    });
+    return member?.user?.fullname;
+  };
+
+  const blockGroupConversation = (groupBlock, blockeeId, cb) => {
+    Swal.fire({
+      title: !groupBlock ? "Block this member?" : "Unblock this member?",
+      text: !groupBlock
+        ? "Once you block, your friend can't chat anything!"
+        : "Once you unblock, your friend can chat with others!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#665dfe",
+      cancelButtonColor: "#d33",
+      confirmButtonText: !groupBlock ? "Yes, block it!" : "Yes, unblock it!",
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        !groupBlock
+          ? Swal.fire("Blocked!", "Your friend has been blocked.", "success")
+          : Swal.fire(
+              "Unblocked!",
+              "Your friend has been unblocked.",
+              "success"
+            );
+        socket_chat.emit("block-member-conversation", {
+          conversationId: conversation._id,
+          blockeeId,
+          isBlocked: !groupBlock,
+          userId: user._id,
+          userName: user.fullname,
+        });
+        socket_notify.emit("block-member-conversation");
+        cb();
+      }
+    });
+  };
+  //
+  const checkGroupBlockHandler = () => {
+    const member = conversation.members.find((member) => {
+      return member.user._id === user._id;
+    });
+    return member.isAdmin;
   };
 
   return (
@@ -391,6 +468,7 @@ const ChatForm = ({
           deleteConversation={deleteConversation}
           blockConversation={blockConversation}
           block={block}
+          // groupBlock={groupBlock}
           checkUnblockHandler={checkUnblockHandler}
         />
         {showSearchBox && (
@@ -406,7 +484,10 @@ const ChatForm = ({
           />
         )}
         {block ? (
-          <div>ok ban oi</div>
+          <Block>
+            This conversation has been blocked by{" "}
+            {checkBlockHandler() ? "You" : displayBlockerName()}
+          </Block>
         ) : (
           <Input
             clickHandler={onClickHandler}
@@ -426,6 +507,8 @@ const ChatForm = ({
         closeChatInfo={closeChatInfo}
         messages={messages}
         conversation={conversation}
+        blockGroupConversation={blockGroupConversation}
+        checkGroupBlockHandler={checkGroupBlockHandler}
       ></ChatInfo>
     </>
   );

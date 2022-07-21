@@ -23,6 +23,7 @@ const {
   forwardMessage,
   deleteConversation,
   blockConversation,
+  blockMemberConversation,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
 const User_Socket = require("./models/user-socket");
@@ -48,6 +49,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store,
+    cookie: {
+      maxAge: Date.now() + 1000 * 60 * 60 * 10,
+    },
   })
 );
 
@@ -104,6 +108,31 @@ io_chat.on("connection", (socket) => {
       const { conversation } = await blockConversation({
         conversationId,
         userId,
+        isBlocked,
+      });
+
+      socket.broadcast.to(conversationId).emit("block-conversation", {
+        isBlocked,
+        userName,
+        members: conversation.members,
+        type: 1,
+      });
+
+      // send to socket.id only
+      io_chat.to(`${socket.id}`).emit("block-conversation", {
+        members: conversation.members,
+        type: 0,
+      });
+    }
+  );
+
+  socket.on(
+    "block-member-conversation",
+    async ({ conversationId, blockeeId, isBlocked, userName, userId }) => {
+      const { conversation } = await blockMemberConversation({
+        conversationId,
+        userId,
+        blockeeId,
         isBlocked,
       });
 

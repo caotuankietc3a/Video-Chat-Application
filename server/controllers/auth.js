@@ -112,9 +112,12 @@ exports.postRegister = async (req, res, next) => {
 
 exports.getSession = async (req, res, next) => {
   try {
+    // console.log(Date.now());
+    // console.log(Date.now() - req.session.cookieExpiration);
     if (Date.now() - req.session.cookieExpiration >= 0) {
       throw new Error("Your session cookie has been expired!!!");
     }
+    console.log("session: ", req.session);
     const { isLogin, userId } = req.session;
     const { type } = req.query;
     const status = parseInt(type) ? true : isLogin ? true : false;

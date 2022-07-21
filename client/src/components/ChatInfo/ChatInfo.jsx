@@ -10,7 +10,6 @@ import {
   BodyGroupContainer,
 } from "./StyledChatInfo";
 import { HiOutlineUserAdd } from "react-icons/hi";
-import { BiBlock } from "react-icons/bi";
 import { GiSelfLove } from "react-icons/gi";
 import { FaUserAlt } from "react-icons/fa";
 import { FiUsers } from "react-icons/fi";
@@ -24,19 +23,25 @@ import {
   BsChevronDown,
 } from "react-icons/bs";
 import { CgAttachment } from "react-icons/cg";
+import { BiBlock } from "react-icons/bi";
+import { CgUnblock } from "react-icons/cg";
 import { useState } from "react";
+import BlockMember from "./BlockMember";
 
 const ChatInfo = ({
   toggleCloseChatInfo,
   closeChatInfo,
   messages,
   conversation,
+  blockGroupConversation,
+  checkGroupBlockHandler,
 }) => {
   console.log("ChatInfo is running!!!");
   const [about, setAbout] = useState(false);
   const [image, setImage] = useState(false);
   const [attach, setAttach] = useState(false);
   const [member, setMember] = useState(false);
+  console.log(conversation);
   const closeAllStates = () => {
     setAttach(false);
     setAbout(false);
@@ -72,20 +77,19 @@ const ChatInfo = ({
       );
     });
   };
-  const filterMembersHandler = (members) => {
-    return members.map((mem, i) => {
+  const filterMembersHandler = () => {
+    return conversation?.members.map((mem, i) => {
       return (
-        <div className="group-member" key={i}>
-          <div className="avatar">
-            <img src={mem.user.profilePhoto.url} alt="Member" />
-          </div>
-          <div className="member-name">
-            <h5>
-              {mem.user.fullname}
-              {mem.isAdmin && <span>Admin</span>}
-            </h5>
-          </div>
-        </div>
+        <BlockMember
+          key={i}
+          url={mem.user.profilePhoto.url}
+          fullname={mem.user.fullname}
+          isAdmin={mem.isAdmin}
+          blockGroupConversation={blockGroupConversation}
+          checkGroupBlockHandler={checkGroupBlockHandler}
+          userId={mem.user._id}
+          isBlocked={mem.block.isBlocked}
+        ></BlockMember>
       );
     });
   };
@@ -234,7 +238,7 @@ const ChatInfo = ({
                   </div>
                 </div>
                 <div className="bodygroup-collapse">
-                  {filterMembersHandler(conversation.members)}
+                  {filterMembersHandler()}
                 </div>
               </BodyGroup>
             )}

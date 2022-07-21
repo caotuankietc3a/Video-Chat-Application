@@ -26,12 +26,14 @@ const Header = ({
   deleteConversation,
   blockConversation,
   block,
+  groupBlock,
   checkUnblockHandler,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
   };
+  console.log(conversation);
 
   useEffect(() => {
     showMenuHandler(() => {
@@ -102,19 +104,19 @@ const Header = ({
                 <span>Archive</span>
               </DropDownItem>
 
-              {block ? (
-                checkUnblockHandler() && (
-                  <DropDownItem onClick={blockConversation}>
-                    <CgUnblock />
-                    <span>Unblock</span>
-                  </DropDownItem>
-                )
-              ) : (
-                <DropDownItem onClick={blockConversation}>
-                  <BiBlock />
-                  <span>Block</span>
-                </DropDownItem>
-              )}
+              {block
+                ? checkUnblockHandler() && (
+                    <DropDownItem onClick={blockConversation}>
+                      <CgUnblock />
+                      <span>Unblock</span>
+                    </DropDownItem>
+                  )
+                : !conversation.no_mems && (
+                    <DropDownItem onClick={blockConversation}>
+                      <BiBlock />
+                      <span>Block</span>
+                    </DropDownItem>
+                  )}
 
               <DropDownItem onClick={deleteConversation}>
                 <RiDeleteBinLine />

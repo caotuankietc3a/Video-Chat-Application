@@ -409,30 +409,52 @@ exports.deleteConversation = async ({
 
 exports.blockConversation = async ({ conversationId, userId, isBlocked }) => {
   try {
-    let conversation = null;
-    if (isBlocked) {
-      conversation = await Conversation.findByIdAndUpdate(
-        conversationId,
-        {
-          "members.$[].block": {
-            isBlocked: true,
-            userId: userId,
-          },
+    // if (isBlocked) {
+    const conversation = await Conversation.findByIdAndUpdate(
+      conversationId,
+      {
+        "members.$[].block": {
+          isBlocked: isBlocked,
+          userId: isBlocked ? userId : undefined,
         },
-        { new: true }
-      ).populate({ path: "members.user" });
-    } else {
-      conversation = await Conversation.findByIdAndUpdate(
-        conversationId,
-        {
-          "members.$[].block": {
-            isBlocked: false,
-          },
+      },
+      { new: true }
+    ).populate({ path: "members.user", select: "-password -twoFA.secret" });
+    // } else {
+    //   conversation = await Conversation.findByIdAndUpdate(
+    //     conversationId,
+    //     {
+    //       "members.$[].block": {
+    //         isBlocked: false,
+    //       },
+    //     },
+    //     { new: true }
+    //   ).populate({ path: "members.user", select: "-password -twoFA.secret" });
+    // }
+    // console.log("conversation: ", conversation);
+    return { conversation };
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.blockMemberConversation = async ({
+  conversationId,
+  userId,
+  blockeeId,
+  isBlocked,
+}) => {
+  try {
+    const conversation = await Conversation.findByIdAndUpdate(
+      conversationId,
+      {
+        "members.$[member].block": {
+          isBlocked: isBlocked,
+          userId: isBlocked ? userId : undefined,
         },
-        { new: true }
-      ).populate({ path: "members.user" });
-    }
-    console.log("conversation: ", conversation);
+      },
+      { arrayFilters: [{ "member.user": blockeeId }], new: true }
+    ).populate({ path: "members.user", select: "-password -twoFA.secret" });
     return { conversation };
   } catch (err) {
     console.error(err);

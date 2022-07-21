@@ -135,7 +135,11 @@ const ChatContactLists = ({ searchContactItems, type }) => {
     return conversations
       .filter((conversation) => {
         if (searchContactItems === "") return true;
-        if (conversation.members.length <= 2) {
+        if (
+          conversation.members.length === 2 &&
+          conversation.profilePhoto.cloudinary_id === "" &&
+          conversation.profilePhoto.name === ""
+        ) {
           const member = conversation?.members.find(
             (member) =>
               member.user._id.toString() !== userState.user._id.toString()
