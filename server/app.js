@@ -413,7 +413,7 @@ io_notify.on("connection", (socket) => {
   });
 });
 
-app.get("/", (res, res, next) => {
+app.get("/", (req, res, next) => {
   res.status(200).json({ msg: `Server is on port ${PORT}!!!` });
 });
 app.use("/auth", authRoutes);
