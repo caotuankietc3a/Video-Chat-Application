@@ -10,6 +10,7 @@ import {
 } from "./StyledHeader";
 import { LiTag } from "../../NavBarContact/StyledNavBarContact";
 import { BiBlock, BiDotsVerticalRounded } from "react-icons/bi";
+import { CgUnblock } from "react-icons/cg";
 import { BsTelephone, BsSearch, BsInfoCircle, BsArchive } from "react-icons/bs";
 
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -23,6 +24,9 @@ const Header = ({
   toggleShowSearchBox,
   toggleCloseChatInfo,
   deleteConversation,
+  blockConversation,
+  block,
+  checkUnblockHandler,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuShowHandler = (e) => {
@@ -98,14 +102,23 @@ const Header = ({
                 <span>Archive</span>
               </DropDownItem>
 
+              {block ? (
+                checkUnblockHandler() && (
+                  <DropDownItem onClick={blockConversation}>
+                    <CgUnblock />
+                    <span>Unblock</span>
+                  </DropDownItem>
+                )
+              ) : (
+                <DropDownItem onClick={blockConversation}>
+                  <BiBlock />
+                  <span>Block</span>
+                </DropDownItem>
+              )}
+
               <DropDownItem onClick={deleteConversation}>
                 <RiDeleteBinLine />
                 <span>Delete</span>
-              </DropDownItem>
-
-              <DropDownItem>
-                <BiBlock />
-                <span>Block</span>
               </DropDownItem>
             </DropDownMenu>
           )}

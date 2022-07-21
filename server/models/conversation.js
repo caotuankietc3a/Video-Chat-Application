@@ -30,9 +30,14 @@ const conversationSchema = new Schema({
         type: Boolean,
         default: false,
       },
-      isBlock: {
-        type: Boolean,
-        default: false,
+      block: {
+        isBlocked: {
+          type: Boolean,
+          default: false,
+        },
+        userId: {
+          type: Schema.Types.ObjectId,
+        },
       },
       // type: Schema.Types.ObjectId,
       // ref: "User",

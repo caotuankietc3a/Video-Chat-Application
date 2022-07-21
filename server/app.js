@@ -22,6 +22,7 @@ const {
   deleteMessage,
   forwardMessage,
   deleteConversation,
+  blockConversation,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
 const User_Socket = require("./models/user-socket");
@@ -96,6 +97,30 @@ io_chat.on("connection", (socket) => {
       .to(conversationId)
       .emit("delete-conversation", { msg, type, conversation });
   });
+
+  socket.on(
+    "block-conversation",
+    async ({ conversationId, userId, isBlocked, userName }) => {
+      const { conversation } = await blockConversation({
+        conversationId,
+        userId,
+        isBlocked,
+      });
+
+      socket.broadcast.to(conversationId).emit("block-conversation", {
+        isBlocked,
+        userName,
+        members: conversation.members,
+        type: 1,
+      });
+
+      // send to socket.id only
+      io_chat.to(`${socket.id}`).emit("block-conversation", {
+        members: conversation.members,
+        type: 0,
+      });
+    }
+  );
 
   socket.on("forward-message", async ({ forward }) => {
     const conversation = await forwardMessage(forward);
@@ -345,6 +370,11 @@ io_notify.on("connection", (socket) => {
   socket.on("delete-conversation", () => {
     // to all clients in the current namespace
     io_notify.emit("delete-conversation");
+  });
+
+  socket.on("block-conversation", () => {
+    // to all clients in the current namespace
+    io_notify.emit("block-conversation");
   });
 });
 

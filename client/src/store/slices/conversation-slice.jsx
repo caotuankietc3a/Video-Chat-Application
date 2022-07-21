@@ -16,6 +16,9 @@ const conversationSlice = createSlice({
     setStatus(state, action) {
       state.conversation.status = action.payload.status;
     },
+    setMembers(state, action) {
+      state.conversation.members = action.payload.members;
+    },
   },
 });
 export const conversationActions = conversationSlice.actions;

@@ -358,7 +358,6 @@ exports.deleteConversation = async ({
   try {
     if ((isGroup && isAdmin) || !isGroup) {
       const conversation = await Conversation.findByIdAndRemove(conversationId);
-      console.log(conversation);
       if (conversation.profilePhoto.cloudinary_id !== "")
         await deletes({
           public_id: conversation.profilePhoto.cloudinary_id,
@@ -396,7 +395,7 @@ exports.deleteConversation = async ({
         },
         { new: true }
       ).populate({ path: "members.user" });
-      console.log(conversation);
+      console.log("conversation: ", conversation);
       return {
         msg: `${userName} had left the <strong>${groupName}</strong> conversation!!!`,
         type: false,
@@ -408,11 +407,33 @@ exports.deleteConversation = async ({
   }
 };
 
-exports.blockConversation = async (req, res, _next) => {
+exports.blockConversation = async ({ conversationId, userId, isBlocked }) => {
   try {
-    const { userId } = req.query;
-    const { conversationId } = req.params;
-    await Conversation.findByIdAndUpdate(conversationId, {});
+    let conversation = null;
+    if (isBlocked) {
+      conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        {
+          "members.$[].block": {
+            isBlocked: true,
+            userId: userId,
+          },
+        },
+        { new: true }
+      ).populate({ path: "members.user" });
+    } else {
+      conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        {
+          "members.$[].block": {
+            isBlocked: false,
+          },
+        },
+        { new: true }
+      ).populate({ path: "members.user" });
+    }
+    console.log("conversation: ", conversation);
+    return { conversation };
   } catch (err) {
     console.error(err);
   }

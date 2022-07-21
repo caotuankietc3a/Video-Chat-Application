@@ -37,9 +37,9 @@ const ChatContactItems = ({
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [isActive, setIsActive] = useState(false);
 
-  let length;
-  let latestMessage;
-  let profilePhoto;
+  let length = null;
+  let latestMessage = null;
+  let profilePhoto = null;
 
   if (type === "Chats") {
     length = conversation.messages.length;
@@ -57,6 +57,7 @@ const ChatContactItems = ({
       };
     }
   }
+
   const linkTo =
     type !== "Friends"
       ? type === "Calls"
@@ -125,8 +126,6 @@ const ChatContactItems = ({
       console.error(err);
     }
   };
-  console.log(type);
-  console.log(isGroup);
 
   return (
     <ContactItems onClick={clickHandler}>

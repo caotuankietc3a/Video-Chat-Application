@@ -35,10 +35,12 @@ const ChatForm = ({
   const attachmentsRef = useRef(null);
   const [isFetching, setIsFetching] = useState(true);
   const [closeChatInfo, setCloseChatInfo] = useState(false);
+  const [block, setBlock] = useState(false);
   const [messages, setMessages] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(conversation.members);
 
   useEffect(() => {
     let timer = 0;
@@ -55,6 +57,9 @@ const ChatForm = ({
       }, 500);
       setMessages((preMessages) => [...preMessages, ...data]);
     })();
+
+    const { isBlocked } = blockHandler(conversation.members);
+    setBlock(isBlocked);
 
     return () => {
       clearTimeout(timer);
@@ -131,12 +136,32 @@ const ChatForm = ({
       }
     });
 
+    socket_chat.on(
+      "block-conversation",
+      ({ isBlocked, userName, members, type }) => {
+        if (type) {
+          Swal.fire({
+            title: isBlocked
+              ? "Conversation is blocked!!!"
+              : "Conversation is unblocked!!!",
+            html: isBlocked
+              ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
+              : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
+            icon: "warning",
+            showConfirmButton: true,
+            confirmButtonColor: "#665dfe",
+            allowOutsideClick: false,
+          });
+          setBlock(isBlocked);
+        }
+        dispatch(conversationActions.setMembers({ members }));
+      }
+    );
+
     return function cleanup() {
       socket_chat.emit("leave-chat", { conversationId: conversation._id });
     };
   }, []);
-
-  useEffect(() => {}, []);
 
   const onClickHandler = async (e, message) => {
     e.preventDefault();
@@ -267,7 +292,6 @@ const ChatForm = ({
   const toggleCloseChatInfo = () => {
     setCloseChatInfo(!closeChatInfo);
   };
-  console.log(conversation);
 
   const deleteConversation = () => {
     const member = conversation.members.find(
@@ -281,12 +305,11 @@ const ChatForm = ({
       confirmButtonColor: "#665dfe",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      preConfirm: () => {},
-      showLoaderOnConfirm: true,
       allowOutsideClick: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire("Deleted!", "The conversation had been deleted.", "success");
+        Swal.fire("Deleted!", "The conversation has been deleted.", "success");
+
         socket_chat.emit("delete-conversation", {
           conversationId: conversation._id,
           user: {
@@ -305,12 +328,56 @@ const ChatForm = ({
     });
   };
 
-  const checkIsBlock = (members) => {
+  const blockConversation = () => {
+    Swal.fire({
+      title: !block ? "Block this conversation?" : "Unblock this conversation?",
+      text: !block
+        ? "Once you block the conversation, your friend can't chat anything!"
+        : "Unblock this conversation means your friend can chat with you!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#665dfe",
+      cancelButtonColor: "#d33",
+      confirmButtonText: !block ? "Yes, block it!" : "Yes, unblock it!",
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        !block
+          ? Swal.fire(
+              "Blocked!",
+              "The conversation has been blocked.",
+              "success"
+            )
+          : Swal.fire(
+              "Unblocked!",
+              "The conversation has been unblocked.",
+              "success"
+            );
+        socket_chat.emit("block-conversation", {
+          conversationId: conversation._id,
+          userId: user._id,
+          isBlocked: !block,
+          userName: user.fullname,
+        });
+        socket_notify.emit("block-conversation");
+        setBlock(!block);
+      }
+    });
+  };
+
+  const blockHandler = (members) => {
     const member = members.find((member) => {
       return member.user._id === user._id;
     });
-    console.log(member);
-    return member.isBlock;
+    return {
+      isBlocked: member.block.isBlocked,
+      blockerId: member.block.userId,
+    };
+  };
+
+  const checkUnblockHandler = () => {
+    const { blockerId } = blockHandler(conversation.members);
+    return blockerId === user._id;
   };
 
   return (
@@ -322,6 +389,9 @@ const ChatForm = ({
           toggleShowSearchBox={toggleShowSearchBox}
           toggleCloseChatInfo={toggleCloseChatInfo}
           deleteConversation={deleteConversation}
+          blockConversation={blockConversation}
+          block={block}
+          checkUnblockHandler={checkUnblockHandler}
         />
         {showSearchBox && (
           <SearchBox searchMessageHandler={searchMessageHandler} />
@@ -335,7 +405,9 @@ const ChatForm = ({
             isGroup={conversation.no_mems ? true : false}
           />
         )}
-        {checkIsBlock(conversation.members) ? (
+        {block ? (
+          <div>ok ban oi</div>
+        ) : (
           <Input
             clickHandler={onClickHandler}
             imagesRef={imagesRef}
@@ -347,8 +419,6 @@ const ChatForm = ({
             removeAttachmentInBuffers={removeAttachmentInBuffers}
             attachments={attachments}
           />
-        ) : (
-          <div>ok ban oi</div>
         )}
       </ChatFormContainer>
       <ChatInfo
