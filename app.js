@@ -16,6 +16,7 @@ const authRoutes = require("./routes/auth");
 const conversationRoutes = require("./routes/conversation");
 const friendRoutes = require("./routes/friend");
 const meetingRoutes = require("./routes/meeting");
+const PORT = process.env.PORT || 5000;
 
 const { saveMeeting, updateMeeting } = require("./controllers/meeting.js");
 const {
@@ -407,6 +408,9 @@ io_notify.on("connection", (socket) => {
   });
 });
 
+app.get("/", (res, res, next) => {
+  res.status(200).json({ msg: `Server is on port ${PORT}!!!` });
+});
 app.use("/auth", authRoutes);
 app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
@@ -415,8 +419,8 @@ app.use("/meeting", meetingRoutes);
 (async function () {
   try {
     await mongoose.connect(process.env.MONGOOSE_URL);
-    server.listen(process.env.PORT || 5000, () => {
-      console.log(`Server is on port ${process.env.PORT || 5000}!!!`);
+    server.listen(PORT, () => {
+      console.log(`Server is on port ${PORT}!!!`);
     });
   } catch (err) {
     console.error(err);
