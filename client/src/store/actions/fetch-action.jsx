@@ -197,12 +197,10 @@ export const logoutHandler = (navigate) => {
     socket_chat.disconnect();
     socket_notify.disconnect();
     dispatch(userLoginActions.setUserLogout());
-    setTimeout(() => {
-      dispatch(socketActions.setSocket_Video());
-      dispatch(socketActions.setSocket_Chat());
-      dispatch(socketActions.setSocket_Notify());
-      navigate("/");
-    }, 50);
+    dispatch(socketActions.setSocket_Video());
+    dispatch(socketActions.setSocket_Chat());
+    dispatch(socketActions.setSocket_Notify());
+    navigate("/");
   };
 };
 
@@ -262,7 +260,7 @@ export const verifyEnable2FA = (navigate, userId) => {
   };
 };
 
-export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
+export const enable2FAFunction = (QRCodeUrl, userId, e) => {
   return async (dispatch, _getState) => {
     Swal.fire({
       html: "Please scan this <strong>QR code</strong> to verify <strong><i>2-factor authentication</i></strong>!!",
@@ -283,7 +281,7 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
         allowOutsideClick: false,
         preConfirm: (otpToken) => {
           return postData(
-            { otpToken, secret: uniqueSecret },
+            { otpToken },
             `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
           )
             .then((response) => {
@@ -315,6 +313,7 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
         .then((res) => {
           if (res.status === "cancel") {
             dispatch(userLoginActions.setUser({ user: res.user }));
+            e.target.querySelector(".switch-bg").classList.toggle("active");
             Swal.fire({
               icon: "error",
               title: "Oops...",
@@ -324,6 +323,5 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
           }
         });
     });
-    // });
   };
 };

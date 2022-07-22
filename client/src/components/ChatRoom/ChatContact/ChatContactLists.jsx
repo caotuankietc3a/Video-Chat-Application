@@ -84,9 +84,7 @@ const ChatContactLists = ({ searchContactItems, type }) => {
 
         const friends = await resFriends.json();
         setFriends(compareString(friends));
-        setTimeout(() => {
-          setIsFetching(false);
-        }, 500);
+        setIsFetching(false);
       } catch (err) {
         console.error(err);
       }

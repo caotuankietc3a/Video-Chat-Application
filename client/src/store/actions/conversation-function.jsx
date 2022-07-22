@@ -44,9 +44,7 @@ export const postNewConversation = (user, friendDetail, navigate) => {
         })
       );
     }
-    setTimeout(() => {
-      navigate(`/home-chat/conversation/detail/${conversation._id}`);
-    }, 500);
+    navigate(`/home-chat/conversation/detail/${conversation._id}`);
   };
 };
 
@@ -96,11 +94,9 @@ export const postNewGroupConversation = (
         },
       })
     );
-    setTimeout(() => {
-      setIsFetching(false);
-      socket_notify.emit("post-new-group-conversation");
-      navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
-      isClosedHandler();
-    }, 350);
+    setIsFetching(false);
+    socket_notify.emit("post-new-group-conversation");
+    navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
+    isClosedHandler();
   };
 };

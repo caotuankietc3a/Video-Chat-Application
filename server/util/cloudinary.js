@@ -63,7 +63,7 @@ const uploadsFiles = async (datas, id, folderName = "images") => {
   let files = [];
   for (let i = 0; i < datas.length; i++) {
     files.push({
-      url: uploadedFiles[i].url,
+      url: uploadedFiles[i].secure_url,
       name: datas[i].name,
       cloudinary_id: uploadedFiles[i].public_id,
       size: folderName === "attachments" ? datas[i].size : null,

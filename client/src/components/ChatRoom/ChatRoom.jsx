@@ -84,9 +84,7 @@ const ChatRoom = () => {
           })
         );
 
-        setTimeout(() => {
-          navigate(`/home-chat/meetings/${conversationId}`);
-        }, 1000);
+        navigate(`/home-chat/meetings/${conversationId}`);
       }
     );
 
@@ -116,9 +114,7 @@ const ChatRoom = () => {
           })
         );
 
-        setTimeout(() => {
-          navigate(`/home-chat/meetings/${conversationId}`);
-        }, 500);
+        navigate(`/home-chat/meetings/${conversationId}`);
       }
     );
 

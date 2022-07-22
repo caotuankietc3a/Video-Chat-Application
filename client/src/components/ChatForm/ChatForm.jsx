@@ -44,7 +44,6 @@ const ChatForm = ({
   console.log("block: ", block);
 
   useEffect(() => {
-    let timer = 0;
     (async () => {
       const res = await fetch(
         `${END_POINT_SERVER}/conversation/messages/${conversation._id}`,
@@ -53,18 +52,12 @@ const ChatForm = ({
         }
       );
       const data = await res.json();
-      timer = setTimeout(() => {
-        setIsFetching(false);
-      }, 500);
+      setIsFetching(false);
       setMessages((preMessages) => [...preMessages, ...data]);
     })();
 
     const { isBlocked } = blockHandler(conversation.members);
     setBlock(isBlocked);
-
-    return () => {
-      clearTimeout(timer);
-    };
   }, []);
 
   useEffect(() => {

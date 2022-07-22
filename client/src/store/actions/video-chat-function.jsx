@@ -23,9 +23,7 @@ const connectionCallHandler = (navigate, conversation) => {
       }
     );
 
-    setTimeout(() => {
-      navigate(`/home-chat/meetings/${conversation._id}`);
-    }, 500);
+    navigate(`/home-chat/meetings/${conversation._id}`);
   };
 };
 

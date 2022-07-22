@@ -43,17 +43,7 @@ const FriendShow = ({
 
   return (
     <FriendColBody
-      onClick={
-        type === "new-chat"
-          ? () => {
-              setIsFetching(true);
-              setTimeout(() => {
-                moveToConversationDetail();
-                setIsFetching(false);
-              }, 750);
-            }
-          : null
-      }
+      onClick={type === "new-chat" ? moveToConversationDetail() : null}
       className={type === "new-chat" ? type : null}
     >
       {isFetching ? (

@@ -4,13 +4,8 @@ import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 const User = ({ user, isClickedHandler }) => {
   const [isFetching, setIsFetching] = useState(true);
   useEffect(() => {
-    let timer = setTimeout(() => {
-      setIsFetching(false);
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+    if (user) setIsFetching(false);
+  }, [user]);
   return (
     <UserContainer>
       {isFetching ? (

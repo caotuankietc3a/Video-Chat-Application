@@ -36,7 +36,7 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: [process.env.REACT_URL],
+    origin: [process.env.REACT_URL, process.env.TEST_REACT_URL],
     optionsSuccessStatus: 200,
     credentials: true,
   })

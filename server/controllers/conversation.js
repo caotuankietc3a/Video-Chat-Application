@@ -1,7 +1,6 @@
 const Conversation = require("../models/conversation");
 const Reply = require("../models/reply");
 const Meeting = require("../models/meeting");
-const { v4: uuidv4 } = require("uuid");
 const File = require("../models/file");
 const {
   uploads,
@@ -9,7 +8,6 @@ const {
   uploadsFiles,
   deletesFiles,
 } = require("../util/cloudinary.js");
-const { validationResult } = require("express-validator");
 const { sendInvitationMessage } = require("../util/mailer");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
@@ -24,7 +22,7 @@ exports.postNewGroupConversation = async (req, res, next) => {
       messages: [],
       name: groupName,
       profilePhoto: {
-        url: uploadedRes.url,
+        url: uploadedRes.secure_url,
         name: groupName.trim().split(".")[0],
         cloudinary_id: uploadedRes.public_id,
       },

@@ -17,12 +17,7 @@ import { BiDotsVerticalRounded } from "react-icons/bi";
 const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
   const [isFetching, setIsFetching] = useState(true);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsFetching(false);
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
+    setIsFetching(false);
   }, []);
   return (
     <CallFormContainer>
