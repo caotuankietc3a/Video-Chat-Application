@@ -29,6 +29,7 @@ const ChatRoom = () => {
   const { friend, friends } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // const [block, setBlock] = useState(false);
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
   const [invite, setInvite] = useState(false);
@@ -47,6 +48,21 @@ const ChatRoom = () => {
   const inviteHandler = () => {
     setInvite(true);
   };
+
+  // const toggleBlockHandler = (isBlocked) => {
+  //   setBlock(isBlocked);
+  // };
+
+  // const blockHandler = (members) => {
+  //   const member = members.find((member) => {
+  //     return member.user._id === user._id;
+  //   });
+  //   return {
+  //     isBlocked: member.block.isBlocked,
+  //     blockerId: member.block.userId,
+  //     isAdmin: member.isAdmin,
+  //   };
+  // };
 
   const isClosedHandler = () => {
     setIsClickedConversation(false);
@@ -88,9 +104,27 @@ const ChatRoom = () => {
       }
     );
 
+    socket_video.on("call-user", ({ signal }) => {
+      // set showUserVideo to callee.
+      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
+      // set signal to callee.
+      dispatch(videoActions.setSignal({ signal }));
+    });
+  }, []);
+
+  // useEffect(() => {
+  //   console.log(conversation);
+  //   if (conversation.members) {
+  //     const { isBlocked } = blockHandler(conversation.members);
+  //     toggleBlockHandler(isBlocked);
+  //   }
+  // }, [conversation]);
+
+  useEffect(() => {
     socket_video.on(
       "make-group-connection-call",
       ({ conversationId, conversation, callerId }) => {
+        // if (!block) {
         dispatch(
           conversationActions.setConversation({
             conversation: {
@@ -115,15 +149,14 @@ const ChatRoom = () => {
         );
 
         navigate(`/home-chat/meetings/${conversationId}`);
+        // }
       }
     );
 
-    socket_video.on("call-user", ({ signal }) => {
-      // set showUserVideo to callee.
-      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
-      // set signal to callee.
-      dispatch(videoActions.setSignal({ signal }));
-    });
+    // return () => {
+    //   socket_video.off("make-group-connection-call");
+    // };
+    // }, [block]);
   }, []);
 
   useEffect(() => {
@@ -215,6 +248,9 @@ const ChatRoom = () => {
                   socket_chat={socket_chat}
                   socket_video={socket_video}
                   socket_notify={socket_notify}
+                  // toggleBlockHandler={toggleBlockHandler}
+                  // blockHandler={blockHandler}
+                  // block={block}
                 />
               }
             ></Route>

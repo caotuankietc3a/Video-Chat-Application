@@ -24,6 +24,9 @@ const ChatForm = ({
   socket_chat,
   socket_video,
   socket_notify,
+  // toggleBlockHandler,
+  // blockHandler,
+  // block,
 }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
@@ -40,8 +43,6 @@ const ChatForm = ({
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation);
-  console.log("block: ", block);
 
   useEffect(() => {
     (async () => {
@@ -57,7 +58,8 @@ const ChatForm = ({
     })();
 
     const { isBlocked } = blockHandler(conversation.members);
-    setBlock(isBlocked);
+    toggleBlockHandler(isBlocked);
+    // setBlock(isBlocked);
   }, []);
 
   useEffect(() => {
@@ -146,7 +148,8 @@ const ChatForm = ({
             confirmButtonColor: "#665dfe",
             allowOutsideClick: false,
           });
-          setBlock(isBlocked);
+          // setBlock(isBlocked);
+          toggleBlockHandler(isBlocked);
         }
         dispatch(conversationActions.setMembers({ members }));
       }
@@ -168,7 +171,8 @@ const ChatForm = ({
             confirmButtonColor: "#665dfe",
             allowOutsideClick: false,
           });
-          setBlock(isBlocked);
+          // setBlock(isBlocked);
+          toggleBlockHandler(isBlocked);
         }
         dispatch(conversationActions.setMembers({ members }));
       }
@@ -225,13 +229,35 @@ const ChatForm = ({
   const clickVideoCall = async (e) => {
     e.preventDefault();
     if (conversation.no_mems) {
+      if (block) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because the conversation is blocked",
+          })
+        );
+      }
       socket_video.emit("make-group-connection-call", {
         conversationId: conversation._id,
         callerId: user._id,
       });
-      return navigate(`/meeting-group/${conversation._id}`);
+      navigate(`/meeting-group/${conversation._id}`);
+    } else {
+      if (!conversation.status) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because user is offline",
+          })
+        );
+      }
+      if (block) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because the conversation is blocked",
+          })
+        );
+      }
+      dispatch(videoStreamStart(navigate, conversation, true));
     }
-    dispatch(videoStreamStart(navigate, conversation, true));
   };
 
   const multipleImagesHandler = () => {
@@ -376,7 +402,8 @@ const ChatForm = ({
           userName: user.fullname,
         });
         socket_notify.emit("block-conversation");
-        setBlock(!block);
+        // setBlock(!block);
+        toggleBlockHandler(!block);
       }
     });
   };
@@ -450,6 +477,10 @@ const ChatForm = ({
     return member.isAdmin;
   };
 
+  const toggleBlockHandler = (isBlocked) => {
+    setBlock(isBlocked);
+  };
+
   return (
     <>
       <ChatFormContainer showSearchBox={showSearchBox}>
@@ -461,7 +492,6 @@ const ChatForm = ({
           deleteConversation={deleteConversation}
           blockConversation={blockConversation}
           block={block}
-          // groupBlock={groupBlock}
           checkUnblockHandler={checkUnblockHandler}
         />
         {showSearchBox && (
@@ -479,7 +509,7 @@ const ChatForm = ({
         {block ? (
           <Block>
             This conversation has been blocked by{" "}
-            {checkBlockHandler() ? "You" : displayBlockerName()}
+            {checkBlockHandler() ? "you" : displayBlockerName()}
           </Block>
         ) : (
           <Input

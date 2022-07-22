@@ -268,10 +268,10 @@ const MeetingGroupRoom = () => {
       conversationId,
       isReceivedCall,
     });
-    navigate("/home-chat");
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
+    navigate("/home-chat");
   };
 
   const toggleGroupVideoHandler = () => {

@@ -68,7 +68,6 @@ const Login = (props) => {
         },
         END_POINT_SERVER
       );
-      console.log(data);
       if (data.status === "error") {
         Swal.fire({
           icon: "error",
@@ -84,6 +83,7 @@ const Login = (props) => {
           if (type === "Register") navigate("/auth/login");
           else if (type === "Login") {
             socket_notify.emit("log-in");
+            socket_notify.emit("join-room", { userId: data.user._id });
             navigate("/home-chat");
           }
           dispatch(

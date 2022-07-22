@@ -40,6 +40,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
         if (isLogin) {
           socket_video.emit("join-video", { userId: user._id });
           socket_notify.emit("log-in");
+          socket_notify.emit("join-room", { userId: user._id });
           dispatch(
             userLoginActions.setUserLogin({
               user: user,
@@ -71,6 +72,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
         }
         socket_video.emit("join-video", { userId: user._id });
         socket_notify.emit("log-in");
+        socket_notify.emit("join-room", { userId: user._id });
         dispatch(
           userLoginActions.setUserLogin({
             user: user,
@@ -113,6 +115,7 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
 
       if (data.status === "success") {
         socket_notify.emit("log-in");
+        socket_notify.emit("join-room", { userId: data.user._id });
         dispatch(userLoginActions.setIsFetching({ isFetching: false }));
         dispatch(userLoginActions.setUser({ user: data.user }));
         navigate("/home-chat");
@@ -233,6 +236,7 @@ export const verifyEnable2FA = (navigate, userId) => {
             .then((response) => {
               if (response.status === "valid") {
                 socket_notify.emit("log-in");
+                socket_notify.emit("join-room", { userId: response.user._id });
                 dispatch(userLoginActions.setIsFetching({ isFetching: false }));
                 dispatch(userLoginActions.setUser({ user: response.user }));
                 navigate("/home-chat");

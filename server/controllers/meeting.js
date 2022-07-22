@@ -10,8 +10,8 @@ exports.getMeetings = async (req, res, _next) => {
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
-      const callerId = meeting.caller._id.toString();
-      const calleeId = meeting.callee._id.toString();
+      const callerId = meeting.caller?._id.toString();
+      const calleeId = meeting.callee?._id.toString();
       if (callerId !== userId.toString() && !check_set.has(callerId)) {
         check_set.add(callerId);
         return true;
@@ -22,7 +22,6 @@ exports.getMeetings = async (req, res, _next) => {
       }
       return false;
     });
-    console.log(meeting_array);
     res.status(200).json(meeting_array);
   } catch (err) {
     console.error(err);
@@ -75,7 +74,6 @@ exports.saveMeeting = async (
       },
       { new: true }
     );
-    console.log(conversation);
   } catch (err) {
     console.error(err);
   }
@@ -103,8 +101,6 @@ exports.updateMeeting = async (callerId, calleeId) => {
     let cur_h = new Date(Date.now()).getHours();
     let cur_m = new Date(Date.now()).getMinutes();
     let cur_day = new Date(Date.now()).getUTCDate();
-    // console.log(day, " ", h, " ", m, " ", s, " ");
-    // console.log(cur_day, " ", cur_h, " ", cur_m, " ", cur_s);
     if (cur_s - s <= 0) {
       cur_s += 60 - s;
       cur_m--;
@@ -131,14 +127,12 @@ exports.updateMeeting = async (callerId, calleeId) => {
       cur_m -= m;
       cur_day -= day;
     }
-    // console.log(cur_day, " ", cur_h, " ", cur_m, " ", cur_s);
     const timeCall =
       cur_h === 0
         ? cur_m === 0
           ? `${cur_s}s`
           : `${cur_m}m ${cur_s}s`
         : `${cur_h}h ${cur_m}m ${cur_s}s`;
-    // console.log(timeCall);
     await meeting.updateOne({ timeCall });
   } catch (err) {
     console.error(err);

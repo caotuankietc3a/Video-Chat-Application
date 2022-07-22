@@ -21,7 +21,6 @@ const uploads = ({ fileName, folderName }, data) => {
       },
       (error, result) => {
         if (error) reject(error);
-        console.log(result);
         resolve(result);
       }
     );

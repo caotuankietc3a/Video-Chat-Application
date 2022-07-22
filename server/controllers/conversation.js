@@ -12,7 +12,6 @@ const { sendInvitationMessage } = require("../util/mailer");
 exports.postNewGroupConversation = async (req, res, next) => {
   try {
     const { members, groupName, groupImg } = req.body;
-    console.log(members);
     const uploadedRes = await uploads(
       { fileName: groupName.trim().split(".")[0], folderName: "images-group" },
       groupImg
@@ -162,7 +161,6 @@ exports.getMessages = async (req, res, next) => {
       path: "messages.sender messages.files messages.reply",
       select: "-password -twoFA.secret",
     });
-    // .select("-messages.sender.password");
     res.status(200).json(conversation.messages);
   } catch (err) {
     console.error(err);
@@ -189,7 +187,6 @@ const createNewConversation = async (friend, userId) => {
       return existedConversation;
     }
     const newConversation = await new Conversation({
-      // members: [friend._id, userId],
       members: [
         { user: friend._id, isAdmin: false },
         { user: userId, isAdmin: true },
@@ -197,7 +194,6 @@ const createNewConversation = async (friend, userId) => {
       messages: [],
       meetings: [],
     }).save();
-    // await newConversation.save();
 
     return await newConversation.populate({
       path: "members.user",
@@ -237,33 +233,6 @@ exports.deleteMessage = async (conversationId, id) => {
       _id: conversation.messages[0].reply,
     });
     await Reply.deleteMany({ messageId: id });
-
-    // const file = await File.findByIdAndRemove(conversation.messages[0].files);
-    // if (file.images.length !== 0) {
-    //   file.images.forEach(async (img) => {
-    //     try {
-    //       await deletes({
-    //         public_id: img.cloudinary_id,
-    //         resource_type: "image",
-    //       });
-    //     } catch (err) {
-    //       console.log(err);
-    //     }
-    //   });
-    // }
-    //
-    // if (file.attachments.length !== 0) {
-    //   file.attachments.forEach(async (attachment) => {
-    //     try {
-    //       await deletes({
-    //         public_id: attachment.cloudinary_id,
-    //         resource_type: "raw",
-    //       });
-    //     } catch (err) {
-    //       console.error(err);
-    //     }
-    //   });
-    // }
     deletesFiles(conversation.messages[0].files);
   } catch (err) {
     console.error(err);
@@ -295,7 +264,6 @@ exports.forwardMessage = async (forwardOb) => {
       }).save();
       file_id = newFile._id;
     }
-    console.log(forwardOb.forwardee);
     if (!forwardOb.forwardee.isGroup) {
       await createNewConversation(forwardOb.forwardee, forwardOb.forwarder._id);
       conversation = await Conversation.findOneAndUpdate(
@@ -393,7 +361,6 @@ exports.deleteConversation = async ({
         },
         { new: true }
       ).populate({ path: "members.user" });
-      console.log("conversation: ", conversation);
       return {
         msg: `${userName} had left the <strong>${groupName}</strong> conversation!!!`,
         type: false,
@@ -407,7 +374,6 @@ exports.deleteConversation = async ({
 
 exports.blockConversation = async ({ conversationId, userId, isBlocked }) => {
   try {
-    // if (isBlocked) {
     const conversation = await Conversation.findByIdAndUpdate(
       conversationId,
       {
@@ -418,18 +384,6 @@ exports.blockConversation = async ({ conversationId, userId, isBlocked }) => {
       },
       { new: true }
     ).populate({ path: "members.user", select: "-password -twoFA.secret" });
-    // } else {
-    //   conversation = await Conversation.findByIdAndUpdate(
-    //     conversationId,
-    //     {
-    //       "members.$[].block": {
-    //         isBlocked: false,
-    //       },
-    //     },
-    //     { new: true }
-    //   ).populate({ path: "members.user", select: "-password -twoFA.secret" });
-    // }
-    // console.log("conversation: ", conversation);
     return { conversation };
   } catch (err) {
     console.error(err);
