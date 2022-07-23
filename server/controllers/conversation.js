@@ -146,7 +146,8 @@ exports.postNewMessage = async (req, res, next) => {
             files: file_id,
           },
         },
-      }
+      },
+      { new: true }
     );
     res.status(200).json({ msg: "successfully" });
   } catch (err) {

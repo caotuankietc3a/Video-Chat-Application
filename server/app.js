@@ -27,8 +27,11 @@ const {
   blockMemberConversation,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
-const User_Socket = require("./models/user-socket");
-const conversation = require("./models/conversation");
+const User_Socket_Room = require("./models/user-socket");
+const User_Socket_Chat = new User_Socket_Room();
+// const User_Socket_Video = new User_Socket_Room();
+const User_Socket = new User_Socket_Room();
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -62,12 +65,18 @@ app.use(
   })
 );
 
+// console.log(User_Socket_Chat);
 const io_chat = io.of("/chat-room");
 io_chat.on("connection", (socket) => {
-  socket.on("join-chat", ({ conversationId }) => {
-    console.log("A user connected to chat-room!!!");
+  socket.on("join-chat", async ({ conversationId, userId }) => {
+    User_Socket_Chat.addUser({
+      conversationId,
+      userInfo: {
+        socketId: socket.id,
+        userId: userId,
+      },
+    });
     socket.join(conversationId);
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on(
@@ -86,12 +95,6 @@ io_chat.on("connection", (socket) => {
       });
     }
   );
-
-  socket.on("leave-chat", ({ conversationId }) => {
-    socket.leave(conversationId);
-    console.log("A user disconnected chat-room!!!");
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
-  });
 
   socket.on("delete-message", ({ conversationId, id }) => {
     deleteMessage(conversationId, id);
@@ -143,14 +146,19 @@ io_chat.on("connection", (socket) => {
         isBlocked,
       });
 
-      socket.broadcast.to(conversationId).emit("block-conversation", {
-        isBlocked,
-        userName,
-        members: conversation.members,
-        type: 1,
+      const { userInfo } = User_Socket_Chat.findUser({
+        conversationId,
+        userId: blockeeId,
       });
 
       // send to socket.id only
+      io_chat.to(`${userInfo.socketId}`).emit("block-conversation", {
+        members: conversation.members,
+        isBlocked,
+        userName,
+        type: 1,
+      });
+
       io_chat.to(`${socket.id}`).emit("block-conversation", {
         members: conversation.members,
         type: 0,
@@ -158,12 +166,18 @@ io_chat.on("connection", (socket) => {
     }
   );
 
-  socket.on("forward-message", async ({ forward }) => {
+  socket.on("forward-message", async ({ forward }, cb) => {
     const conversation = await forwardMessage(forward);
+    cb();
     io_chat.to(conversation._id.toString()).emit("forward-message", {
       messageOb: conversation.messages[conversation.messages.length - 1],
       conversation,
     });
+  });
+
+  socket.on("leave-chat", ({ conversationId, userId }) => {
+    User_Socket_Chat.removeUser({ conversationId, userId });
+    socket.leave(conversationId);
   });
 });
 
@@ -171,7 +185,6 @@ const io_video = io.of("/video-room");
 io_video.on("connection", (socket) => {
   socket.on("join-video", async ({ userId }) => {
     try {
-      console.log("A user connected video-room!!!");
       const conversations = await Conversation.find({
         "members.user": userId,
       })
@@ -180,10 +193,8 @@ io_video.on("connection", (socket) => {
         })
         .populate({ path: "members.user" });
 
-      conversations.forEach(async (conversation) => {
-        if (!conversation.members[0].block.isBlocked) {
-          socket.join(conversation._id.toString());
-        }
+      conversations.forEach((conversation) => {
+        socket.join(conversation._id.toString());
       });
     } catch (err) {
       console.error(err);
@@ -226,6 +237,7 @@ io_video.on("connection", (socket) => {
           path: "members.user",
           select: "-password -twoFA.secret",
         });
+
         // sending to all clients except sender
         socket.broadcast.to(conversationId).emit("make-group-connection-call", {
           conversationId,
@@ -292,7 +304,7 @@ io_video.on("connection", (socket) => {
   });
 
   socket.on("leave-meeting-room", ({ conversationId, callerId, calleeId }) => {
-    console.log("A user disconnected video-room!!!");
+    // console.log("A user disconnected video-room!!!");
     updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
@@ -322,7 +334,6 @@ io_group_video.on("connection", (socket) => {
             userShareScreen,
           },
         });
-        console.log(User_Socket.getAllUsersInRoom(conversationId));
         socket.emit("users-in-room", {
           usersInRoom: User_Socket.getUsersInRoom(
             conversationId.toString(),
@@ -330,7 +341,7 @@ io_group_video.on("connection", (socket) => {
           ),
         });
         socket.join(conversationId);
-        console.log("Video Group Rooms: ", io_group_video.adapter.rooms);
+        // console.log("Video Group Rooms: ", io_group_video.adapter.rooms);
       } catch (err) {
         console.log(err);
       }
@@ -417,7 +428,7 @@ io_group_video.on("connection", (socket) => {
 
 const io_notify = io.of("/notify");
 io_notify.on("connection", (socket) => {
-  console.log(io_notify.adapter.rooms);
+  // console.log(io_notify.adapter.rooms);
   socket.on("join-room", ({ userId }) => {
     socket.userId = userId;
   });
@@ -433,15 +444,29 @@ io_notify.on("connection", (socket) => {
 
   socket.on("post-new-conversation", () => {
     socket.broadcast.emit("post-new-conversation");
+    io_notify.to(socket.id).emit("post-new-conversation");
   });
 
   socket.on("post-new-group-conversation", () => {
     socket.broadcast.emit("post-new-group-conversation");
+    io_notify.to(socket.id).emit("post-new-group-conversation");
   });
 
   socket.on("delete-conversation", () => {
+    socket.broadcast.emit("delete-conversation");
+    io_notify.to(socket.id).emit("delete-conversation");
+  });
+
+  socket.on("forward-message", () => {
     // to all clients in the current namespace
-    io_notify.emit("delete-conversation");
+    socket.broadcast.emit("forward-message");
+    io_notify.to(socket.id).emit("forward-message");
+  });
+
+  socket.on("send-message", () => {
+    console.log("dfasdfasdfsdfsafa");
+    socket.broadcast.emit("send-message");
+    io_notify.to(socket.id).emit("send-message");
   });
 
   socket.on("block-conversation", () => {

@@ -5,46 +5,52 @@ import { postData } from "./fetch-action";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 export const postNewConversation = (user, friendDetail, navigate) => {
   return async (dispatch, getState) => {
-    const { socket_notify } = getState().socket;
-    const conversation = await postData(
-      { friend: friendDetail, userId: user._id },
-      `${END_POINT_SERVER}/conversation/new-conversation`
-    );
-    socket_notify.emit("post-new-conversation");
-    if (friendDetail.isGroup) {
-      dispatch(
-        conversationActions.setConversation({
-          conversation: {
-            _id: conversation._id,
-            members: conversation.members,
-            name: conversation.name,
-            time: formatDate(new Date(Date.now())),
-            status: true,
-            profilePhoto: conversation.profilePhoto,
-            no_mems: conversation.members.length,
-          },
-        })
-      );
-    } else {
-      const member = conversation.members.find(
-        (member) => member.user._id !== user._id
-      );
-      dispatch(
-        conversationActions.setConversation({
-          conversation: {
-            _id: conversation._id,
-            members: conversation.members,
-            name: member.user.fullname,
-            address: member.user.address,
-            email: member.user.email,
-            time: formatDate(new Date(Date.now())),
-            status: member.user.status,
-            profilePhoto: member.user.profilePhoto,
-          },
-        })
-      );
+    try {
+      if (user) {
+        const { socket_notify } = getState().socket;
+        const conversation = await postData(
+          { friend: friendDetail, userId: user._id },
+          `${END_POINT_SERVER}/conversation/new-conversation`
+        );
+        socket_notify.emit("post-new-conversation");
+        if (friendDetail.isGroup) {
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: conversation.name,
+                time: formatDate(new Date(Date.now())),
+                status: true,
+                profilePhoto: conversation.profilePhoto,
+                no_mems: conversation.members.length,
+              },
+            })
+          );
+        } else {
+          const member = conversation.members.find(
+            (member) => member.user._id !== user._id
+          );
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: member.user.fullname,
+                address: member.user.address,
+                email: member.user.email,
+                time: formatDate(new Date(Date.now())),
+                status: member.user.status,
+                profilePhoto: member.user.profilePhoto,
+              },
+            })
+          );
+        }
+        navigate(`/home-chat/conversation/detail/${conversation._id}`);
+      }
+    } catch (err) {
+      console.error(err);
     }
-    navigate(`/home-chat/conversation/detail/${conversation._id}`);
   };
 };
 

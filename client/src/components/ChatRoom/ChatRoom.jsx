@@ -7,7 +7,11 @@ import ChatContact from "./ChatContact/ChatContact";
 import FriendForm from "../FriendForm/FriendForm";
 import CallForm from "../CallForm/CallForm";
 import MeetingForm from "../MeetingForm/MeetingForm";
-import { fetchFriends, fetchUserLogin } from "../../store/actions/fetch-action";
+import {
+  fetchChatContacts,
+  fetchFriends,
+  fetchUserLogin,
+} from "../../store/actions/fetch-action";
 import { conversationActions } from "../../store/slices/conversation-slice";
 import { videoActions } from "../../store/slices/video-chat-slice";
 import NavBarContact from "../NavBarContact/NavBarContact";
@@ -19,23 +23,90 @@ import Profile from "../Profile/Profile";
 import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
 import { closeNotification } from "../../store/actions/error-function";
+import { compareString } from "../../store/actions/common-function";
 const ChatRoom = () => {
   console.log("ChatRoom running");
   const { conversation } = useSelector((state) => state.conversation);
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  const [conversations, setConversations] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [calls, setCalls] = useState([]);
+  // const [rendering, setRendering] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const { user } = useSelector((state) => state.user);
+  const friendState = useSelector((state) => state.friend);
   const { error } = useSelector((state) => state.error);
   const { forward } = useSelector((state) => state.forward);
   const callState = useSelector((state) => state.call);
-  const { friend, friends } = useSelector((state) => state.friend);
+  const { friend } = useSelector((state) => state.friend);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const [block, setBlock] = useState(false);
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
   const [invite, setInvite] = useState(false);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );
+  const fetchConversations = () => {
+    dispatch(
+      fetchChatContacts(
+        {
+          url: `${END_POINT_SERVER}/conversation/${user ? user._id : "error"}`,
+        },
+        (data) => {
+          setConversations(data);
+        }
+      )
+    );
+  };
+
+  useEffect(() => {
+    socket_notify.on("log-out", () => {
+      fetchConversations();
+      dispatch(conversationActions.setStatus({ status: false }));
+    });
+
+    socket_notify.on("log-in", () => {
+      fetchConversations();
+      dispatch(conversationActions.setStatus({ status: true }));
+    });
+
+    socket_notify.on("post-new-group-conversation", () => {
+      dispatch(fetchFriends());
+      fetchConversations();
+    });
+
+    socket_notify.on("post-new-conversation", () => {
+      fetchConversations();
+    });
+
+    socket_notify.on("delete-conversation", () => {
+      fetchConversations();
+    });
+
+    socket_notify.on("block-conversation", () => {
+      fetchConversations();
+    });
+
+    socket_notify.on("send-message", () => {
+      fetchConversations();
+    });
+
+    socket_notify.on("forward-message", () => {
+      fetchConversations();
+    });
+
+    return () => {
+      socket_notify.off("log-out");
+      socket_notify.off("log-in");
+      socket_notify.off("post-new-conversation");
+      socket_notify.off("post-new-group-conversation");
+      socket_notify.off("delete-conversation");
+      socket_notify.off("block-conversation");
+      socket_notify.off("send-message");
+      socket_notify.off("forward-message");
+    };
+  }, [user]);
 
   const isClickedHandler = () => {
     setIsClickedConversation(true);
@@ -49,21 +120,6 @@ const ChatRoom = () => {
     setInvite(true);
   };
 
-  // const toggleBlockHandler = (isBlocked) => {
-  //   setBlock(isBlocked);
-  // };
-
-  // const blockHandler = (members) => {
-  //   const member = members.find((member) => {
-  //     return member.user._id === user._id;
-  //   });
-  //   return {
-  //     isBlocked: member.block.isBlocked,
-  //     blockerId: member.block.userId,
-  //     isAdmin: member.isAdmin,
-  //   };
-  // };
-
   const isClosedHandler = () => {
     setIsClickedConversation(false);
     setCreateGroup(false);
@@ -74,6 +130,47 @@ const ChatRoom = () => {
   useEffect(() => {
     dispatch(fetchUserLogin(navigate, 1));
   }, []);
+
+  useEffect(() => {
+    dispatch(
+      fetchChatContacts(
+        {
+          url: `${END_POINT_SERVER}/conversation/${user ? user._id : "error"}`,
+        },
+        (data) => {
+          setConversations(data);
+        }
+      )
+    );
+
+    dispatch(
+      fetchChatContacts(
+        {
+          url: `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,
+        },
+        (data) => {
+          setFriends(compareString(data));
+        }
+      )
+    );
+    setIsFetching(false);
+  }, []);
+
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(
+        fetchChatContacts(
+          {
+            url: `${END_POINT_SERVER}/meeting?userId=${user._id}`,
+          },
+          (data) => {
+            setCalls(data);
+          }
+        )
+      );
+      setIsFetching(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     socket_video.on(
@@ -112,82 +209,52 @@ const ChatRoom = () => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   console.log(conversation);
-  //   if (conversation.members) {
-  //     const { isBlocked } = blockHandler(conversation.members);
-  //     toggleBlockHandler(isBlocked);
-  //   }
-  // }, [conversation]);
-
   useEffect(() => {
     socket_video.on(
       "make-group-connection-call",
       ({ conversationId, conversation, callerId }) => {
-        // if (!block) {
-        dispatch(
-          conversationActions.setConversation({
-            conversation: {
-              _id: conversation._id,
-              members: conversation.members,
-              name: conversation.name,
-              profilePhoto: conversation.profilePhoto.url,
-            },
-          })
+        const member = conversation.members.find(
+          (mem) => mem.user._id === user._id
         );
-        dispatch(
-          videoActions.setCall({
-            call: {
-              isReceivedCall: true,
-              callerId,
-              group: {
-                groupName: conversation.name,
-                groupImg: conversation.profilePhoto.url,
+        if (!member.block.isBlocked) {
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: conversation.name,
+                profilePhoto: conversation.profilePhoto.url,
               },
-            },
-          })
-        );
+            })
+          );
+          dispatch(
+            videoActions.setCall({
+              call: {
+                isReceivedCall: true,
+                callerId,
+                group: {
+                  groupName: conversation.name,
+                  groupImg: conversation.profilePhoto.url,
+                },
+              },
+            })
+          );
 
-        navigate(`/home-chat/meetings/${conversationId}`);
-        // }
+          navigate(`/home-chat/meetings/${conversationId}`);
+        }
       }
     );
 
-    // return () => {
-    //   socket_video.off("make-group-connection-call");
-    // };
-    // }, [block]);
+    return () => {
+      socket_video.off("make-group-connection-call");
+    };
   }, []);
 
   useEffect(() => {
-    socket_notify.on("log-out", () => {
+    if (user) {
       dispatch(fetchFriends());
-    });
-
-    socket_notify.on("post-new-conversation", () => {
-      dispatch(fetchFriends());
-    });
-
-    socket_notify.on("post-new-group-conversation", () => {
-      dispatch(fetchFriends());
-    });
-
-    socket_notify.on("log-in", () => {
-      dispatch(fetchFriends());
-    });
-  }, [friends]);
-
-  useEffect(() => {
-    if (createGroup) dispatch(fetchFriends());
-  }, [createGroup]);
-
-  useEffect(() => {
-    if (user) dispatch(fetchFriends());
+    }
   }, [user]);
-
-  useEffect(() => {
-    if (forward || isClickedConversation) dispatch(fetchFriends(true));
-  }, [forward, isClickedConversation]);
 
   return (
     <Container>
@@ -196,9 +263,13 @@ const ChatRoom = () => {
           <Portal>
             <FriendList
               isClosedHandler={isClosedHandler}
-              friends={friends}
+              friends={
+                forward || isClickedConversation ? friendState.friends : friends
+              }
               createGroup={createGroup}
               invite={invite}
+              user={user}
+              forward={forward}
             />
           </Portal>
         )}
@@ -212,6 +283,8 @@ const ChatRoom = () => {
                 isClickedHandler={isClickedHandler}
                 createGroupHandler={createGroupHandler}
                 inviteHandler={inviteHandler}
+                conversations={conversations}
+                isFetching={isFetching}
               />
             }
           ></Route>
@@ -222,6 +295,8 @@ const ChatRoom = () => {
                 header="Friends"
                 isClickedHandler={isClickedHandler}
                 createGroupHandler={createGroupHandler}
+                friends={friends}
+                isFetching={isFetching}
               />
             }
           ></Route>
@@ -232,6 +307,8 @@ const ChatRoom = () => {
                 header="Calls"
                 isClickedHandler={isClickedHandler}
                 createGroupHandler={createGroupHandler}
+                isFetching={isFetching}
+                calls={calls}
               />
             }
           ></Route>

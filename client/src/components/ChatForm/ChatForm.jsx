@@ -59,11 +59,13 @@ const ChatForm = ({
 
     const { isBlocked } = blockHandler(conversation.members);
     toggleBlockHandler(isBlocked);
-    // setBlock(isBlocked);
   }, []);
 
   useEffect(() => {
-    socket_chat.emit("join-chat", { conversationId: conversation._id });
+    socket_chat.emit("join-chat", {
+      conversationId: conversation._id,
+      userId: user._id,
+    });
 
     socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
       setMessages((preMessages) => [
@@ -138,8 +140,8 @@ const ChatForm = ({
         if (type) {
           Swal.fire({
             title: isBlocked
-              ? "Conversation is blocked!!!"
-              : "Conversation is unblocked!!!",
+              ? "The Conversation is blocked!!!"
+              : "The Conversation is unblocked!!!",
             html: isBlocked
               ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
               : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
@@ -148,30 +150,6 @@ const ChatForm = ({
             confirmButtonColor: "#665dfe",
             allowOutsideClick: false,
           });
-          // setBlock(isBlocked);
-          toggleBlockHandler(isBlocked);
-        }
-        dispatch(conversationActions.setMembers({ members }));
-      }
-    );
-
-    socket_chat.on(
-      "block-member-conversation",
-      ({ isBlocked, userName, members, type }) => {
-        if (type) {
-          Swal.fire({
-            title: isBlocked
-              ? "The conversation is blocked!!!"
-              : "The conversation is unblocked!!!",
-            html: isBlocked
-              ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
-              : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
-            icon: "warning",
-            showConfirmButton: true,
-            confirmButtonColor: "#665dfe",
-            allowOutsideClick: false,
-          });
-          // setBlock(isBlocked);
           toggleBlockHandler(isBlocked);
         }
         dispatch(conversationActions.setMembers({ members }));
@@ -179,7 +157,10 @@ const ChatForm = ({
     );
 
     return function cleanup() {
-      socket_chat.emit("leave-chat", { conversationId: conversation._id });
+      socket_chat.emit("leave-chat", {
+        conversationId: conversation._id,
+        userId: user._id,
+      });
     };
   }, []);
 
@@ -207,6 +188,7 @@ const ChatForm = ({
             attachments: attachments,
           },
         });
+
         setImages([]);
         setAttachments([]);
         dispatch(replyActions.setReply({ reply: null }));
@@ -220,6 +202,7 @@ const ChatForm = ({
           },
           `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
         );
+        socket_notify.emit("send-message");
       }
     } catch (err) {
       console.error(err);
