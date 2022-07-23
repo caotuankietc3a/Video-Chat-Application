@@ -48,7 +48,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
               error: null,
             })
           );
-          navigate("/home-chat");
+          // navigate("/home-chat");
         } else {
           dispatch(
             userLoginActions.setUserLogin({

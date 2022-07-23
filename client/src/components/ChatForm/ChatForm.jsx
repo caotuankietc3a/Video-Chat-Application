@@ -24,9 +24,7 @@ const ChatForm = ({
   socket_chat,
   socket_video,
   socket_notify,
-  // toggleBlockHandler,
-  // blockHandler,
-  // block,
+  conversationId,
 }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
@@ -43,31 +41,41 @@ const ChatForm = ({
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  console.log(messages);
 
   useEffect(() => {
-    (async () => {
-      const res = await fetch(
-        `${END_POINT_SERVER}/conversation/messages/${conversation._id}`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
-      setIsFetching(false);
-      setMessages((preMessages) => [...preMessages, ...data]);
-    })();
+    if (conversation?._id) {
+      setIsFetching(true);
+      (async () => {
+        const res = await fetch(
+          `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
+          {
+            credentials: "include",
+          }
+        );
+        const data = await res.json();
+        setIsFetching(false);
+        console.log(data);
+        setMessages([...data]);
+      })();
+      const { isBlocked } = blockHandler(conversation.members);
+      toggleBlockHandler(isBlocked);
+    }
 
-    const { isBlocked } = blockHandler(conversation.members);
-    toggleBlockHandler(isBlocked);
-  }, []);
+    // return () => {
+    // setMessages([]);
+    // };
+  }, [conversation._id]);
 
   useEffect(() => {
+    console.log("dddddddddddddddddddddddddd");
     socket_chat.emit("join-chat", {
-      conversationId: conversation._id,
+      conversationId: conversationId,
       userId: user._id,
     });
 
     socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
+      console.log("ssssssssssssssssssssssssssssss");
       setMessages((preMessages) => [
         ...preMessages,
         {
@@ -158,7 +166,7 @@ const ChatForm = ({
 
     return function cleanup() {
       socket_chat.emit("leave-chat", {
-        conversationId: conversation._id,
+        conversationId: conversationId,
         userId: user._id,
       });
     };
@@ -182,7 +190,7 @@ const ChatForm = ({
           userId: user._id,
           message: message,
           reply: replyOb,
-          conversationId: conversation._id,
+          conversationId: conversationId,
           files: {
             images: images,
             attachments: attachments,
@@ -200,7 +208,7 @@ const ChatForm = ({
             dataAttachments: attachments,
             id,
           },
-          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
+          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversationId}&userId=${user._id}`
         );
         socket_notify.emit("send-message");
       }
@@ -220,10 +228,10 @@ const ChatForm = ({
         );
       }
       socket_video.emit("make-group-connection-call", {
-        conversationId: conversation._id,
+        conversationId: conversationId,
         callerId: user._id,
       });
-      navigate(`/meeting-group/${conversation._id}`);
+      navigate(`/meeting-group/${conversationId}`);
     } else {
       if (!conversation.status) {
         return dispatch(
@@ -336,7 +344,7 @@ const ChatForm = ({
         Swal.fire("Deleted!", "The conversation has been deleted.", "success");
 
         socket_chat.emit("delete-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           user: {
             userId: user._id,
             isAdmin: member.isAdmin,
@@ -379,7 +387,7 @@ const ChatForm = ({
               "success"
             );
         socket_chat.emit("block-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           userId: user._id,
           isBlocked: !block,
           userName: user.fullname,
@@ -392,14 +400,17 @@ const ChatForm = ({
   };
 
   const blockHandler = (members) => {
-    const member = members.find((member) => {
-      return member.user._id === user._id;
-    });
-    return {
-      isBlocked: member.block.isBlocked,
-      blockerId: member.block.userId,
-      isAdmin: member.isAdmin,
-    };
+    if (members) {
+      const member = members.find((member) => {
+        return member.user._id === user._id;
+      });
+      return {
+        isBlocked: member.block.isBlocked,
+        blockerId: member.block.userId,
+        isAdmin: member.isAdmin,
+      };
+    }
+    return {};
   };
 
   const checkUnblockHandler = () => {
@@ -441,7 +452,7 @@ const ChatForm = ({
               "success"
             );
         socket_chat.emit("block-member-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           blockeeId,
           isBlocked: !groupBlock,
           userId: user._id,
@@ -487,6 +498,7 @@ const ChatForm = ({
             messages={messages}
             searchMessage={searchMessage}
             isGroup={conversation.no_mems ? true : false}
+            block={block}
           />
         )}
         {block ? (

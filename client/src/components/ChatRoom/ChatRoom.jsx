@@ -1,6 +1,6 @@
 import { MainLayOut, Container, ChatBodyContainer } from "./StyledChatRoom";
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import ChatForm from "../ChatForm/ChatForm";
 import { useSelector, useDispatch } from "react-redux";
 import ChatContact from "./ChatContact/ChatContact";
@@ -24,14 +24,23 @@ import Settings from "../Profile/Settings/Settings.jsx";
 import Portal from "../Portal/Portal";
 import { closeNotification } from "../../store/actions/error-function";
 import { compareString } from "../../store/actions/common-function";
+import { fetchDetailConversation } from "../../store/actions/conversation-function";
 const ChatRoom = () => {
   console.log("ChatRoom running");
+  // const [searchParams] = useSearchParams();
+  // console.log(searchParams);
+  // console.log(searchParams.get("conversationId"));
+  // console.log(searchParams.getAll("conversationId"));
+
+  const params = useParams();
+  console.log(params["*"].split("/"));
+  const id = params["*"].split("/")[params["*"].split("/").length - 1];
+  console.log(id);
   const { conversation } = useSelector((state) => state.conversation);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [conversations, setConversations] = useState([]);
   const [friends, setFriends] = useState([]);
   const [calls, setCalls] = useState([]);
-  // const [rendering, setRendering] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const { user } = useSelector((state) => state.user);
   const friendState = useSelector((state) => state.friend);
@@ -44,6 +53,7 @@ const ChatRoom = () => {
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
   const [invite, setInvite] = useState(false);
+  console.log(conversations);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );
@@ -201,15 +211,6 @@ const ChatRoom = () => {
       }
     );
 
-    socket_video.on("call-user", ({ signal }) => {
-      // set showUserVideo to callee.
-      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
-      // set signal to callee.
-      dispatch(videoActions.setSignal({ signal }));
-    });
-  }, []);
-
-  useEffect(() => {
     socket_video.on(
       "make-group-connection-call",
       ({ conversationId, conversation, callerId }) => {
@@ -245,15 +246,22 @@ const ChatRoom = () => {
       }
     );
 
-    return () => {
-      socket_video.off("make-group-connection-call");
-    };
+    socket_video.on("call-user", ({ signal }) => {
+      // set showUserVideo to callee.
+      dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
+      // set signal to callee.
+      dispatch(videoActions.setSignal({ signal }));
+    });
   }, []);
 
   useEffect(() => {
     if (user) {
       dispatch(fetchFriends());
     }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) dispatch(fetchDetailConversation({ id: id, userId: user._id }));
   }, [user]);
 
   return (
@@ -317,7 +325,8 @@ const ChatRoom = () => {
         <ChatBodyContainer>
           <Routes>
             <Route
-              path={`/conversation/detail/${conversation?._id}`}
+              // path={`/conversation/detail/${conversation?._id}`}
+              path={`/conversation/detail/:conversationId`}
               element={
                 <ChatForm
                   conversation={conversation}
@@ -325,6 +334,7 @@ const ChatRoom = () => {
                   socket_chat={socket_chat}
                   socket_video={socket_video}
                   socket_notify={socket_notify}
+                  conversationId={id}
                   // toggleBlockHandler={toggleBlockHandler}
                   // blockHandler={blockHandler}
                   // block={block}
@@ -335,6 +345,7 @@ const ChatRoom = () => {
               path={`/friends/friend/detail/${friend?._id}`}
               element={<FriendForm friendDetail={friend} />}
             ></Route>
+
             <Route
               path={`/meetings/${conversation?._id}`}
               element={
@@ -345,10 +356,11 @@ const ChatRoom = () => {
               }
             ></Route>
             <Route
-              path={`/calls/call/detail/${callState?.meeting?.meetingId}`}
+              // path={`/calls/call/detail/${callState?.meeting?.meetingId}`}
+              path={`/calls/call/detail/:meetingId`}
               element={
                 <CallForm
-                  calls={callState?.calls}
+                  calls={callState?.calls ? callState.calls : []}
                   callee={callState?.meeting?.callee}
                 />
               }

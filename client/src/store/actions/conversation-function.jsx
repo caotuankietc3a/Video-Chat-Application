@@ -1,5 +1,6 @@
 import { conversationActions } from "../slices/conversation-slice";
 import { errorActions } from "../slices/error-slice";
+import { replyActions } from "../slices/reply-slice";
 import { formatDate } from "./common-function";
 import { postData } from "./fetch-action";
 const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
@@ -104,5 +105,58 @@ export const postNewGroupConversation = (
     socket_notify.emit("post-new-group-conversation");
     navigate(`/home-chat/conversation/detail/${group_conversation._id}`);
     isClosedHandler();
+  };
+};
+
+export const fetchDetailConversation = ({ id, userId }) => {
+  return async (dispatch, _getState) => {
+    try {
+      const res = await fetch(`${END_POINT_SERVER}/conversation/detail/` + id);
+      const conversation = await res.json();
+      console.log(conversation);
+
+      if (conversation) {
+        if (
+          conversation.members.length === 2 &&
+          conversation.profilePhoto.cloudinary_id === "" &&
+          conversation.profilePhoto.name === ""
+        ) {
+          const member = conversation.members.find(
+            (member) => member.user._id !== userId
+          );
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: member.user.fullname,
+                address: member.user.address,
+                email: member.user.email,
+                time: formatDate(new Date(Date.now())),
+                profilePhoto: member.user.profilePhoto,
+                status: member.user.status,
+              },
+            })
+          );
+        } else {
+          dispatch(
+            conversationActions.setConversation({
+              conversation: {
+                _id: conversation._id,
+                members: conversation.members,
+                name: conversation.name,
+                time: formatDate(new Date(Date.now())),
+                no_mems: conversation.members.length,
+                profilePhoto: conversation.profilePhoto,
+                status: true,
+              },
+            })
+          );
+        }
+        dispatch(replyActions.setReply({ reply: null }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 };

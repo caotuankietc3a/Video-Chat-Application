@@ -12,7 +12,6 @@ import { BsTelephone } from "react-icons/bs";
 import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { conversationActions } from "../../../store/slices/conversation-slice";
 import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
 import {
@@ -20,7 +19,7 @@ import {
   formatDate,
 } from "../../../store/actions/common-function";
 import { callActions } from "../../../store/slices/call-slice";
-import { replyActions } from "../../../store/slices/reply-slice";
+import { fetchDetailConversation } from "../../../store/actions/conversation-function";
 const ChatContactItems = ({
   conversation,
   friend,
@@ -36,6 +35,8 @@ const ChatContactItems = ({
   const userState = useSelector((state) => state.user);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [isActive, setIsActive] = useState(false);
+  console.log(id);
+  console.log(type);
 
   let length = null;
   let latestMessage = null;
@@ -68,49 +69,7 @@ const ChatContactItems = ({
   const clickHandler = async () => {
     try {
       if (type === "Chats") {
-        const res = await fetch(
-          `${END_POINT_SERVER}/conversation/detail/` + id
-        );
-        const conversation = await res.json();
-
-        if (
-          conversation.members.length === 2 &&
-          conversation.profilePhoto.cloudinary_id === "" &&
-          conversation.profilePhoto.name === ""
-        ) {
-          const member = conversation.members.find(
-            (member) => member.user._id !== userState.user._id
-          );
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: member.user.fullname,
-                address: member.user.address,
-                email: member.user.email,
-                time: formatDate(new Date(Date.now())),
-                profilePhoto: member.user.profilePhoto,
-                status: member.user.status,
-              },
-            })
-          );
-        } else {
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: conversation.name,
-                time: formatDate(new Date(Date.now())),
-                no_mems: conversation.members.length,
-                profilePhoto: conversation.profilePhoto,
-                status: true,
-              },
-            })
-          );
-        }
-        dispatch(replyActions.setReply({ reply: null }));
+        dispatch(fetchDetailConversation({ id, userId: userState.user._id }));
       } else if (type === "Friends") {
         const res = await fetch(`${END_POINT_SERVER}/friend/detail/` + id);
         const friend = await res.json();

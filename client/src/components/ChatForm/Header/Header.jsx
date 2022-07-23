@@ -26,7 +26,6 @@ const Header = ({
   deleteConversation,
   blockConversation,
   block,
-  groupBlock,
   checkUnblockHandler,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -43,15 +42,15 @@ const Header = ({
   return (
     <ChatHeader>
       <ChatHeaderAvatar className="text-truncate">
-        <AvatarUser status={conversation.status ? true : false}>
-          <img src={`${conversation.profilePhoto.url}`} alt="" />
+        <AvatarUser status={conversation?.status ? true : false}>
+          <img src={`${conversation?.profilePhoto?.url}`} alt="User" />
         </AvatarUser>
         <Media>
-          <h6 className="text-truncate">{conversation.name}</h6>
+          <h6 className="text-truncate">{conversation?.name}</h6>
           <small>
-            {conversation.no_mems
+            {conversation?.no_mems
               ? `${conversation.no_mems} participants`
-              : conversation.status
+              : conversation?.status
               ? "Online"
               : "Offline"}
           </small>
@@ -111,7 +110,7 @@ const Header = ({
                       <span>Unblock</span>
                     </DropDownItem>
                   )
-                : !conversation.no_mems && (
+                : !conversation?.no_mems && (
                     <DropDownItem onClick={blockConversation}>
                       <BiBlock />
                       <span>Block</span>

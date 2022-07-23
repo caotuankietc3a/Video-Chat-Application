@@ -14,7 +14,7 @@ import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import CallItems from "./CallItems/CallItems";
 import { BiDotsVerticalRounded } from "react-icons/bi";
 
-const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
+const CallForm = ({ calls, callee }) => {
   const [isFetching, setIsFetching] = useState(true);
   useEffect(() => {
     setIsFetching(false);
@@ -27,12 +27,12 @@ const CallForm = ({ calls, callee: { profilePhoto, fullname, phone } }) => {
         <CallFormContent>
           <CallFormBody>
             <CallFormAvatar>
-              <img src={profilePhoto.url} alt="" />
+              <img src={callee?.profilePhoto.url} alt="" />
             </CallFormAvatar>
             <CallFormDetail>
-              <h5>{fullname}</h5>
+              <h5>{callee?.fullname}</h5>
               <CallFormInfo_Btn>
-                <div className="chat">{phone}</div>
+                <div className="chat">{callee?.phone}</div>
               </CallFormInfo_Btn>
             </CallFormDetail>
             <CallFormOptions>
