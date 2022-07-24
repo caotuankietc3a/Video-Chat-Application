@@ -26,7 +26,8 @@ export const createPeer = (
     );
     if (index !== -1) {
       setPeers((prePeers) => {
-        prePeers[index].stream = stream;
+        // prePeers[index].stream = stream;
+        if (prePeers[index]) prePeers[index].stream = stream;
         return [...prePeers];
       });
       peersRef.current[index].stream = stream;
@@ -59,7 +60,8 @@ export const addPeer = (
     );
     if (index !== -1) {
       setPeers((prePeers) => {
-        prePeers[index].stream = stream;
+        // prePeers[index].stream = stream;
+        if (prePeers[index]) prePeers[index].stream = stream;
         return [...prePeers];
       });
       peersRef.current.stream = stream;

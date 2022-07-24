@@ -52,13 +52,7 @@ const FriendForm = (props) => {
   };
 
   useEffect(() => {
-    let timer = setTimeout(() => {
-      setIsFetching(false);
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    setIsFetching(false);
   }, []);
 
   return (

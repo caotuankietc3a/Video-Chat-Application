@@ -50,6 +50,7 @@ const Message = ({
   images,
   attachments,
   id,
+  block,
 }) => {
   const { conversation } = useSelector((state) => state.conversation);
   const { user } = useSelector((state) => state.user);
@@ -241,7 +242,7 @@ const Message = ({
             }}
           >
             <BiDotsHorizontalRounded onClick={menuShowHandler} />
-            {showMenu && (
+            {showMenu && !block && (
               <DropDownMenu
                 onClick={() => {
                   setShowMenu(false);

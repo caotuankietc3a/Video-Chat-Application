@@ -23,22 +23,21 @@ const connectionCallHandler = (navigate, conversation) => {
       }
     );
 
-    setTimeout(() => {
-      navigate(`/home-chat/meetings/${conversation._id}`);
-    }, 500);
+    navigate(`/home-chat/meetings/${conversation._id}`);
   };
 };
 
 export const videoStreamStart = (navigate, conversation, type = false) => {
   return async (dispatch, _getState) => {
     try {
-      if (!conversation.status && type) {
-        return dispatch(
-          errorActions.setError({
-            error: "Can't call user because user is offline",
-          })
-        );
-      }
+      console.log(conversation);
+      // if (!conversation.status && type) {
+      //   return dispatch(
+      //     errorActions.setError({
+      //       error: "Can't call user because user is offline",
+      //     })
+      //   );
+      // }
       const currentStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,

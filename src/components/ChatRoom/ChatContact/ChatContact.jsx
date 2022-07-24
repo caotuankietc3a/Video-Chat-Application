@@ -20,6 +20,10 @@ const ChatContact = ({
   isClickedHandler,
   createGroupHandler,
   inviteHandler,
+  conversations,
+  friends,
+  calls,
+  isFetching,
 }) => {
   const [searchContactItems, setSearchContactItems] = useState("");
   const [showMenu, setShowMenu] = useState(false);
@@ -92,7 +96,14 @@ const ChatContact = ({
         </SideBarSubHeader>
       </SideBarHeader>
 
-      <ChatContactLists type={header} searchContactItems={searchContactItems} />
+      <ChatContactLists
+        conversations={conversations}
+        type={header}
+        searchContactItems={searchContactItems}
+        friends={friends}
+        calls={calls}
+        isFetching={isFetching}
+      />
     </ChatContactContainer>
   );
 };

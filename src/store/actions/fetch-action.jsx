@@ -40,6 +40,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
         if (isLogin) {
           socket_video.emit("join-video", { userId: user._id });
           socket_notify.emit("log-in");
+          socket_notify.emit("join-room", { userId: user._id });
           dispatch(
             userLoginActions.setUserLogin({
               user: user,
@@ -47,7 +48,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
               error: null,
             })
           );
-          navigate("/home-chat");
+          // navigate("/home-chat");
         } else {
           dispatch(
             userLoginActions.setUserLogin({
@@ -71,6 +72,7 @@ export const fetchUserLogin = (navigate, type = 0) => {
         }
         socket_video.emit("join-video", { userId: user._id });
         socket_notify.emit("log-in");
+        socket_notify.emit("join-room", { userId: user._id });
         dispatch(
           userLoginActions.setUserLogin({
             user: user,
@@ -113,6 +115,7 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
 
       if (data.status === "success") {
         socket_notify.emit("log-in");
+        socket_notify.emit("join-room", { userId: data.user._id });
         dispatch(userLoginActions.setIsFetching({ isFetching: false }));
         dispatch(userLoginActions.setUser({ user: data.user }));
         navigate("/home-chat");
@@ -154,6 +157,7 @@ export const fetchFriends = () => {
           }
         );
         const friends = await resFriends.json();
+        console.log(friends);
 
         const resGroupConversations = await fetch(
           `${END_POINT_SERVER}/conversation/${
@@ -165,6 +169,7 @@ export const fetchFriends = () => {
         );
 
         let group_conversations = await resGroupConversations.json();
+        console.log(group_conversations);
         group_conversations = group_conversations.map((el) => {
           return {
             status: true,
@@ -197,12 +202,10 @@ export const logoutHandler = (navigate) => {
     socket_chat.disconnect();
     socket_notify.disconnect();
     dispatch(userLoginActions.setUserLogout());
-    setTimeout(() => {
-      dispatch(socketActions.setSocket_Video());
-      dispatch(socketActions.setSocket_Chat());
-      dispatch(socketActions.setSocket_Notify());
-      navigate("/");
-    }, 50);
+    dispatch(socketActions.setSocket_Video());
+    dispatch(socketActions.setSocket_Chat());
+    dispatch(socketActions.setSocket_Notify());
+    navigate("/");
   };
 };
 
@@ -235,6 +238,7 @@ export const verifyEnable2FA = (navigate, userId) => {
             .then((response) => {
               if (response.status === "valid") {
                 socket_notify.emit("log-in");
+                socket_notify.emit("join-room", { userId: response.user._id });
                 dispatch(userLoginActions.setIsFetching({ isFetching: false }));
                 dispatch(userLoginActions.setUser({ user: response.user }));
                 navigate("/home-chat");
@@ -262,7 +266,7 @@ export const verifyEnable2FA = (navigate, userId) => {
   };
 };
 
-export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
+export const enable2FAFunction = (QRCodeUrl, userId, e) => {
   return async (dispatch, _getState) => {
     Swal.fire({
       html: "Please scan this <strong>QR code</strong> to verify <strong><i>2-factor authentication</i></strong>!!",
@@ -283,7 +287,7 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
         allowOutsideClick: false,
         preConfirm: (otpToken) => {
           return postData(
-            { otpToken, secret: uniqueSecret },
+            { otpToken },
             `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/verify-2FA/${userId}`
           )
             .then((response) => {
@@ -315,6 +319,7 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
         .then((res) => {
           if (res.status === "cancel") {
             dispatch(userLoginActions.setUser({ user: res.user }));
+            e.target.querySelector(".switch-bg").classList.toggle("active");
             Swal.fire({
               icon: "error",
               title: "Oops...",
@@ -324,6 +329,20 @@ export const enable2FAFunction = (QRCodeUrl, userId, uniqueSecret) => {
           }
         });
     });
-    // });
+  };
+};
+
+export const fetchChatContacts = ({ url }, cb) => {
+  return async (_dispatch, getState) => {
+    try {
+      const responses = await fetch(url, {
+        credentials: "include",
+      });
+      const data = await responses.json();
+      console.log(data);
+      cb(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 };

@@ -50,7 +50,7 @@ const FriendShow = ({
               setTimeout(() => {
                 moveToConversationDetail();
                 setIsFetching(false);
-              }, 750);
+              }, 500);
             }
           : null
       }

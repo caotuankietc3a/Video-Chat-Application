@@ -110,7 +110,7 @@ const ChatInfo = ({
         <Body>
           <BodyDetail>
             <div className="avatar">
-              <img src={conversation.profilePhoto.url} alt="User" />
+              <img src={conversation?.profilePhoto?.url} alt="User" />
             </div>
             <h5>{conversation.name}</h5>
             <div className="address-participant">

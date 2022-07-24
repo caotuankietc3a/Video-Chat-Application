@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { videoActions } from "../../store/slices/video-chat-slice";
 import {
   FiMenu,
   FiVideo,
   FiVideoOff,
-  FiPhone,
   FiPhoneOff,
   FiUserPlus,
 } from "react-icons/fi";
@@ -21,7 +19,6 @@ import {
   MeetingBottomControls,
   PannelControl,
   MyVideo,
-  UserVideo,
   FunctionControls,
   Peers,
   StyledVideo,
@@ -268,10 +265,10 @@ const MeetingGroupRoom = () => {
       conversationId,
       isReceivedCall,
     });
-    navigate("/home-chat");
     stream?.getTracks().forEach(function (track) {
       track.stop();
     });
+    navigate("/home-chat");
   };
 
   const toggleGroupVideoHandler = () => {

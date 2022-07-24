@@ -5,7 +5,7 @@ import Mark from "mark.js";
 import { useSelector } from "react-redux";
 import { formatDate } from "../../../store/actions/common-function";
 
-const BodyBar = ({ messages, isGroup = false, searchMessage }) => {
+const BodyBar = ({ messages, isGroup = false, searchMessage, block }) => {
   useEffect(() => {
     const instance = new Mark(document.getElementById("messages-container"));
     instance.unmark({
@@ -74,6 +74,7 @@ const BodyBar = ({ messages, isGroup = false, searchMessage }) => {
             isGroup={isGroup}
             images={mes.files.images}
             attachments={mes.files.attachments}
+            block={block}
           />
         );
       });

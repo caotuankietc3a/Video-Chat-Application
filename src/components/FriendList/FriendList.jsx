@@ -11,7 +11,7 @@ import {
   DialogInvitationContainer,
 } from "./StyledFriendList";
 import { IoClose } from "react-icons/io5";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { BsSearch } from "react-icons/bs";
 import FriendShow from "./FriendShow/FriendShow";
 import { useSelector, useDispatch } from "react-redux";
@@ -24,13 +24,18 @@ import { forwardActions } from "../../store/slices/forward-slice";
 import BouncyLoading from "../UI/BouncyLoading/BouncyLoading";
 import { postInvitationMessage } from "../../store/actions/invite-function";
 const { v4: uuidv4 } = require("uuid");
-const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
+const FriendList = ({
+  isClosedHandler,
+  friends,
+  createGroup,
+  invite,
+  user,
+  forward,
+}) => {
   const navigate = useNavigate();
   const inputFileEl = useRef(null);
   const invitationRef = useRef({});
-  const { user } = useSelector((state) => state.user);
-  const { forward } = useSelector((state) => state.forward);
-  const { socket_chat } = useSelector((state) => state.socket);
+  const { socket_chat, socket_notify } = useSelector((state) => state.socket);
   const dispatch = useDispatch();
   const [inputText, setInputText] = useState("");
   const [no_members, setNo_Members] = useState([
@@ -53,7 +58,6 @@ const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
       const index = preMems.findIndex((el) => el.user === mem);
       if (index !== -1) {
         preMems.splice(index, 1);
-        // return [...preMems];
       }
       return [...preMems];
     });
@@ -93,7 +97,6 @@ const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
               ? "create-group"
               : "new-chat"
           }
-          isFetching
           friend={friend}
           moveToConversationDetail={() => {
             moveToConversationDetail(friend);
@@ -112,15 +115,22 @@ const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
     isClosedHandler();
   };
 
-  const forwardToUserHandler = (friend) => {
+  const forwardToUserHandler = async (friend) => {
     const id = uuidv4();
-    socket_chat.emit("forward-message", {
-      forward: forward ? { ...forward, id, forwardee: friend } : null,
-    });
     dispatch(
       forwardActions.setForward({
         forward: { ...forward, forwardee: friend, id },
       })
+    );
+    await socket_chat.emit(
+      "forward-message",
+      {
+        forward: forward ? { ...forward, id, forwardee: friend } : null,
+      },
+      () => {
+        console.log("ssssssssssdffffffffffffffffffff");
+        socket_notify.emit("forward-message");
+      }
     );
   };
 
@@ -264,14 +274,7 @@ const FriendList = ({ isClosedHandler, friends, createGroup, invite }) => {
               Cancel
             </button>
             {!isFetching ? (
-              <button
-                className="create-group"
-                // onClick={
-                //   createGroup
-                //     ? createNewGroupConversation
-                //     : createInvitaionMessage
-                // }
-              >
+              <button className="create-group">
                 {createGroup && "Create group"}
                 {invite && "Send Invitation"}
               </button>

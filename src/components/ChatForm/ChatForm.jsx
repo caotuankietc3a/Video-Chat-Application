@@ -7,7 +7,7 @@ import SearchBox from "./SearchBox/SearchBox";
 import ChatInfo from "../ChatInfo/ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChatFormContainer, Block } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
@@ -24,9 +24,13 @@ const ChatForm = ({
   socket_chat,
   socket_video,
   socket_notify,
+  // conversationId,
 }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
+  const params = useParams();
+  const conversationId =
+    params["*"].split("/")[params["*"].split("/").length - 1];
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
   const [attachments, setAttachments] = useState([]);
@@ -40,35 +44,35 @@ const ChatForm = ({
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(conversation);
-  console.log("block: ", block);
 
   useEffect(() => {
-    let timer = 0;
-    (async () => {
-      const res = await fetch(
-        `${END_POINT_SERVER}/conversation/messages/${conversation._id}`,
-        {
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
-      timer = setTimeout(() => {
+    console.log("ddddddddddddddddddddddddddddd");
+    console.log(conversationId);
+    if (conversationId) {
+      setIsFetching(true);
+      (async () => {
+        console.log("rrrrrrrrrrrrrrrrrrrrrrrrrrddddfskljdsfjadlfj");
+        const res = await fetch(
+          `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
+          {
+            credentials: "include",
+          }
+        );
+        console.log("ddddddddddddddddddddddddddddddfskljdsfjadlfj");
+        const data = await res.json();
         setIsFetching(false);
-      }, 500);
-      setMessages((preMessages) => [...preMessages, ...data]);
-    })();
-
-    const { isBlocked } = blockHandler(conversation.members);
-    setBlock(isBlocked);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+        setMessages([...data]);
+      })();
+      const { isBlocked } = blockHandler(conversation.members);
+      toggleBlockHandler(isBlocked);
+    }
+  }, [conversationId]);
 
   useEffect(() => {
-    socket_chat.emit("join-chat", { conversationId: conversation._id });
+    socket_chat.emit("join-chat", {
+      conversationId: conversationId,
+      userId: user._id,
+    });
 
     socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
       setMessages((preMessages) => [
@@ -143,8 +147,8 @@ const ChatForm = ({
         if (type) {
           Swal.fire({
             title: isBlocked
-              ? "Conversation is blocked!!!"
-              : "Conversation is unblocked!!!",
+              ? "The Conversation is blocked!!!"
+              : "The Conversation is unblocked!!!",
             html: isBlocked
               ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
               : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
@@ -153,36 +157,17 @@ const ChatForm = ({
             confirmButtonColor: "#665dfe",
             allowOutsideClick: false,
           });
-          setBlock(isBlocked);
-        }
-        dispatch(conversationActions.setMembers({ members }));
-      }
-    );
-
-    socket_chat.on(
-      "block-member-conversation",
-      ({ isBlocked, userName, members, type }) => {
-        if (type) {
-          Swal.fire({
-            title: isBlocked
-              ? "The conversation is blocked!!!"
-              : "The conversation is unblocked!!!",
-            html: isBlocked
-              ? `<strong><i>Note!!!!</i></strong> Your friend <strong>${userName}</strong> has blocked this conversation!!!`
-              : `Your friend <strong>${userName}</strong> has unblocked this conversation!!!`,
-            icon: "warning",
-            showConfirmButton: true,
-            confirmButtonColor: "#665dfe",
-            allowOutsideClick: false,
-          });
-          setBlock(isBlocked);
+          toggleBlockHandler(isBlocked);
         }
         dispatch(conversationActions.setMembers({ members }));
       }
     );
 
     return function cleanup() {
-      socket_chat.emit("leave-chat", { conversationId: conversation._id });
+      socket_chat.emit("leave-chat", {
+        conversationId: conversationId,
+        userId: user._id,
+      });
     };
   }, []);
 
@@ -204,12 +189,13 @@ const ChatForm = ({
           userId: user._id,
           message: message,
           reply: replyOb,
-          conversationId: conversation._id,
+          conversationId: conversationId,
           files: {
             images: images,
             attachments: attachments,
           },
         });
+
         setImages([]);
         setAttachments([]);
         dispatch(replyActions.setReply({ reply: null }));
@@ -221,8 +207,9 @@ const ChatForm = ({
             dataAttachments: attachments,
             id,
           },
-          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversation._id}&userId=${user._id}`
+          `${END_POINT_SERVER}/conversation/new-message/?conversationId=${conversationId}&userId=${user._id}`
         );
+        socket_notify.emit("send-message");
       }
     } catch (err) {
       console.error(err);
@@ -232,13 +219,35 @@ const ChatForm = ({
   const clickVideoCall = async (e) => {
     e.preventDefault();
     if (conversation.no_mems) {
+      if (block) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because the conversation is blocked",
+          })
+        );
+      }
       socket_video.emit("make-group-connection-call", {
-        conversationId: conversation._id,
+        conversationId: conversationId,
         callerId: user._id,
       });
-      return navigate(`/meeting-group/${conversation._id}`);
+      navigate(`/meeting-group/${conversationId}`);
+    } else {
+      if (!conversation.status) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because user is offline",
+          })
+        );
+      }
+      if (block) {
+        return dispatch(
+          errorActions.setError({
+            error: "Can't call user because the conversation is blocked",
+          })
+        );
+      }
+      dispatch(videoStreamStart(navigate, conversation, true));
     }
-    dispatch(videoStreamStart(navigate, conversation, true));
   };
 
   const multipleImagesHandler = () => {
@@ -334,7 +343,7 @@ const ChatForm = ({
         Swal.fire("Deleted!", "The conversation has been deleted.", "success");
 
         socket_chat.emit("delete-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           user: {
             userId: user._id,
             isAdmin: member.isAdmin,
@@ -377,26 +386,30 @@ const ChatForm = ({
               "success"
             );
         socket_chat.emit("block-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           userId: user._id,
           isBlocked: !block,
           userName: user.fullname,
         });
         socket_notify.emit("block-conversation");
-        setBlock(!block);
+        // setBlock(!block);
+        toggleBlockHandler(!block);
       }
     });
   };
 
   const blockHandler = (members) => {
-    const member = members.find((member) => {
-      return member.user._id === user._id;
-    });
-    return {
-      isBlocked: member.block.isBlocked,
-      blockerId: member.block.userId,
-      isAdmin: member.isAdmin,
-    };
+    if (members) {
+      const member = members.find((member) => {
+        return member.user._id === user._id;
+      });
+      return {
+        isBlocked: member.block.isBlocked,
+        blockerId: member.block.userId,
+        isAdmin: member.isAdmin,
+      };
+    }
+    return {};
   };
 
   const checkUnblockHandler = () => {
@@ -438,7 +451,7 @@ const ChatForm = ({
               "success"
             );
         socket_chat.emit("block-member-conversation", {
-          conversationId: conversation._id,
+          conversationId: conversationId,
           blockeeId,
           isBlocked: !groupBlock,
           userId: user._id,
@@ -457,6 +470,10 @@ const ChatForm = ({
     return member.isAdmin;
   };
 
+  const toggleBlockHandler = (isBlocked) => {
+    setBlock(isBlocked);
+  };
+
   return (
     <>
       <ChatFormContainer showSearchBox={showSearchBox}>
@@ -468,7 +485,6 @@ const ChatForm = ({
           deleteConversation={deleteConversation}
           blockConversation={blockConversation}
           block={block}
-          // groupBlock={groupBlock}
           checkUnblockHandler={checkUnblockHandler}
         />
         {showSearchBox && (
@@ -481,12 +497,13 @@ const ChatForm = ({
             messages={messages}
             searchMessage={searchMessage}
             isGroup={conversation.no_mems ? true : false}
+            block={block}
           />
         )}
         {block ? (
           <Block>
             This conversation has been blocked by{" "}
-            {checkBlockHandler() ? "You" : displayBlockerName()}
+            {checkBlockHandler() ? "you" : displayBlockerName()}
           </Block>
         ) : (
           <Input

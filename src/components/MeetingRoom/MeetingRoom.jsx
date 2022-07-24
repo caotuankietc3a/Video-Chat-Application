@@ -33,6 +33,7 @@ const MeetingRoom = () => {
   const [muted, setMuted] = useState(false);
   const [toggleMuted, setToggleMuted] = useState(false);
   const userVideo = useRef(null);
+  const userVideoShowTop = useRef(null);
   const myVideo = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -57,12 +58,15 @@ const MeetingRoom = () => {
     }
     if (userStream) {
       if (userVideo.current) userVideo.current.srcObject = userStream;
+      if (userVideoShowTop.current)
+        userVideoShowTop.current.srcObject = userStream;
     }
   }, [
     stream,
     showVideo,
     userStream,
     showUserVideo,
+    userVideoShowTop,
     showTopControls,
     toggleMuted,
     muted,
@@ -134,7 +138,7 @@ const MeetingRoom = () => {
                   : "Spectator"
               }
             />
-            <video ref={userVideo} autoPlay={true} muted={muted}></video>
+            <video ref={userVideoShowTop} autoPlay={true} muted={muted}></video>
           </>
         ) : !showUserVideo ? (
           <Fragment>
