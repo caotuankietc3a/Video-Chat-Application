@@ -4,27 +4,36 @@ const User = require("../models/user.js");
 exports.getMeetings = async (req, res, _next) => {
   try {
     const { userId } = req.query;
+    // console.log("userId:", userId);
     const meetings = await Meeting.find({
       $or: [{ caller: userId }, { callee: userId }],
     }).populate({ path: "caller callee", select: "-password" });
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
-      const callerId = meeting.caller._id.toString();
-      const calleeId = meeting.callee._id.toString();
-      if (callerId !== userId.toString() && !check_set.has(callerId)) {
-        check_set.add(callerId);
-        return true;
+      // console.log("meeting:", meeting);
+      if (meeting.callee) {
+        const calleeId = meeting.callee._id.toString();
+        if (calleeId !== userId.toString() && !check_set.has(calleeId)) {
+          check_set.add(calleeId);
+          // console.log("ssssssssssssssssssssssssss");
+          return true;
+        }
       }
-      if (calleeId !== userId.toString() && !check_set.has(calleeId)) {
-        check_set.add(calleeId);
-        return true;
+      if (meeting.caller) {
+        const callerId = meeting.caller._id.toString();
+        if (callerId !== userId.toString() && !check_set.has(callerId)) {
+          check_set.add(callerId);
+          // console.log("rrrrrrrrrrrrrrrrrrrrrrrrrs");
+          return true;
+        }
       }
       return false;
     });
-    console.log(meeting_array);
+    // console.log(meeting_array);
     res.status(200).json(meeting_array);
   } catch (err) {
+    // console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
     console.error(err);
   }
 };
@@ -34,6 +43,9 @@ exports.getMeetingDetail = async (req, res, next) => {
     const { meetingId } = req.params;
     const { userId } = req.query;
     const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      throw new Error();
+    }
     const id =
       meeting.caller._id.toString() !== userId.toString()
         ? meeting.caller._id
@@ -46,9 +58,14 @@ exports.getMeetingDetail = async (req, res, next) => {
       ],
     }).populate({ path: "caller callee", select: "-password" });
     const reversed_meetings = meetings.reverse();
-    res.status(200).json({ calls_detail: reversed_meetings, callee: callee });
+    res.status(200).json({
+      calls_detail: reversed_meetings,
+      callee: callee,
+      status: "success",
+    });
   } catch (err) {
-    console.error(err);
+    console.log(err);
+    return res.status(400).json({ status: "error" });
   }
 };
 
@@ -61,12 +78,12 @@ exports.saveMeeting = async (
 ) => {
   try {
     const newMeeting = await new Meeting({
-      caller,
-      callee,
+      caller: caller._id,
+      callee: callee._id,
       date,
       callAccepted,
     }).save();
-    const conversation = await Conversation.findByIdAndUpdate(
+    await Conversation.findByIdAndUpdate(
       conversationId,
       {
         $push: {
@@ -75,7 +92,6 @@ exports.saveMeeting = async (
       },
       { new: true }
     );
-    console.log(conversation);
   } catch (err) {
     console.error(err);
   }
@@ -103,8 +119,6 @@ exports.updateMeeting = async (callerId, calleeId) => {
     let cur_h = new Date(Date.now()).getHours();
     let cur_m = new Date(Date.now()).getMinutes();
     let cur_day = new Date(Date.now()).getUTCDate();
-    // console.log(day, " ", h, " ", m, " ", s, " ");
-    // console.log(cur_day, " ", cur_h, " ", cur_m, " ", cur_s);
     if (cur_s - s <= 0) {
       cur_s += 60 - s;
       cur_m--;
@@ -131,14 +145,12 @@ exports.updateMeeting = async (callerId, calleeId) => {
       cur_m -= m;
       cur_day -= day;
     }
-    // console.log(cur_day, " ", cur_h, " ", cur_m, " ", cur_s);
     const timeCall =
       cur_h === 0
         ? cur_m === 0
           ? `${cur_s}s`
           : `${cur_m}m ${cur_s}s`
         : `${cur_h}h ${cur_m}m ${cur_s}s`;
-    // console.log(timeCall);
     await meeting.updateOne({ timeCall });
   } catch (err) {
     console.error(err);

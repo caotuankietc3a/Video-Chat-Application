@@ -109,7 +109,6 @@ exports.checkUpdatePassword = () => {
       .trim()
       .custom(async (val, { req }) => {
         const { userId } = req.params;
-        console.log(userId);
         const user = await User.findById(userId);
         if (!user) {
           return Promise.reject("User didn't exist !!!");

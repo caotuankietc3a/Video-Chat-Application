@@ -52,6 +52,8 @@ exports.postLoginOther = async (req, res, next) => {
   try {
     const { email, fullname, profilePhoto, phone } = req.body;
     const { type } = req.query;
+    console.log("email:", email);
+    console.log("type:", type);
     const user = await User.findOne({ email: email, provider: type }).select(
       "-password -twoFA.secret"
     );
@@ -112,12 +114,9 @@ exports.postRegister = async (req, res, next) => {
 
 exports.getSession = async (req, res, next) => {
   try {
-    // console.log(Date.now());
-    // console.log(Date.now() - req.session.cookieExpiration);
     if (Date.now() - req.session.cookieExpiration >= 0) {
       throw new Error("Your session cookie has been expired!!!");
     }
-    console.log("session: ", req.session);
     const { isLogin, userId } = req.session;
     const { type } = req.query;
     const status = parseInt(type) ? true : isLogin ? true : false;
@@ -200,7 +199,6 @@ exports.postUpdateAccountProfile = async (req, res, next) => {
 
 exports.postUpdateSocialProfile = async (req, res, next) => {
   const body = req.body;
-  console.log(body);
   const { userId } = req.params;
   const updatedUser = await User.findByIdAndUpdate(
     userId,
@@ -211,7 +209,6 @@ exports.postUpdateSocialProfile = async (req, res, next) => {
     },
     { new: true }
   );
-  console.log(updatedUser);
   res.status(200).json({ updatedUser });
 };
 
@@ -240,7 +237,6 @@ exports.postUpdateSecurityProfile = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { is2FAEnabled } = req.body;
-    console.log(is2FAEnabled);
     if (is2FAEnabled) {
       const uniqueSecret = generateUniqueSecret();
       const updatedUser = await User.findByIdAndUpdate(

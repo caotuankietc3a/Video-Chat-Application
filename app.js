@@ -27,7 +27,11 @@ const {
   blockMemberConversation,
 } = require("./controllers/conversation.js");
 const User = require("./models/user");
-const User_Socket = require("./models/user-socket");
+const User_Socket_Room = require("./models/user-socket");
+const User_Socket_Chat = new User_Socket_Room();
+// const User_Socket_Video = new User_Socket_Room();
+const User_Socket = new User_Socket_Room();
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -36,7 +40,7 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: [process.env.REACT_URL],
+    origin: [process.env.REACT_URL, process.env.TEST_REACT_URL],
     optionsSuccessStatus: 200,
     credentials: true,
   })
@@ -63,10 +67,15 @@ app.use(
 
 const io_chat = io.of("/chat-room");
 io_chat.on("connection", (socket) => {
-  socket.on("join-chat", ({ conversationId }) => {
-    console.log("A user connected to chat-room!!!");
+  socket.on("join-chat", async ({ conversationId, userId }) => {
+    User_Socket_Chat.addUser({
+      conversationId,
+      userInfo: {
+        socketId: socket.id,
+        userId: userId,
+      },
+    });
     socket.join(conversationId);
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
   });
 
   socket.on(
@@ -85,12 +94,6 @@ io_chat.on("connection", (socket) => {
       });
     }
   );
-
-  socket.on("leave-chat", ({ conversationId }) => {
-    socket.leave(conversationId);
-    console.log("A user disconnected chat-room!!!");
-    console.log("Chat Rooms: ", io_chat.adapter.rooms);
-  });
 
   socket.on("delete-message", ({ conversationId, id }) => {
     deleteMessage(conversationId, id);
@@ -142,14 +145,19 @@ io_chat.on("connection", (socket) => {
         isBlocked,
       });
 
-      socket.broadcast.to(conversationId).emit("block-conversation", {
-        isBlocked,
-        userName,
-        members: conversation.members,
-        type: 1,
+      const { userInfo } = User_Socket_Chat.findUser({
+        conversationId,
+        userId: blockeeId,
       });
 
       // send to socket.id only
+      io_chat.to(`${userInfo.socketId}`).emit("block-conversation", {
+        members: conversation.members,
+        isBlocked,
+        userName,
+        type: 1,
+      });
+
       io_chat.to(`${socket.id}`).emit("block-conversation", {
         members: conversation.members,
         type: 0,
@@ -157,63 +165,87 @@ io_chat.on("connection", (socket) => {
     }
   );
 
-  socket.on("forward-message", async ({ forward }) => {
+  socket.on("forward-message", async ({ forward }, cb) => {
     const conversation = await forwardMessage(forward);
+    cb();
     io_chat.to(conversation._id.toString()).emit("forward-message", {
       messageOb: conversation.messages[conversation.messages.length - 1],
       conversation,
     });
+  });
+
+  socket.on("leave-chat", ({ conversationId, userId }) => {
+    User_Socket_Chat.removeUser({ conversationId, userId });
+    socket.leave(conversationId);
   });
 });
 
 const io_video = io.of("/video-room");
 io_video.on("connection", (socket) => {
   socket.on("join-video", async ({ userId }) => {
-    console.log("A user connected video-room!!!");
-    const conversations = await Conversation.find({
-      "members.user": userId,
-    }).populate({ path: "members.user", select: "-password -twoFA.secret" });
-    socket.join(
-      conversations.map((conversation) => conversation._id.toString())
-    );
-    console.log("Video Rooms: ", io_video.adapter.rooms);
+    try {
+      const conversations = await Conversation.find({
+        "members.user": userId,
+      })
+        .select({
+          members: { $elemMatch: { user: userId } },
+        })
+        .populate({ path: "members.user" });
+
+      conversations.forEach((conversation) => {
+        socket.join(conversation._id.toString());
+      });
+    } catch (err) {
+      console.error(err);
+    }
   });
 
   socket.on("make-connection-call", async ({ conversationId, caller }, cb) => {
-    const conversation = await Conversation.findById(conversationId).populate({
-      path: "members.user",
-      select: "-password -twoFA.secret",
-    });
-    const callee = conversation.members.find(
-      (mem) => mem.user._id.toString() !== caller._id.toString()
-    );
-
-    cb(callee.user);
-
-    // sending to all clients except sender
-    socket.broadcast.to(conversationId).emit("make-connection-call", {
-      conversationId,
-      conversation,
-      caller,
-      callee,
-    });
-  });
-
-  socket.on(
-    "make-group-connection-call",
-    async ({ conversationId, callerId }) => {
+    try {
       const conversation = await Conversation.findById(conversationId).populate(
         {
           path: "members.user",
           select: "-password -twoFA.secret",
         }
       );
+      const callee = conversation.members.find(
+        (mem) => mem.user._id.toString() !== caller._id.toString()
+      );
+
+      cb(callee.user);
+
       // sending to all clients except sender
-      socket.broadcast.to(conversationId).emit("make-group-connection-call", {
+      socket.broadcast.to(conversationId).emit("make-connection-call", {
         conversationId,
         conversation,
-        callerId,
+        caller,
+        callee,
       });
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  socket.on(
+    "make-group-connection-call",
+    async ({ conversationId, callerId }) => {
+      try {
+        const conversation = await Conversation.findById(
+          conversationId
+        ).populate({
+          path: "members.user",
+          select: "-password -twoFA.secret",
+        });
+
+        // sending to all clients except sender
+        socket.broadcast.to(conversationId).emit("make-group-connection-call", {
+          conversationId,
+          conversation,
+          callerId,
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   );
 
@@ -227,16 +259,20 @@ io_video.on("connection", (socket) => {
       callAccepted,
       isReceivedCall,
     }) => {
-      if (!isReceivedCall) {
-        socket.broadcast.to(conversationId.toString()).emit("reject-call", {
-          error: "Caller canceled the call!!!",
-        });
-      } else {
-        socket.broadcast
-          .to(conversationId.toString())
-          .emit("reject-call", { error: "Callee canceled the call!!!" });
+      try {
+        if (!isReceivedCall) {
+          socket.broadcast.to(conversationId.toString()).emit("reject-call", {
+            error: "Caller canceled the call!!!",
+          });
+        } else {
+          socket.broadcast
+            .to(conversationId.toString())
+            .emit("reject-call", { error: "Callee canceled the call!!!" });
+        }
+        saveMeeting(caller, callee.user, date, callAccepted, conversationId);
+      } catch (err) {
+        console.error(err);
       }
-      saveMeeting(caller, callee, date, callAccepted, conversationId);
     }
   );
 
@@ -253,7 +289,7 @@ io_video.on("connection", (socket) => {
   socket.on(
     "join-meeting-room",
     ({ conversationId, caller, callee, date, callAccepted }) => {
-      saveMeeting(caller, callee, date, callAccepted, conversationId);
+      saveMeeting(caller.user, callee.user, date, callAccepted, conversationId);
       io_video.to(conversationId).emit("join-meeting-room");
     }
   );
@@ -285,47 +321,54 @@ io_group_video.on("connection", (socket) => {
       userMuted,
       userShareScreen,
     }) => {
-      User_Socket.addUser({
-        conversationId,
-        userInfo: {
-          userId: socket.id,
-          userName,
-          userImg,
-          userShowVideo,
-          userMuted,
-          userShareScreen,
-        },
-      });
-      console.log(User_Socket.getAllUsersInRoom(conversationId));
-      socket.emit("users-in-room", {
-        usersInRoom: User_Socket.getUsersInRoom(
-          conversationId.toString(),
-          socket.id.toString()
-        ),
-      });
-      socket.join(conversationId);
-      console.log("Video Group Rooms: ", io_group_video.adapter.rooms);
+      try {
+        User_Socket.addUser({
+          conversationId,
+          userInfo: {
+            userId: socket.id,
+            userName,
+            userImg,
+            userShowVideo,
+            userMuted,
+            userShareScreen,
+          },
+        });
+        socket.emit("users-in-room", {
+          usersInRoom: User_Socket.getUsersInRoom(
+            conversationId.toString(),
+            socket.id.toString()
+          ),
+        });
+        socket.join(conversationId);
+        // console.log("Video Group Rooms: ", io_group_video.adapter.rooms);
+      } catch (err) {
+        console.log(err);
+      }
     }
   );
 
   socket.on(
     "sending-signal",
     ({ userToSignal, callerId, signal, conversationId }) => {
-      const { userInfo } = User_Socket.findUser({
-        conversationId,
-        userId: callerId,
-      });
-      io_group_video.to(userToSignal).emit("user-joined", {
-        signal,
-        callerInfo: {
-          callerId: userInfo.userId,
-          callerName: userInfo.userName,
-          callerImg: userInfo.userImg,
-          callerShowVideo: userInfo.userShowVideo,
-          callerMuted: userInfo.userMuted,
-          callerShareScreen: userInfo.userShareScreen,
-        },
-      });
+      try {
+        const { userInfo } = User_Socket.findUser({
+          conversationId,
+          userId: callerId,
+        });
+        io_group_video.to(userToSignal).emit("user-joined", {
+          signal,
+          callerInfo: {
+            callerId: userInfo.userId,
+            callerName: userInfo.userName,
+            callerImg: userInfo.userImg,
+            callerShowVideo: userInfo.userShowVideo,
+            callerMuted: userInfo.userMuted,
+            callerShareScreen: userInfo.userShareScreen,
+          },
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
   );
 
@@ -384,7 +427,10 @@ io_group_video.on("connection", (socket) => {
 
 const io_notify = io.of("/notify");
 io_notify.on("connection", (socket) => {
-  console.log(io_notify.adapter.rooms);
+  socket.on("join-room", ({ userId }) => {
+    socket.userId = userId;
+  });
+
   socket.on("log-out", () => {
     // to all clients in the current namespace except the sender
     socket.broadcast.emit("log-out");
@@ -396,20 +442,42 @@ io_notify.on("connection", (socket) => {
 
   socket.on("post-new-conversation", () => {
     socket.broadcast.emit("post-new-conversation");
+    io_notify.to(socket.id).emit("post-new-conversation");
   });
 
   socket.on("post-new-group-conversation", () => {
     socket.broadcast.emit("post-new-group-conversation");
+    io_notify.to(socket.id).emit("post-new-group-conversation");
   });
 
   socket.on("delete-conversation", () => {
+    socket.broadcast.emit("delete-conversation");
+    io_notify.to(socket.id).emit("delete-conversation");
+  });
+
+  socket.on("forward-message", () => {
     // to all clients in the current namespace
-    io_notify.emit("delete-conversation");
+    socket.broadcast.emit("forward-message");
+    io_notify.to(socket.id).emit("forward-message");
+  });
+
+  socket.on("send-message", () => {
+    socket.broadcast.emit("send-message");
+    io_notify.to(socket.id).emit("send-message");
   });
 
   socket.on("block-conversation", () => {
     // to all clients in the current namespace
     io_notify.emit("block-conversation");
+  });
+
+  socket.on("disconnect", async () => {
+    try {
+      await User.findByIdAndUpdate(socket.userId, { status: false });
+      socket.broadcast.emit("log-out");
+    } catch (err) {
+      console.error(err);
+    }
   });
 });
 
