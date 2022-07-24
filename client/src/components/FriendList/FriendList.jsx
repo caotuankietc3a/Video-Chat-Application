@@ -128,7 +128,6 @@ const FriendList = ({
         forward: forward ? { ...forward, id, forwardee: friend } : null,
       },
       () => {
-        console.log("ssssssssssdffffffffffffffffffff");
         socket_notify.emit("forward-message");
       }
     );

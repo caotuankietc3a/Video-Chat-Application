@@ -4,7 +4,6 @@ const VideoDisplay = ({ stream, muted, hidden, controls }) => {
   const userVideo = useRef();
 
   useEffect(() => {
-    console.log(stream);
     userVideo.current.srcObject = stream;
   }, [stream]);
 

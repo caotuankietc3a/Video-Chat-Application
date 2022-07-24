@@ -73,7 +73,6 @@ const ChatContactItems = ({
         const friend = await res.json();
         dispatch(friendActions.setFriend({ friend: friend }));
       } else if (type === "Calls") {
-        console.log(id);
         const res = await fetch(
           `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userState.user._id}`
         );

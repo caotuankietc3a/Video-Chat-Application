@@ -4,19 +4,16 @@ const User = require("../models/user.js");
 exports.getMeetings = async (req, res, _next) => {
   try {
     const { userId } = req.query;
-    // console.log("userId:", userId);
     const meetings = await Meeting.find({
       $or: [{ caller: userId }, { callee: userId }],
     }).populate({ path: "caller callee", select: "-password" });
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
-      // console.log("meeting:", meeting);
       if (meeting.callee) {
         const calleeId = meeting.callee._id.toString();
         if (calleeId !== userId.toString() && !check_set.has(calleeId)) {
           check_set.add(calleeId);
-          // console.log("ssssssssssssssssssssssssss");
           return true;
         }
       }
@@ -24,16 +21,13 @@ exports.getMeetings = async (req, res, _next) => {
         const callerId = meeting.caller._id.toString();
         if (callerId !== userId.toString() && !check_set.has(callerId)) {
           check_set.add(callerId);
-          // console.log("rrrrrrrrrrrrrrrrrrrrrrrrrs");
           return true;
         }
       }
       return false;
     });
-    // console.log(meeting_array);
     res.status(200).json(meeting_array);
   } catch (err) {
-    // console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
     console.error(err);
   }
 };
