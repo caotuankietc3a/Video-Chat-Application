@@ -165,7 +165,6 @@ const ChatRoom = () => {
           url: `${END_POINT_SERVER}/meeting?userId=${user._id}`,
         },
         (data) => {
-          console.log(data);
           setCalls(data);
         }
       )

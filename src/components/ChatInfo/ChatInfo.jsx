@@ -41,7 +41,6 @@ const ChatInfo = ({
   const [image, setImage] = useState(false);
   const [attach, setAttach] = useState(false);
   const [member, setMember] = useState(false);
-  console.log(conversation);
   const closeAllStates = () => {
     setAttach(false);
     setAbout(false);

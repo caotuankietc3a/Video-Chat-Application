@@ -117,7 +117,6 @@ export const fetchDetailConversation = ({ id, userId }) => {
     try {
       const res = await fetch(`${END_POINT_SERVER}/conversation/detail/` + id);
       const conversation = await res.json();
-      console.log(conversation);
 
       if (conversation && conversation.members) {
         if (

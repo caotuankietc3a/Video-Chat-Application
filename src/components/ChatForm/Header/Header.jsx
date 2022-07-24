@@ -32,7 +32,6 @@ const Header = ({
   const menuShowHandler = (e) => {
     setShowMenu(!showMenu);
   };
-  console.log(conversation);
 
   useEffect(() => {
     showMenuHandler(() => {

@@ -157,7 +157,6 @@ export const fetchFriends = () => {
           }
         );
         const friends = await resFriends.json();
-        console.log(friends);
 
         const resGroupConversations = await fetch(
           `${END_POINT_SERVER}/conversation/${
@@ -169,7 +168,6 @@ export const fetchFriends = () => {
         );
 
         let group_conversations = await resGroupConversations.json();
-        console.log(group_conversations);
         group_conversations = group_conversations.map((el) => {
           return {
             status: true,
@@ -339,7 +337,6 @@ export const fetchChatContacts = ({ url }, cb) => {
         credentials: "include",
       });
       const data = await responses.json();
-      console.log(data);
       cb(data);
     } catch (err) {
       console.error(err);

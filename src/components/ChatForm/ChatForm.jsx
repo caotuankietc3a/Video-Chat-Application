@@ -46,19 +46,15 @@ const ChatForm = ({
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
 
   useEffect(() => {
-    console.log("ddddddddddddddddddddddddddddd");
-    console.log(conversationId);
     if (conversationId) {
       setIsFetching(true);
       (async () => {
-        console.log("rrrrrrrrrrrrrrrrrrrrrrrrrrddddfskljdsfjadlfj");
         const res = await fetch(
           `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
           {
             credentials: "include",
           }
         );
-        console.log("ddddddddddddddddddddddddddddddfskljdsfjadlfj");
         const data = await res.json();
         setIsFetching(false);
         setMessages([...data]);
