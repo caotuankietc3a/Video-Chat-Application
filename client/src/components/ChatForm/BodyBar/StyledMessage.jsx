@@ -168,9 +168,9 @@ export const MessageWrapper = styled.div`
         }
         div.payload-file {
           width: 100%;
-          height: 10px;
           color: ${({ type }) => (type === "left" ? "#b9b9b9" : "#FFFFFF90")};
           font-size: 0.675rem;
+          line-height: 1;
         }
       }
     }

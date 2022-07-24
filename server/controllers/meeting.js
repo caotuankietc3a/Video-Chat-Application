@@ -4,30 +4,36 @@ const User = require("../models/user.js");
 exports.getMeetings = async (req, res, _next) => {
   try {
     const { userId } = req.query;
+    // console.log("userId:", userId);
     const meetings = await Meeting.find({
       $or: [{ caller: userId }, { callee: userId }],
     }).populate({ path: "caller callee", select: "-password" });
-    console.log("meetings:", meetings);
     const reversed_meetings = meetings.reverse();
     const check_set = new Set();
     const meeting_array = reversed_meetings.filter((meeting, _i) => {
-      if (meeting.callee && meeting.caller) {
+      // console.log("meeting:", meeting);
+      if (meeting.callee) {
         const calleeId = meeting.callee._id.toString();
+        if (calleeId !== userId.toString() && !check_set.has(calleeId)) {
+          check_set.add(calleeId);
+          // console.log("ssssssssssssssssssssssssss");
+          return true;
+        }
+      }
+      if (meeting.caller) {
         const callerId = meeting.caller._id.toString();
         if (callerId !== userId.toString() && !check_set.has(callerId)) {
           check_set.add(callerId);
-          return true;
-        }
-        if (calleeId !== userId.toString() && !check_set.has(calleeId)) {
-          check_set.add(calleeId);
+          // console.log("rrrrrrrrrrrrrrrrrrrrrrrrrs");
           return true;
         }
       }
       return false;
     });
-    console.log(meeting_array);
+    // console.log(meeting_array);
     res.status(200).json(meeting_array);
   } catch (err) {
+    // console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
     console.error(err);
   }
 };
@@ -37,6 +43,9 @@ exports.getMeetingDetail = async (req, res, next) => {
     const { meetingId } = req.params;
     const { userId } = req.query;
     const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      throw new Error();
+    }
     const id =
       meeting.caller._id.toString() !== userId.toString()
         ? meeting.caller._id
@@ -49,9 +58,14 @@ exports.getMeetingDetail = async (req, res, next) => {
       ],
     }).populate({ path: "caller callee", select: "-password" });
     const reversed_meetings = meetings.reverse();
-    res.status(200).json({ calls_detail: reversed_meetings, callee: callee });
+    res.status(200).json({
+      calls_detail: reversed_meetings,
+      callee: callee,
+      status: "success",
+    });
   } catch (err) {
-    console.error(err);
+    console.log(err);
+    return res.status(400).json({ status: "error" });
   }
 };
 
@@ -64,12 +78,12 @@ exports.saveMeeting = async (
 ) => {
   try {
     const newMeeting = await new Meeting({
-      caller,
-      callee,
+      caller: caller._id,
+      callee: callee._id,
       date,
       callAccepted,
     }).save();
-    const conversation = await Conversation.findByIdAndUpdate(
+    await Conversation.findByIdAndUpdate(
       conversationId,
       {
         $push: {

@@ -58,7 +58,7 @@ exports.getConversations = async (req, res, next) => {
     const userId = req.params.userId;
     const { isGroup } = req.query;
     let conversations = [];
-    if (userId !== "error") {
+    if (userId !== "error" && userId !== "detail") {
       if (!parseInt(isGroup)) {
         conversations = await Conversation.find({
           "members.user": userId,

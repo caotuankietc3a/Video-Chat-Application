@@ -185,15 +185,10 @@ class User_Socket_Room {
   removeUsersInRoom({ socketId }) {
     for (let i = 0; i < this.users.length; i++) {
       if (this.users[i].userInfo.socketId === socketId) {
-        console.log(this.users.splice(i, 1));
-        // this.users.splice(i, 1);
+        this.users.splice(i, 1);
         i--;
       }
     }
-  }
-
-  displayAllUsers() {
-    console.log(this.users);
   }
 }
 

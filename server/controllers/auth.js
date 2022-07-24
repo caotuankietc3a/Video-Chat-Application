@@ -52,6 +52,8 @@ exports.postLoginOther = async (req, res, next) => {
   try {
     const { email, fullname, profilePhoto, phone } = req.body;
     const { type } = req.query;
+    console.log("email:", email);
+    console.log("type:", type);
     const user = await User.findOne({ email: email, provider: type }).select(
       "-password -twoFA.secret"
     );

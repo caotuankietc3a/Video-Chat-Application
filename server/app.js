@@ -65,7 +65,6 @@ app.use(
   })
 );
 
-// console.log(User_Socket_Chat);
 const io_chat = io.of("/chat-room");
 io_chat.on("connection", (socket) => {
   socket.on("join-chat", async ({ conversationId, userId }) => {
@@ -270,7 +269,7 @@ io_video.on("connection", (socket) => {
             .to(conversationId.toString())
             .emit("reject-call", { error: "Callee canceled the call!!!" });
         }
-        saveMeeting(caller, callee, date, callAccepted, conversationId);
+        saveMeeting(caller, callee.user, date, callAccepted, conversationId);
       } catch (err) {
         console.error(err);
       }
@@ -290,7 +289,7 @@ io_video.on("connection", (socket) => {
   socket.on(
     "join-meeting-room",
     ({ conversationId, caller, callee, date, callAccepted }) => {
-      saveMeeting(caller, callee, date, callAccepted, conversationId);
+      saveMeeting(caller.user, callee.user, date, callAccepted, conversationId);
       io_video.to(conversationId).emit("join-meeting-room");
     }
   );
@@ -304,7 +303,7 @@ io_video.on("connection", (socket) => {
   });
 
   socket.on("leave-meeting-room", ({ conversationId, callerId, calleeId }) => {
-    // console.log("A user disconnected video-room!!!");
+    console.log("A user disconnected video-room!!!");
     updateMeeting(callerId, calleeId);
     io_video.to(conversationId).emit("leave-meeting-room");
   });
@@ -428,7 +427,6 @@ io_group_video.on("connection", (socket) => {
 
 const io_notify = io.of("/notify");
 io_notify.on("connection", (socket) => {
-  // console.log(io_notify.adapter.rooms);
   socket.on("join-room", ({ userId }) => {
     socket.userId = userId;
   });
@@ -464,7 +462,6 @@ io_notify.on("connection", (socket) => {
   });
 
   socket.on("send-message", () => {
-    console.log("dfasdfasdfsdfsafa");
     socket.broadcast.emit("send-message");
     io_notify.to(socket.id).emit("send-message");
   });

@@ -8,12 +8,16 @@ export const postNewConversation = (user, friendDetail, navigate) => {
   return async (dispatch, getState) => {
     try {
       if (user) {
-        const { socket_notify } = getState().socket;
+        const { socket_notify, socket_chat } = getState().socket;
         const conversation = await postData(
           { friend: friendDetail, userId: user._id },
           `${END_POINT_SERVER}/conversation/new-conversation`
         );
         socket_notify.emit("post-new-conversation");
+        socket_chat.emit("join-chat", {
+          conversationId: conversation._id,
+          userId: user._id,
+        });
         if (friendDetail.isGroup) {
           dispatch(
             conversationActions.setConversation({
@@ -115,7 +119,7 @@ export const fetchDetailConversation = ({ id, userId }) => {
       const conversation = await res.json();
       console.log(conversation);
 
-      if (conversation) {
+      if (conversation && conversation.members) {
         if (
           conversation.members.length === 2 &&
           conversation.profilePhoto.cloudinary_id === "" &&

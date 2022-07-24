@@ -7,7 +7,7 @@ import SearchBox from "./SearchBox/SearchBox";
 import ChatInfo from "../ChatInfo/ChatInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { postData } from "../../store/actions/fetch-action";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChatFormContainer, Block } from "./StyledChatForm";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { replyActions } from "../../store/slices/reply-slice";
@@ -24,10 +24,13 @@ const ChatForm = ({
   socket_chat,
   socket_video,
   socket_notify,
-  conversationId,
+  // conversationId,
 }) => {
   console.log("ChatForm running");
   const dispatch = useDispatch();
+  const params = useParams();
+  const conversationId =
+    params["*"].split("/")[params["*"].split("/").length - 1];
   const { reply } = useSelector((state) => state.reply);
   const navigate = useNavigate();
   const [attachments, setAttachments] = useState([]);
@@ -41,41 +44,37 @@ const ChatForm = ({
   const [searchMessage, setSearchMessage] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
-  console.log(messages);
 
   useEffect(() => {
-    if (conversation?._id) {
+    console.log("ddddddddddddddddddddddddddddd");
+    console.log(conversationId);
+    if (conversationId) {
       setIsFetching(true);
       (async () => {
+        console.log("rrrrrrrrrrrrrrrrrrrrrrrrrrddddfskljdsfjadlfj");
         const res = await fetch(
           `${END_POINT_SERVER}/conversation/messages/${conversationId}`,
           {
             credentials: "include",
           }
         );
+        console.log("ddddddddddddddddddddddddddddddfskljdsfjadlfj");
         const data = await res.json();
         setIsFetching(false);
-        console.log(data);
         setMessages([...data]);
       })();
       const { isBlocked } = blockHandler(conversation.members);
       toggleBlockHandler(isBlocked);
     }
-
-    // return () => {
-    // setMessages([]);
-    // };
-  }, [conversation._id]);
+  }, [conversationId]);
 
   useEffect(() => {
-    console.log("dddddddddddddddddddddddddd");
     socket_chat.emit("join-chat", {
       conversationId: conversationId,
       userId: user._id,
     });
 
     socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
-      console.log("ssssssssssssssssssssssssssssss");
       setMessages((preMessages) => [
         ...preMessages,
         {

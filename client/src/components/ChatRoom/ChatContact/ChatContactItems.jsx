@@ -35,8 +35,6 @@ const ChatContactItems = ({
   const userState = useSelector((state) => state.user);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [isActive, setIsActive] = useState(false);
-  console.log(id);
-  console.log(type);
 
   let length = null;
   let latestMessage = null;
@@ -75,6 +73,7 @@ const ChatContactItems = ({
         const friend = await res.json();
         dispatch(friendActions.setFriend({ friend: friend }));
       } else if (type === "Calls") {
+        console.log(id);
         const res = await fetch(
           `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userState.user._id}`
         );
@@ -93,7 +92,7 @@ const ChatContactItems = ({
   return (
     <ContactItems onClick={clickHandler}>
       {displayChar && <p>{friend.fullname[0].toUpperCase()}</p>}
-      <Link to={linkTo + `/detail/${id}`}>
+      <Link to={linkTo + `/detail/${id}?userId=${userState.user._id}`}>
         <AvatarUser type={type} status={status}>
           <img
             src={

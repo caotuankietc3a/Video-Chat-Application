@@ -335,15 +335,12 @@ export const enable2FAFunction = (QRCodeUrl, userId, e) => {
 export const fetchChatContacts = ({ url }, cb) => {
   return async (_dispatch, getState) => {
     try {
-      const { user } = getState().user;
-      if (user?._id) {
-        const responses = await fetch(url, {
-          credentials: "include",
-        });
-        const data = await responses.json();
-        console.log(data);
-        cb(data);
-      }
+      const responses = await fetch(url, {
+        credentials: "include",
+      });
+      const data = await responses.json();
+      console.log(data);
+      cb(data);
     } catch (err) {
       console.error(err);
     }

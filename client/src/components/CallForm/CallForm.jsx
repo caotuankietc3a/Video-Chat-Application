@@ -1,4 +1,3 @@
-import { BsChatDots } from "react-icons/bs";
 import { useState, useEffect } from "react";
 import {
   CallFormContainer,
@@ -13,11 +12,35 @@ import {
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import CallItems from "./CallItems/CallItems";
 import { BiDotsVerticalRounded } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { callActions } from "../../store/slices/call-slice.jsx";
 
-const CallForm = ({ calls, callee }) => {
-  const [isFetching, setIsFetching] = useState(true);
+const CallForm = ({ calls, callee, id }) => {
+  const [searchParams] = useSearchParams();
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  const userId = searchParams.get("userId");
+  const [isFetching, setIsFetching] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
-    setIsFetching(false);
+    (async () => {
+      setIsFetching(true);
+      const res = await fetch(
+        `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userId}`
+      );
+      // const { calls_detail, callee } = await res.json();
+      const { calls_detail, callee, status } = await res.json();
+      if (status === "error") {
+        navigate("/home-chat/calls");
+      } else if (status == "success") {
+        dispatch(callActions.setCalls({ calls: calls_detail }));
+        dispatch(
+          callActions.setMeeting({ meeting: { meetingId: id, callee } })
+        );
+      }
+      setIsFetching(false);
+    })();
   }, []);
   return (
     <CallFormContainer>

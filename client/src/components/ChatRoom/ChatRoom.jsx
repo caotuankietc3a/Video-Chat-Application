@@ -27,15 +27,8 @@ import { compareString } from "../../store/actions/common-function";
 import { fetchDetailConversation } from "../../store/actions/conversation-function";
 const ChatRoom = () => {
   console.log("ChatRoom running");
-  // const [searchParams] = useSearchParams();
-  // console.log(searchParams);
-  // console.log(searchParams.get("conversationId"));
-  // console.log(searchParams.getAll("conversationId"));
-
   const params = useParams();
-  console.log(params["*"].split("/"));
   const id = params["*"].split("/")[params["*"].split("/").length - 1];
-  console.log(id);
   const { conversation } = useSelector((state) => state.conversation);
   const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [conversations, setConversations] = useState([]);
@@ -53,7 +46,6 @@ const ChatRoom = () => {
   const [isClickedConversation, setIsClickedConversation] = useState(false);
   const [createGroup, setCreateGroup] = useState(false);
   const [invite, setInvite] = useState(false);
-  console.log(conversations);
   const { socket_chat, socket_video, socket_notify } = useSelector(
     (state) => state.socket
   );
@@ -167,20 +159,19 @@ const ChatRoom = () => {
   }, []);
 
   useEffect(() => {
-    if (user?._id) {
-      dispatch(
-        fetchChatContacts(
-          {
-            url: `${END_POINT_SERVER}/meeting?userId=${user._id}`,
-          },
-          (data) => {
-            setCalls(data);
-          }
-        )
-      );
-      setIsFetching(false);
-    }
-  }, [user]);
+    dispatch(
+      fetchChatContacts(
+        {
+          url: `${END_POINT_SERVER}/meeting?userId=${user._id}`,
+        },
+        (data) => {
+          console.log(data);
+          setCalls(data);
+        }
+      )
+    );
+    setIsFetching(false);
+  }, []);
 
   useEffect(() => {
     socket_video.on(
@@ -334,7 +325,7 @@ const ChatRoom = () => {
                   socket_chat={socket_chat}
                   socket_video={socket_video}
                   socket_notify={socket_notify}
-                  conversationId={id}
+                  // conversationId={id}
                   // toggleBlockHandler={toggleBlockHandler}
                   // blockHandler={blockHandler}
                   // block={block}
@@ -362,6 +353,7 @@ const ChatRoom = () => {
                 <CallForm
                   calls={callState?.calls ? callState.calls : []}
                   callee={callState?.meeting?.callee}
+                  id={id}
                 />
               }
             ></Route>
