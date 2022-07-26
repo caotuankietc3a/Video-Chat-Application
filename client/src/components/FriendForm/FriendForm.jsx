@@ -49,7 +49,7 @@ const FriendForm = ({ friendDetail }) => {
         const res = await fetch(
           `${END_POINT_SERVER}/friend/detail/` + friendId
         );
-        const friend = await res.json();
+        const { friend } = await res.json();
         dispatch(friendActions.setFriend({ friend: friend }));
         setIsFetching(false);
       })();
