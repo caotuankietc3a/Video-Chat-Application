@@ -12,13 +12,13 @@ import { BsTelephone } from "react-icons/bs";
 import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { friendActions } from "../../../store/slices/friend-slice";
+// import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
 import {
   callComparedDate,
   formatDate,
 } from "../../../store/actions/common-function";
-import { callActions } from "../../../store/slices/call-slice";
+// import { callActions } from "../../../store/slices/call-slice";
 import { fetchDetailConversation } from "../../../store/actions/conversation-function";
 const ChatContactItems = ({
   conversation,
@@ -33,7 +33,6 @@ const ChatContactItems = ({
 }) => {
   const dispatch = useDispatch();
   const userState = useSelector((state) => state.user);
-  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
   const [isActive, setIsActive] = useState(false);
 
   let length = null;
@@ -68,23 +67,11 @@ const ChatContactItems = ({
     try {
       if (type === "Chats") {
         dispatch(fetchDetailConversation({ id, userId: userState.user._id }));
-      } else if (type === "Friends") {
-        const res = await fetch(`${END_POINT_SERVER}/friend/detail/` + id);
-        const friend = await res.json();
-        dispatch(friendActions.setFriend({ friend: friend }));
-      } else if (type === "Calls") {
-        const res = await fetch(
-          `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userState.user._id}`
-        );
-        const { calls_detail, callee } = await res.json();
-        dispatch(callActions.setCalls({ calls: calls_detail }));
-        dispatch(
-          callActions.setMeeting({ meeting: { meetingId: id, callee } })
-        );
       }
       setIsActive(true);
     } catch (err) {
       console.error(err);
+      setIsActive(false);
     }
   };
 

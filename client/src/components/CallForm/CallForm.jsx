@@ -24,23 +24,27 @@ const CallForm = ({ calls, callee, id }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   useEffect(() => {
-    (async () => {
-      setIsFetching(true);
-      const res = await fetch(
-        `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userId}`
-      );
-      // const { calls_detail, callee } = await res.json();
-      const { calls_detail, callee, status } = await res.json();
-      if (status === "error") {
-        navigate("/home-chat/calls");
-      } else if (status == "success") {
-        dispatch(callActions.setCalls({ calls: calls_detail }));
-        dispatch(
-          callActions.setMeeting({ meeting: { meetingId: id, callee } })
+    try {
+      (async () => {
+        setIsFetching(true);
+        const res = await fetch(
+          `${END_POINT_SERVER}/meeting/detail/${id}?userId=${userId}`
         );
-      }
+        const { calls_detail, callee, status } = await res.json();
+        if (status === "error") {
+          navigate("/home-chat/calls");
+        } else if (status == "success") {
+          dispatch(callActions.setCalls({ calls: calls_detail }));
+          dispatch(
+            callActions.setMeeting({ meeting: { meetingId: id, callee } })
+          );
+        }
+        setIsFetching(false);
+      })();
+    } catch (err) {
+      console.error(err);
       setIsFetching(false);
-    })();
+    }
   }, []);
   return (
     <CallFormContainer>

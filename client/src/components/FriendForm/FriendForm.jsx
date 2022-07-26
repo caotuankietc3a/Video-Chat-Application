@@ -22,38 +22,42 @@ import { FiPhone, FiFacebook, FiTwitter, FiInstagram } from "react-icons/fi";
 import { IoEarthOutline } from "react-icons/io5";
 import { formatDate } from "../../store/actions/common-function";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import TikTokSpinner from "../UI/TikTokSpinner/TikTokSpinner";
 import { postNewConversation } from "../../store/actions/conversation-function";
-const FriendForm = (props) => {
-  const {
-    profilePhoto,
-    fullname,
-    birthdate,
-    phone,
-    email,
-    website,
-    address,
-    facebook,
-    twitter,
-    instagram,
-  } = props.friendDetail;
+import { friendActions } from "../../store/slices/friend-slice";
+const FriendForm = ({ friendDetail }) => {
+  const END_POINT_SERVER = process.env.REACT_APP_ENDPOINT_SERVER;
+  const { friendId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
   const [isFetching, setIsFetching] = useState(true);
 
   const clickChatHandler = () => {
-    dispatch(postNewConversation(user, props.friendDetail, navigate));
+    dispatch(postNewConversation(user, friendDetail, navigate));
   };
 
   const clickPhoneHandler = async () => {
-    dispatch(postNewConversation(user, props.friendDetail, navigate, true));
+    dispatch(postNewConversation(user, friendDetail, navigate, true));
   };
 
   useEffect(() => {
-    setIsFetching(false);
-  }, []);
+    try {
+      setIsFetching(true);
+      (async () => {
+        const res = await fetch(
+          `${END_POINT_SERVER}/friend/detail/` + friendId
+        );
+        const friend = await res.json();
+        dispatch(friendActions.setFriend({ friend: friend }));
+        setIsFetching(false);
+      })();
+    } catch (err) {
+      setIsFetching(false);
+      console.error(err);
+    }
+  }, [friendId]);
 
   return (
     <FriendFormContainer>
@@ -63,10 +67,10 @@ const FriendForm = (props) => {
         <FriendFormContent>
           <FriendFormBody>
             <FriendFormAvatar>
-              <img src={profilePhoto.url} alt="" />
+              <img src={friendDetail?.profilePhoto?.url} alt="" />
             </FriendFormAvatar>
             <FriendFormDetail>
-              <h5>{fullname}</h5>
+              <h5>{friendDetail?.fullname}</h5>
               <FriendFormInfo_Btn>
                 <div className="chat" onClick={clickChatHandler}>
                   <BsChatDots />
@@ -91,35 +95,35 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Birthdate</p>
-                <p>{birthdate}</p>
+                <p>{friendDetail?.birthdate}</p>
               </div>
               <AiOutlineCalendar></AiOutlineCalendar>
             </ListGroupInfoItem>
             <ListGroupInfoItem>
               <div>
                 <p className="small">Phone</p>
-                <p>{phone}</p>
+                <p>{friendDetail?.phone}</p>
               </div>
               <FiPhone></FiPhone>
             </ListGroupInfoItem>
             <ListGroupInfoItem>
               <div>
                 <p className="small">Email</p>
-                <p>{email}</p>
+                <p>{friendDetail?.email}</p>
               </div>
               <AiOutlineMail></AiOutlineMail>
             </ListGroupInfoItem>
             <ListGroupInfoItem>
               <div>
                 <p className="small">Website</p>
-                <p>{website}</p>
+                <p>{friendDetail?.website}</p>
               </div>
               <IoEarthOutline></IoEarthOutline>
             </ListGroupInfoItem>
             <ListGroupInfoItem>
               <div>
                 <p className="small">Address</p>
-                <p>{address}</p>
+                <p>{friendDetail?.address}</p>
               </div>
               <AiOutlineHome></AiOutlineHome>
             </ListGroupInfoItem>
@@ -129,8 +133,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Facebook</p>
-                <a href={facebook} target="_blank">
-                  https://www.{fullname}.facebook.com
+                <a href={friendDetail?.facebook} target="_blank">
+                  https://www.{friendDetail?.fullname}.facebook.com
                 </a>
               </div>
               <FiFacebook></FiFacebook>
@@ -138,8 +142,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Instagram</p>
-                <a href={instagram} target="_blank">
-                  https://www.{fullname}.instagram.com
+                <a href={friendDetail?.instagram} target="_blank">
+                  https://www.{friendDetail?.fullname}.instagram.com
                 </a>
               </div>
               <FiInstagram></FiInstagram>
@@ -147,8 +151,8 @@ const FriendForm = (props) => {
             <ListGroupInfoItem>
               <div>
                 <p className="small">Twitter</p>
-                <a href={twitter} target="_blank">
-                  https://www.{fullname}.twitter.com
+                <a href={friendDetail?.twitter} target="_blank">
+                  https://www.{friendDetail?.fullname}.twitter.com
                 </a>
               </div>
               <FiTwitter></FiTwitter>

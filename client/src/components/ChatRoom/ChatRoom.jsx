@@ -332,8 +332,9 @@ const ChatRoom = () => {
               }
             ></Route>
             <Route
-              path={`/friends/friend/detail/${friend?._id}`}
-              element={<FriendForm friendDetail={friend} />}
+              // path={`/friends/friend/detail/${friend?._id}`}
+              path={`/friends/friend/detail/:friendId`}
+              element={<FriendForm friendDetail={friend ? friend : {}} />}
             ></Route>
 
             <Route
@@ -346,7 +347,6 @@ const ChatRoom = () => {
               }
             ></Route>
             <Route
-              // path={`/calls/call/detail/${callState?.meeting?.meetingId}`}
               path={`/calls/call/detail/:meetingId`}
               element={
                 <CallForm

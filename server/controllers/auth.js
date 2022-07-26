@@ -286,13 +286,13 @@ exports.postVerify2FA = async (req, res, next) => {
         status: "invalid",
       });
     } else {
-      const updatedUser = await User.findOneAndUpdate(
+      const updatedUser = await User.findByIdAndUpdate(
         userId,
         { status: true },
         { new: true }
       ).select("-password -twoFA.secret");
 
-      saveSession(req.session, user._id);
+      saveSession(req.session, userId);
       res
         .status(200)
         .json({ msg: "success", status: "valid", user: updatedUser });
