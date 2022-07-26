@@ -126,6 +126,8 @@ export const authOtherLoginHandler = (navigate, provider, type = "google") => {
           html: data.msg,
           showConfirmButton: "Continue",
           timer: 3000,
+        }).then(() => {
+          dispatch(userLoginActions.setIsFetching({ isFetching: false }));
         });
       } else if (data.status === "enable2FA") {
         dispatch(verifyEnable2FA(navigate, data.userId));
@@ -305,27 +307,37 @@ export const enable2FAFunction = (QRCodeUrl, userId, e) => {
               Swal.showValidationMessage(`Error: ${error}`);
             });
         },
-      })
-        .then((result) => {
-          if (result.isDismissed) {
-            return postData(
-              { is2FAEnabled: false },
-              `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/update-profile-security/${userId}`
-            );
-          }
-        })
-        .then((res) => {
-          if (res.status === "cancel") {
-            dispatch(userLoginActions.setUser({ user: res.user }));
-            e.target.querySelector(".switch-bg").classList.toggle("active");
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              html: "Can't activate <strong>2-factor authentication</strong>!!",
-              showConfirmButton: "Ok",
-            });
-          }
-        });
+      }).then((result) => {
+        if (result.isDismissed) {
+          return postData(
+            { is2FAEnabled: false },
+            `${process.env.REACT_APP_ENDPOINT_SERVER}/auth/update-profile-security/${userId}`
+          ).then((res) => {
+            if (res.status === "cancel") {
+              dispatch(userLoginActions.setUser({ user: res.user }));
+              e.target.querySelector(".switch-bg").classList.toggle("active");
+              Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                html: "Can't activate <strong>2-factor authentication</strong>!!",
+                showConfirmButton: "Ok",
+              });
+            }
+          });
+        }
+      });
+      // .then((res) => {
+      //   if (res.status === "cancel") {
+      //     dispatch(userLoginActions.setUser({ user: res.user }));
+      //     e.target.querySelector(".switch-bg").classList.toggle("active");
+      //     Swal.fire({
+      //       icon: "error",
+      //       title: "Oops...",
+      //       html: "Can't activate <strong>2-factor authentication</strong>!!",
+      //       showConfirmButton: "Ok",
+      //     });
+      //   }
+      // });
     });
   };
 };

@@ -115,48 +115,52 @@ export const postNewGroupConversation = (
 export const fetchDetailConversation = ({ id, userId }) => {
   return async (dispatch, _getState) => {
     try {
-      const res = await fetch(`${END_POINT_SERVER}/conversation/detail/` + id);
-      const conversation = await res.json();
+      if (id !== "friends" && id !== "profile") {
+        const res = await fetch(
+          `${END_POINT_SERVER}/conversation/detail/` + id
+        );
+        const conversation = await res.json();
 
-      if (conversation && conversation.members) {
-        if (
-          conversation.members.length === 2 &&
-          conversation.profilePhoto.cloudinary_id === "" &&
-          conversation.profilePhoto.name === ""
-        ) {
-          const member = conversation.members.find(
-            (member) => member.user._id !== userId
-          );
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: member.user.fullname,
-                address: member.user.address,
-                email: member.user.email,
-                time: formatDate(new Date(Date.now())),
-                profilePhoto: member.user.profilePhoto,
-                status: member.user.status,
-              },
-            })
-          );
-        } else {
-          dispatch(
-            conversationActions.setConversation({
-              conversation: {
-                _id: conversation._id,
-                members: conversation.members,
-                name: conversation.name,
-                time: formatDate(new Date(Date.now())),
-                no_mems: conversation.members.length,
-                profilePhoto: conversation.profilePhoto,
-                status: true,
-              },
-            })
-          );
+        if (conversation && conversation.members) {
+          if (
+            conversation.members.length === 2 &&
+            conversation.profilePhoto.cloudinary_id === "" &&
+            conversation.profilePhoto.name === ""
+          ) {
+            const member = conversation.members.find(
+              (member) => member.user._id !== userId
+            );
+            dispatch(
+              conversationActions.setConversation({
+                conversation: {
+                  _id: conversation._id,
+                  members: conversation.members,
+                  name: member.user.fullname,
+                  address: member.user.address,
+                  email: member.user.email,
+                  time: formatDate(new Date(Date.now())),
+                  profilePhoto: member.user.profilePhoto,
+                  status: member.user.status,
+                },
+              })
+            );
+          } else {
+            dispatch(
+              conversationActions.setConversation({
+                conversation: {
+                  _id: conversation._id,
+                  members: conversation.members,
+                  name: conversation.name,
+                  time: formatDate(new Date(Date.now())),
+                  no_mems: conversation.members.length,
+                  profilePhoto: conversation.profilePhoto,
+                  status: true,
+                },
+              })
+            );
+          }
+          dispatch(replyActions.setReply({ reply: null }));
         }
-        dispatch(replyActions.setReply({ reply: null }));
       }
     } catch (err) {
       console.error(err);

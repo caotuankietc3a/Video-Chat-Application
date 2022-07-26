@@ -35,6 +35,8 @@ const SettingsDisplay = ({ header, rows }) => {
 
   const submitHandler = async (e, h5) => {
     e.preventDefault();
+    console.log(e.target);
+    console.log(e.target.querySelectorAll("input"));
     switch (h5) {
       case "Account": {
         try {
@@ -50,6 +52,10 @@ const SettingsDisplay = ({ header, rows }) => {
             timer: 5000,
           });
           setIsFetching(false);
+          accountRef.current = {};
+          e.target.querySelectorAll("input").forEach((input) => {
+            input.value = "";
+          });
           return dispatch(userLoginActions.setUser({ user: updatedUser }));
         } catch (err) {
           return console.error(err);
@@ -75,6 +81,10 @@ const SettingsDisplay = ({ header, rows }) => {
               timer: 5000,
             });
             dispatch(userLoginActions.setUser({ user: updatedUser }));
+            socialNetRef.current = {};
+            e.target.querySelectorAll("input").forEach((input) => {
+              input.value = "";
+            });
           } else {
             dispatch(
               errorActions.setNotify({
@@ -84,6 +94,7 @@ const SettingsDisplay = ({ header, rows }) => {
           }
           return setIsFetching(false);
         } catch (err) {
+          setIsFetching(false);
           return console.error(err);
         }
       }
@@ -108,6 +119,9 @@ const SettingsDisplay = ({ header, rows }) => {
               html: res.msg,
               showConfirmButton: "Continue",
               timer: 5000,
+            });
+            e.target.querySelectorAll("input").forEach((input) => {
+              input.value = "";
             });
           }
           return setIsFetching(false);

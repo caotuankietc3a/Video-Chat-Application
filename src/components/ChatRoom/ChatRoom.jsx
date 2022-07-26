@@ -61,16 +61,31 @@ const ChatRoom = () => {
       )
     );
   };
+  const fetchAgainFriends = () => {
+    dispatch(
+      fetchChatContacts(
+        {
+          url: `${END_POINT_SERVER}/friend/${user ? user._id : "error"}`,
+        },
+        (data) => {
+          setFriends(compareString(data));
+        }
+      )
+    );
+  };
 
   useEffect(() => {
     socket_notify.on("log-out", () => {
       fetchConversations();
       dispatch(conversationActions.setStatus({ status: false }));
+      dispatch(fetchFriends());
     });
 
     socket_notify.on("log-in", () => {
       fetchConversations();
+      fetchAgainFriends();
       dispatch(conversationActions.setStatus({ status: true }));
+      dispatch(fetchFriends());
     });
 
     socket_notify.on("post-new-group-conversation", () => {
@@ -332,8 +347,9 @@ const ChatRoom = () => {
               }
             ></Route>
             <Route
-              path={`/friends/friend/detail/${friend?._id}`}
-              element={<FriendForm friendDetail={friend} />}
+              // path={`/friends/friend/detail/${friend?._id}`}
+              path={`/friends/friend/detail/:friendId`}
+              element={<FriendForm friendDetail={friend ? friend : {}} />}
             ></Route>
 
             <Route
@@ -345,8 +361,8 @@ const ChatRoom = () => {
                 />
               }
             ></Route>
+
             <Route
-              // path={`/calls/call/detail/${callState?.meeting?.meetingId}`}
               path={`/calls/call/detail/:meetingId`}
               element={
                 <CallForm

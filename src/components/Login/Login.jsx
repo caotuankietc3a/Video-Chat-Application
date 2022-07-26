@@ -80,8 +80,16 @@ const Login = (props) => {
         setIsClicked(false);
       } else if (data.status === "success") {
         if (type === "Register" || type === "Login") {
-          if (type === "Register") navigate("/auth/login");
-          else if (type === "Login") {
+          if (type === "Register") {
+            Swal.fire({
+              html: data.msg,
+              showConfirmButton: true,
+              icon: "success",
+              allowOutsideClick: false,
+            }).then(() => {
+              navigate("/auth/login");
+            });
+          } else if (type === "Login") {
             socket_notify.emit("log-in");
             socket_notify.emit("join-room", { userId: data.user._id });
             navigate("/home-chat");

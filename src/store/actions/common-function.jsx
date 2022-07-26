@@ -205,12 +205,12 @@ export const arrayDisplay = [
         width: "100%",
         id: "two-factor",
       },
-      {
-        p1: "Get alerts about unrecognised logins",
-        p2: "You will be notified if anyone logs in from a device or browser you don't usually use",
-        width: "100%",
-        id: "unrecognised-logins",
-      },
+      // {
+      //   p1: "Get alerts about unrecognised logins",
+      //   p2: "You will be notified if anyone logs in from a device or browser you don't usually use",
+      //   width: "100%",
+      //   id: "unrecognised-logins",
+      // },
     ],
   },
 ];
