@@ -14,10 +14,6 @@ export const postNewConversation = (user, friendDetail, navigate) => {
           `${END_POINT_SERVER}/conversation/new-conversation`
         );
         socket_notify.emit("post-new-conversation");
-        socket_chat.emit("join-chat", {
-          conversationId: conversation._id,
-          userId: user._id,
-        });
         if (friendDetail.isGroup) {
           dispatch(
             conversationActions.setConversation({

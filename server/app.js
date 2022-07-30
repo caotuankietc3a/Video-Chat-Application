@@ -80,11 +80,12 @@ io_chat.on("connection", (socket) => {
 
   socket.on(
     "send-message",
-    async ({ userId, message, conversationId, reply, files, id }) => {
+    async ({ userId, message, conversationId, reply, files, id }, cb) => {
       const sender = await User.findById(userId).select(
         "-password -twoFA.secret"
       );
-      io_chat.to(conversationId).emit("receive-message", {
+      cb(sender);
+      socket.broadcast.to(conversationId).emit("receive-message", {
         text: message,
         reply,
         userId: userId,

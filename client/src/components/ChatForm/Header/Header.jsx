@@ -26,6 +26,7 @@ const Header = ({
   deleteConversation,
   blockConversation,
   block,
+  isFetching,
   checkUnblockHandler,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
@@ -40,90 +41,94 @@ const Header = ({
   }, [showMenu]);
   return (
     <ChatHeader>
-      <ChatHeaderAvatar className="text-truncate">
-        <AvatarUser status={conversation?.status ? true : false}>
-          <img src={`${conversation?.profilePhoto?.url}`} alt="User" />
-        </AvatarUser>
-        <Media>
-          <h6 className="text-truncate">{conversation?.name}</h6>
-          <small>
-            {conversation?.no_mems
-              ? `${conversation.no_mems} participants`
-              : conversation?.status
-              ? "Online"
-              : "Offline"}
-          </small>
-        </Media>
-      </ChatHeaderAvatar>
-      <UlChatHeaderOptions
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <a href="#" onClick={toggleShowSearchBox}>
-          <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
-            <BsSearch />
-          </LiTag>
-        </a>
-        <a href="#" onClick={onClickVideoCall}>
-          <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
-            <BsTelephone />
-          </LiTag>
-        </a>
-        <a href="#" onClick={menuShowHandler}>
-          <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
-            <BiDotsVerticalRounded />
-          </LiTag>
-
-          {showMenu && (
-            <DropDownMenu>
-              <DropDownItem onClick={toggleShowSearchBox}>
+      {!isFetching && (
+        <>
+          <ChatHeaderAvatar className="text-truncate">
+            <AvatarUser status={conversation?.status ? true : false}>
+              <img src={`${conversation?.profilePhoto?.url}`} alt="User" />
+            </AvatarUser>
+            <Media>
+              <h6 className="text-truncate">{conversation?.name}</h6>
+              <small>
+                {conversation?.no_mems
+                  ? `${conversation.no_mems} participants`
+                  : conversation?.status
+                  ? "Online"
+                  : "Offline"}
+              </small>
+            </Media>
+          </ChatHeaderAvatar>
+          <UlChatHeaderOptions
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <a href="#" onClick={toggleShowSearchBox}>
+              <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
                 <BsSearch />
-                <span>Search</span>
-              </DropDownItem>
+              </LiTag>
+            </a>
+            <a href="#" onClick={onClickVideoCall}>
+              <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
+                <BsTelephone />
+              </LiTag>
+            </a>
+            <a href="#" onClick={menuShowHandler}>
+              <LiTag ptd="8px" plr="6px" w="1.25rem" h="1.25rem">
+                <BiDotsVerticalRounded />
+              </LiTag>
 
-              <DropDownItem onClick={toggleCloseChatInfo}>
-                <BsInfoCircle />
-                <span>View Info</span>
-              </DropDownItem>
+              {showMenu && (
+                <DropDownMenu>
+                  <DropDownItem onClick={toggleShowSearchBox}>
+                    <BsSearch />
+                    <span>Search</span>
+                  </DropDownItem>
 
-              <DropDownItem>
-                <VscMute />
-                <span>Mute Notifications</span>
-              </DropDownItem>
+                  <DropDownItem onClick={toggleCloseChatInfo}>
+                    <BsInfoCircle />
+                    <span>View Info</span>
+                  </DropDownItem>
 
-              <DropDownItem>
-                <MdOutlineWallpaper />
-                <span>Wallpaper</span>
-              </DropDownItem>
+                  <DropDownItem>
+                    <VscMute />
+                    <span>Mute Notifications</span>
+                  </DropDownItem>
 
-              <DropDownItem>
-                <BsArchive />
-                <span>Archive</span>
-              </DropDownItem>
+                  <DropDownItem>
+                    <MdOutlineWallpaper />
+                    <span>Wallpaper</span>
+                  </DropDownItem>
 
-              {block
-                ? checkUnblockHandler() && (
-                    <DropDownItem onClick={blockConversation}>
-                      <CgUnblock />
-                      <span>Unblock</span>
-                    </DropDownItem>
-                  )
-                : !conversation?.no_mems && (
-                    <DropDownItem onClick={blockConversation}>
-                      <BiBlock />
-                      <span>Block</span>
-                    </DropDownItem>
-                  )}
+                  <DropDownItem>
+                    <BsArchive />
+                    <span>Archive</span>
+                  </DropDownItem>
 
-              <DropDownItem onClick={deleteConversation}>
-                <RiDeleteBinLine />
-                <span>Delete</span>
-              </DropDownItem>
-            </DropDownMenu>
-          )}
-        </a>
-      </UlChatHeaderOptions>
+                  {block
+                    ? checkUnblockHandler() && (
+                        <DropDownItem onClick={blockConversation}>
+                          <CgUnblock />
+                          <span>Unblock</span>
+                        </DropDownItem>
+                      )
+                    : !conversation?.no_mems && (
+                        <DropDownItem onClick={blockConversation}>
+                          <BiBlock />
+                          <span>Block</span>
+                        </DropDownItem>
+                      )}
+
+                  <DropDownItem onClick={deleteConversation}>
+                    <RiDeleteBinLine />
+                    <span>Delete</span>
+                  </DropDownItem>
+                </DropDownMenu>
+              )}
+            </a>
+          </UlChatHeaderOptions>
+        </>
+      )}
     </ChatHeader>
   );
 };

@@ -47,6 +47,11 @@ const ChatForm = ({
 
   useEffect(() => {
     if (conversationId) {
+      socket_chat.emit("join-chat", {
+        conversationId: conversationId,
+        userId: user._id,
+      });
+
       setIsFetching(true);
       (async () => {
         const res = await fetch(
@@ -65,11 +70,6 @@ const ChatForm = ({
   }, [conversationId]);
 
   useEffect(() => {
-    socket_chat.emit("join-chat", {
-      conversationId: conversationId,
-      userId: user._id,
-    });
-
     socket_chat.on("receive-message", ({ id, text, sender, reply, files }) => {
       setMessages((preMessages) => [
         ...preMessages,
@@ -180,17 +180,36 @@ const ChatForm = ({
         const oldMes = message;
         let replyOb = reply ? reply : null;
         const id = uuidv4();
-        socket_chat.emit("send-message", {
-          id,
-          userId: user._id,
-          message: message,
-          reply: replyOb,
-          conversationId: conversationId,
-          files: {
-            images: images,
-            attachments: attachments,
+        socket_chat.emit(
+          "send-message",
+          {
+            id,
+            userId: user._id,
+            message: message,
+            reply: replyOb,
+            conversationId: conversationId,
+            files: {
+              images: images,
+              attachments: attachments,
+            },
           },
-        });
+          (sender) => {
+            setMessages((preMessages) => [
+              ...preMessages,
+              {
+                text: message,
+                sender,
+                reply: replyOb,
+                date: new Date(Date.now()),
+                files: {
+                  images: images,
+                  attachments: attachments,
+                },
+                _id: id,
+              },
+            ]);
+          }
+        );
 
         setImages([]);
         setAttachments([]);
@@ -481,6 +500,7 @@ const ChatForm = ({
           deleteConversation={deleteConversation}
           blockConversation={blockConversation}
           block={block}
+          isFetching={isFetching}
           checkUnblockHandler={checkUnblockHandler}
         />
         {showSearchBox && (
