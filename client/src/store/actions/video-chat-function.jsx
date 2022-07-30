@@ -54,6 +54,7 @@ export const answerCall = (socket_video, hasVideo = false) => {
     try {
       const { _id } = getState().conversation.conversation;
       const { call, stream } = getState().video;
+      console.log(call);
       const peer = new Peer({
         initiator: false,
         trickle: false,
@@ -75,7 +76,7 @@ export const answerCall = (socket_video, hasVideo = false) => {
         dispatch(videoActions.setUserStream({ userStream: currentStream }));
       });
 
-      peer.signal(call.signal);
+      if (call.signal) peer.signal(call.signal);
       dispatch(videoActions.setConnection({ connection: peer }));
     } catch (err) {
       console.error(err);
