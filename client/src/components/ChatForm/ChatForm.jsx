@@ -168,6 +168,7 @@ const ChatForm = ({
   }, []);
 
   const onClickHandler = async (e, message) => {
+    console.log(user);
     e.preventDefault();
     try {
       if (
@@ -180,36 +181,31 @@ const ChatForm = ({
         const oldMes = message;
         let replyOb = reply ? reply : null;
         const id = uuidv4();
-        socket_chat.emit(
-          "send-message",
+        setMessages((preMessages) => [
+          ...preMessages,
           {
-            id,
-            userId: user._id,
-            message: message,
+            text: message,
+            sender: user,
             reply: replyOb,
-            conversationId: conversationId,
+            date: new Date(Date.now()),
             files: {
               images: images,
               attachments: attachments,
             },
+            _id: id,
           },
-          (sender) => {
-            setMessages((preMessages) => [
-              ...preMessages,
-              {
-                text: message,
-                sender,
-                reply: replyOb,
-                date: new Date(Date.now()),
-                files: {
-                  images: images,
-                  attachments: attachments,
-                },
-                _id: id,
-              },
-            ]);
-          }
-        );
+        ]);
+        socket_chat.emit("send-message", {
+          id,
+          user: user,
+          message: message,
+          reply: replyOb,
+          conversationId: conversationId,
+          files: {
+            images: images,
+            attachments: attachments,
+          },
+        });
 
         setImages([]);
         setAttachments([]);
