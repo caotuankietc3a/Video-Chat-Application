@@ -43,11 +43,11 @@ function MeetingForm({ conversation }) {
     toggle();
   }, []);
 
-  // useEffect(() => {
-  //   if (stream && !isReceivedCall && !group) {
-  //     dispatch(callUser());
-  //   }
-  // }, [isReceivedCall]);
+  useEffect(() => {
+    if (stream && !isReceivedCall && !group) {
+      dispatch(callUser());
+    }
+  }, [isReceivedCall]);
 
   useEffect(() => {
     socket_video.on("reject-call", async ({ error }) => {
@@ -76,7 +76,7 @@ function MeetingForm({ conversation }) {
     if (isReceivedCall && !group) {
       dispatch(videoStreamStart(navigate, conversation));
     }
-  }, []);
+  }, [isReceivedCall]);
 
   const rejectCallHandler = async () => {
     await toggle();
