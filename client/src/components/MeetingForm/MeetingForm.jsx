@@ -37,16 +37,17 @@ function MeetingForm({ conversation }) {
     stream,
   } = useSelector((state) => state.video);
   const { socket_video } = useSelector((state) => state.socket);
+  console.log(isReceivedCall);
 
   useEffect(() => {
     toggle();
   }, []);
 
-  useEffect(() => {
-    if (stream && !isReceivedCall && !group) {
-      dispatch(callUser());
-    }
-  }, [isReceivedCall]);
+  // useEffect(() => {
+  //   if (stream && !isReceivedCall && !group) {
+  //     dispatch(callUser());
+  //   }
+  // }, [isReceivedCall]);
 
   useEffect(() => {
     socket_video.on("reject-call", async ({ error }) => {

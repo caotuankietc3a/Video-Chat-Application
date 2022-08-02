@@ -255,6 +255,7 @@ const ChatRoom = () => {
       // set showUserVideo to callee.
       dispatch(videoActions.setShowUserVideo({ showUserVideo: false }));
       // set signal to callee.
+      console.log(signal);
       dispatch(videoActions.setSignal({ signal }));
     });
   }, []);
