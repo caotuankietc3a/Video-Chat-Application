@@ -22,8 +22,8 @@ import {
 import { AiOutlineAudio, AiOutlineAudioMuted } from "react-icons/ai";
 import Peer from "./Peer/Peer";
 import {
-  leaveMeetingRoom,
   shareScreen,
+  rejectCall,
 } from "../../store/actions/video-chat-function";
 
 const MeetingRoom = () => {
@@ -74,7 +74,7 @@ const MeetingRoom = () => {
 
   useEffect(() => {
     socket_video.on("leave-meeting-room", () => {
-      dispatch(leaveMeetingRoom(navigate));
+      dispatch(rejectCall(navigate));
     });
   }, []);
 

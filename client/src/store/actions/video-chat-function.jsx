@@ -16,14 +16,15 @@ const connectionCallHandler = (navigate, conversation) => {
               isReceivedCall: false,
               caller: user,
               callee: callee,
-              signal: null,
             },
           })
         );
       }
     );
 
-    navigate(`/home-chat/meetings/${conversation._id}`);
+    setTimeout(() => {
+      navigate(`/home-chat/meetings/${conversation._id}`);
+    }, 250);
   };
 };
 
@@ -54,7 +55,6 @@ export const answerCall = (socket_video, hasVideo = false) => {
     try {
       const { _id } = getState().conversation.conversation;
       const { call, stream } = getState().video;
-      console.log(call);
       const peer = new Peer({
         initiator: false,
         trickle: false,
@@ -65,8 +65,6 @@ export const answerCall = (socket_video, hasVideo = false) => {
       if (hasVideo) dispatch(videoActions.setShowVideo({ showVideo: true }));
 
       peer.on("signal", (data) => {
-        console.log("ppppppppppppppppptttttt");
-        console.log(data);
         socket_video.emit("answer-call", {
           signal: data,
           conversationId: _id,
@@ -75,11 +73,9 @@ export const answerCall = (socket_video, hasVideo = false) => {
       });
 
       peer.on("stream", (currentStream) => {
-        console.log(currentStream);
         dispatch(videoActions.setUserStream({ userStream: currentStream }));
       });
 
-      console.log("ttttttttttttttttttttttt");
       if (call.signal) peer.signal(call.signal);
       dispatch(videoActions.setConnection({ connection: peer }));
     } catch (err) {
@@ -104,16 +100,13 @@ export const callUser = () => {
       dispatch(videoActions.setShowVideo({ showVideo: false }));
 
       peer.on("signal", (data) => {
-        console.log("aaaaaaaaaaaaaaeeeeeeeee");
         socket_video.emit("call-user", {
           conversationId: _id,
           signal: data,
         });
       });
 
-      console.log("eeeeeeeeeeeeeeeeeeeeeee");
       peer.on("stream", (currentStream) => {
-        console.log(currentStream);
         dispatch(videoActions.setUserStream({ userStream: currentStream }));
       });
 
@@ -122,7 +115,6 @@ export const callUser = () => {
         // set showUserVideo to caller if they accept video call.
         if (hasUserVideo)
           dispatch(videoActions.setShowUserVideo({ showUserVideo: true }));
-        console.log(signal);
         peer.signal(signal);
       });
 
@@ -150,7 +142,7 @@ export const rejectCall = (navigate) => {
       navigate(`/home-chat`);
       dispatch(videoActions.setVideoState());
       dispatch(errorActions.setErrorNotify());
-      // window.location.reload();
+      window.location.reload();
 
       // Must check again. Cannot use peer.destroy().
       // if (connection.current) {
@@ -161,13 +153,6 @@ export const rejectCall = (navigate) => {
     } catch (err) {
       console.error(err);
     }
-  };
-};
-
-export const leaveMeetingRoom = (navigate) => {
-  return (dispatch) => {
-    dispatch(rejectCall(navigate));
-    // window.location.reload();
   };
 };
 
