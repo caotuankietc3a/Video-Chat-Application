@@ -1,5 +1,4 @@
 import Peer from "simple-peer";
-import { errorActions } from "../slices/error-slice";
 export const createPeer = (
   userToSignal,
   stream,
@@ -81,7 +80,7 @@ export const videoGroupStreamStart = async () => {
     });
     return currentStream;
   } catch (err) {
-    console.error(err);
+    console.log(err);
   }
 };
 

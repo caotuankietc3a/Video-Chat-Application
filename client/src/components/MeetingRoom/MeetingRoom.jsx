@@ -134,8 +134,8 @@ const MeetingRoom = () => {
                     ? "Video Only!"
                     : "Both Video and Audio!"
                   : !muted
-                  ? "Audio Only!"
-                  : "Spectator"
+                    ? "Audio Only!"
+                    : "Spectator"
               }
             />
             <video ref={userVideoShowTop} autoPlay={true} muted={muted}></video>
@@ -230,7 +230,7 @@ const MeetingRoom = () => {
             {/*   isTurnOnAudio={false} */}
             {/* /> */}
             {returnPeersOnTopControl(
-              conversation.members.filter(
+              conversation?.members?.filter(
                 (member) => member.user.fullname !== user.fullname
               )
             )}

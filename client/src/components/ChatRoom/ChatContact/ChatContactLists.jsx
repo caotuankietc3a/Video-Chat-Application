@@ -2,9 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ContactLists } from "./StyledContacts";
 import ChatContactItems from "./ChatContactItems";
 import { useSelector, useDispatch } from "react-redux";
-// import { compareString } from "../../../store/actions/common-function";
 import SkeletonConatactItems from "../../UI/SkeletonLoading/SkeletonConatactItems";
-// import { conversationActions } from "../../../store/slices/conversation-slice";
 
 const ChatContactLists = ({
   searchContactItems,
@@ -116,7 +114,7 @@ const ChatContactLists = ({
         if (
           i === 0 ||
           friend.fullname[0].toLowerCase() !==
-            friends[i - 1].fullname[0].toLowerCase()
+          friends[i - 1].fullname[0].toLowerCase()
         )
           character = true;
         return (

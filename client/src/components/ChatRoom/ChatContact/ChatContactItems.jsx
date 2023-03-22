@@ -12,13 +12,11 @@ import { BsTelephone } from "react-icons/bs";
 import { HiPhoneIncoming, HiPhoneOutgoing } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-// import { friendActions } from "../../../store/slices/friend-slice";
 import { BsPinMapFill } from "react-icons/bs";
 import {
   callComparedDate,
   formatDate,
 } from "../../../store/actions/common-function";
-// import { callActions } from "../../../store/slices/call-slice";
 import { fetchDetailConversation } from "../../../store/actions/conversation-function";
 const ChatContactItems = ({
   conversation,
@@ -74,6 +72,12 @@ const ChatContactItems = ({
       setIsActive(false);
     }
   };
+  const getCallsImg = (meeting) => {
+    let username = userState.user.fullname;
+    if (username === meeting.callee.fullname)
+      return meeting.caller.profilePhoto.url;
+    return meeting.callee.profilePhoto.url;
+  };
 
   return (
     <ContactItems onClick={clickHandler}>
@@ -85,10 +89,10 @@ const ChatContactItems = ({
               type === "Friends"
                 ? friend.profilePhoto.url
                 : type === "Calls"
-                ? meeting.callee.profilePhoto.url
-                : isGroup
-                ? conversation.profilePhoto.url
-                : profilePhoto
+                  ? getCallsImg(meeting)
+                  : isGroup
+                    ? conversation.profilePhoto.url
+                    : profilePhoto
             }
             alt="User"
           />
@@ -120,17 +124,15 @@ const ChatContactItems = ({
               ) : type === "Calls" ? (
                 <span className={isActive ? "active" : "inactive"}>
                   {userState.user._id.toString() ===
-                  meeting.caller._id.toString() ? (
+                    meeting.caller._id.toString() ? (
                     <HiPhoneOutgoing
-                      className={`${
-                        !meeting.callAccepted ? "missed-call" : "inactive"
-                      }`}
+                      className={`${!meeting.callAccepted ? "missed-call" : "inactive"
+                        }`}
                     />
                   ) : (
                     <HiPhoneIncoming
-                      className={`${
-                        !meeting.callAccepted ? "missed-call" : "inactive"
-                      }`}
+                      className={`${!meeting.callAccepted ? "missed-call" : "inactive"
+                        }`}
                     />
                   )}
                   {callComparedDate(meeting.date)}
@@ -149,10 +151,10 @@ const ChatContactItems = ({
                           ? "sended some images!"
                           : "Some images are sended!"
                         : latestMessage.attachments.length !== 0
-                        ? isGroup
-                          ? "sended some files!"
-                          : "Some files are sended!"
-                        : latestMessage.text
+                          ? isGroup
+                            ? "sended some files!"
+                            : "Some files are sended!"
+                          : latestMessage.text
                       : "............"}
                   </span>
                 )
