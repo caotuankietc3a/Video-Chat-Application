@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
 const cors = require("cors");
 require("dotenv").config();
 const express = require("express");
@@ -485,7 +486,7 @@ app.use("/conversation", conversationRoutes);
 app.use("/friend", friendRoutes);
 app.use("/meeting", meetingRoutes);
 
-(async function () {
+(async function() {
   try {
     await mongoose.connect(process.env.MONGOOSE_URL);
     server.listen(PORT, () => {
